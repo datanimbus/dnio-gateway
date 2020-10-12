@@ -1,0 +1,16 @@
+apps:
+- name: 04-gw
+  script: ./app.js
+  max_restarts: 5
+  env:
+    MONGO_AUTHOR_URL: mongodb://root:itworks%40123123123@localhost:27017
+    MONGO_APPCENTER_URL: mongodb://root:itworks%40123123123@localhost:27017
+    MONGO_LOGS_URL: mongodb://root:itworks%40123123123@localhost:27017
+    MONGO_APPCENTER_BASE_URL: mongodb://root:itworks%40123123123@localhost:27017
+    MONGO_AUTHOR_DBNAME: odpConfig
+    MONGO_LOGS_DBNAME: odpLogs
+    MONGO_RECONN_TRIES: 1000
+    MONGO_RECONN_TIME: 21600
+    MODE: dev
+    LOG_LEVEL: debug
+    ODP_NAMESPACE: appveen

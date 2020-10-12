@@ -1,0 +1,103 @@
+"use strict";
+const fs = require("fs");
+
+var e = {};
+
+e.isK8sEnv = () => {
+	return process.env.KUBERNETES_SERVICE_HOST && process.env.KUBERNETES_SERVICE_PORT;
+};
+
+e.odpNS = process.env.ODP_NAMESPACE || "appveen";
+process.env.MODE = process.env.MODE ? process.env.MODE : "PROD";
+
+e.debugDB = false;
+if (process.env.LOG_LEVEL == "DB_DEBUG") { 
+	process.env.LOG_LEVEL = "debug";
+	e.debugDB = true; 
+	let Logger = require("mongodb").Logger;
+	Logger.setLevel("debug");
+}
+
+if (e.isK8sEnv()) {
+	let logger = global.logger;
+	logger.info("*** K8s environment detected ***");
+	logger.info("Image version: " + process.env.IMAGE_TAG);
+	process.env.GW_ENV = "K8s";
+} else {
+	let logger = global.logger;
+	logger.info("*** Local environment detected ***");
+	process.env.GW_ENV = "Local";
+}
+
+e.mongoUrlAuthor = process.env.MONGO_AUTHOR_URL || "mongodb://localhost";
+e.mongoUrlAppcenter = process.env.MONGO_APPCENTER_URL || "mongodb://localhost";
+
+e.get = (_service) => {
+	if (e.isK8sEnv()) {
+		if (_service == "ne") return `http://ne.${e.odpNS}`;
+		if (_service == "sm") return `http://sm.${e.odpNS}`;
+		if (_service == "pm") return `http://pm.${e.odpNS}`;
+		if (_service == "user") return `http://user.${e.odpNS}`;
+		if (_service == "gw") return `http://gw.${e.odpNS}`;
+		if (_service == "mon") return `http://mon.${e.odpNS}`;
+		if (_service == "b2b") return `http://b2b.${e.odpNS}`;
+		if (_service == "wf") return `http://wf.${e.odpNS}`;
+		if (_service == "sec") return `http://sec.${e.odpNS}`;
+		if (_service == "b2bgw") return `http://b2bgw-internal.${e.odpNS}`;
+		if (_service == "de") return `http://de.${e.odpNS}`;
+	} else {
+		if (_service == "ne") return "http://localhost:10010";
+		if (_service == "sm") return "http://localhost:10003";
+		if (_service == "pm") return "http://localhost:10011";
+		if (_service == "user") return "http://localhost:10004";
+		if (_service == "gw") return "http://localhost:9080";
+		if (_service == "mon") return "http://localhost:10005";
+		if (_service == "b2b") return "http://localhost:8080";
+		if (_service == "wf") return "http://localhost:10006";
+		if (_service == "sec") return "http://localhost:10007";
+		if (_service == "b2bgw") return "http://localhost:20000";
+		if (_service == "de") return "http://localhost:10012";
+	}
+};
+
+e.defaultAllowedFileTypes = "ppt,xls,csv,doc,jpg,jpeg,png,gif,zip,tar,rar,gz,bz2,7z,mp4,mp3,pdf,ico,docx,pptx,xlsx,ods,xml";
+
+e.init = () => {
+	try {
+		if (!fs.existsSync("./uploads")) {
+			fs.mkdirSync("./uploads");
+		}
+	} catch (e) {
+		let logger = global.logger;
+		logger.error(e);
+	}
+};
+
+e.mongoOptions = {
+	useNewUrlParser: true,
+	useUnifiedTopology: true
+	// TBD
+	// reconnectTries: process.env.MONGO_RECONN_TRIES,
+	// reconnectInterval: process.env.MONGO_RECONN_TIME,
+};
+
+e.apiTimeout = process.env.API_REQUEST_TIMEOUT || 60;
+e.roleCacheExpiry = 60 * 60 * 8;
+e.validationCacheExpiry = 60 * 60 * 8;
+e.cacheKeyPrefix = {
+	validate: "validate",
+	appcenterRole: "roles_appcenter"
+};
+e.RBAC_HB_MISS_COUNT = process.env.RBAC_HB_MISS_COUNT ? parseInt(process.env.RBAC_HB_MISS_COUNT) : 1;
+e.RBAC_HB_INTERVAL = process.env.RBAC_HB_INTERVAL ? parseInt(process.env.RBAC_HB_INTERVAL) * e.RBAC_HB_MISS_COUNT : 50 * e.RBAC_HB_MISS_COUNT;
+
+e.baseUrlSM = e.get("sm") + "/sm";
+e.baseUrlNE = e.get("ne") + "/ne";
+e.baseUrlUSR = e.get("user") + "/rbac";
+e.baseUrlMON = e.get("mon") + "/mon";
+e.baseUrlWF = e.get("wf") + "/workflow";
+e.baseUrlSEC = e.get("sec") + "/sec";
+e.baseUrlDM = e.get("dm") + "/dm";
+e.baseUrlPM = e.get("pm") + "/pm";
+
+module.exports = e;

@@ -1,0 +1,48 @@
+{
+    "name": "odp-gateway",
+    "version": "4.0.0",
+    "description": "",
+    "main": "app.js",
+    "scripts": {
+        "lint": "./node_modules/.bin/eslint app.js config/ util/ --fix",
+        "test": "nyc --reporter=html --reporter=json-summary mocha"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+ssh://git@bitbucket.org/appveen/odp-gateway.git"
+    },
+    "author": "Jugnu Agrawal <jugnu@appveen.com>",
+    "license": "ISC",
+    "homepage": "https://bitbucket.org/appveen/odp-gateway#readme",
+    "dependencies": {
+        "@appveen/odp-utils": "~1.5.8",
+        "@appveen/utils": "^1.2.3",
+        "bluebird": "^3.5.1",
+        "cookie-parser": "^1.4.3",
+        "express": "^4.16.3",
+        "express-fileupload": "^1.1.7-alpha.3",
+        "fast-levenshtein": "^2.0.6",
+        "file-type": "^14.1.4",
+        "image-size": "^0.7.4",
+        "ioredis": "^4.16.3",
+        "log4js": "^2.10.0",
+        "mongodb": "^3.0.4",
+        "multer": "^1.4.2",
+        "request": "^2.83.0",
+        "request-promise": "^4.2.5",
+        "shorthash": "0.0.2",
+        "socket.io": "^2.0.4",
+        "socket.io-client": "^2.0.4",
+        "uuid": "^3.3.2",
+        "xlsx": "^0.12.7"
+    },
+    "devDependencies": {
+        "eslint": "^5.1.0",
+        "husky": "^1.2.0",
+        "mocha": "^6.1.4",
+        "nyc": "^14.1.1",
+        "sinon": "^7.3.2",
+        "sinon-express-mock": "^2.2.1",
+        "sinon-mongoose": "^2.3.0"
+    }
+}
