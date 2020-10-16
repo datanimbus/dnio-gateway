@@ -605,11 +605,11 @@ function decryptArrData(data, nestedKey, app, forFile) {
 function getSecuredFields(app, api, req) {
 	let url = null;
 	if (process.env.KUBERNETES_SERVICE_HOST && process.env.KUBERNETES_SERVICE_PORT) {
-		url = "http://" + api.toLowerCase() + "." + config.odpNS + "-" + app.toLowerCase().replace(/ /g, "") + `/${app}/${api}/securedFields`;
+		url = "http://" + api.toLowerCase() + "." + config.odpNS + "-" + app.toLowerCase().replace(/ /g, "") + `/${app}/${api}/utils/securedFields`;
 	} else {
 		let host = global.masterServiceRouter[app + "/" + api];
 		if (host) {
-			url = host + `/${app}/${api}/securedFields`;
+			url = host + `/${app}/${api}/utils/securedFields`;
 		} else {
 			return Promise.reject(new Error("AppCenter host not found"));
 		}
@@ -1083,7 +1083,7 @@ e.getProxyResHandler = (permittedUrls) => {
 						let promise = null;
 						if (isAppCenter) {
 							let app = splitPath[3];
-							if (e.compareUrl("/api/c/{app}/{service}/simulate", reqPath)) {
+							if (e.compareUrl("/api/c/{app}/{service}/utils/simulate", reqPath)) {
 								promise = Promise.resolve(body);
 							}
 							else {
@@ -1376,7 +1376,7 @@ function getdbAndCollection(serviceids) {
 }
 
 function modifyAppcenterRequest(req, validIds, creationIds) {
-	if ((e.compareUrl("/api/c/{app}/{api}/", req.path) || e.compareUrl("/api/c/{app}/{api}/count", req.path) || e.compareUrl("/api/c/{app}/{api}/export", req.path)) && req.method == "GET") {
+	if ((e.compareUrl("/api/c/{app}/{api}/", req.path) || e.compareUrl("/api/c/{app}/{api}/utils/count", req.path) || e.compareUrl("/api/c/{app}/{api}/utils/export", req.path)) && req.method == "GET") {
 		let customFilter = {
 			"$and": [{ "$or": validIds }]
 		};
@@ -1403,12 +1403,12 @@ function modifyAppcenterRequest(req, validIds, creationIds) {
 			throwError("Insufficient user privilege", 403);
 		}
 	}
-	else if (e.compareUrl("/api/c/{app}/{api}/bulkShow", req.path) && req.method == "GET") {
+	else if (e.compareUrl("/api/c/{app}/{api}/utils/bulkShow", req.path) && req.method == "GET") {
 		let requestedIds = req.query.id.split(",");
 		let newIds = requestedIds.filter(_d => validIds.indexOf(_d) > -1);
 		req.query.id = newIds.join(",");
 	}
-	else if (e.compareUrl("/api/c/{app}/{api}/bulkDelete", req.path) && req.method == "DELETE") {
+	else if (e.compareUrl("/api/c/{app}/{api}/utils/bulkDelete", req.path) && req.method == "DELETE") {
 		let requestedIds = req.body.ids;
 		if (!requestedIds) return;
 		req.body.ids = requestedIds.filter(_d => validIds.indexOf(_d) > -1);
@@ -1590,7 +1590,7 @@ e.checkRecordPermissionForUserCRUD = function (userPermission, allPermission, me
 	let currentCollection = null;
 	let currentDBName = null;
 	let returnFilter = false;
-	let filterAPIs = ["/api/c/{app}/{api}/", "/api/c/{app}/{api}/count", "/api/c/{app}/{api}/export"];
+	let filterAPIs = ["/api/c/{app}/{api}/", "/api/c/{app}/{api}/utils/count", "/api/c/{app}/{api}/utils/export"];
 	let isCreationAPI = req.method === "POST" && !e.compareUrl("/api/c/{app}/{api}/utils/aggregate", req.path);
 	if (type == "API" && filterAPIs.some(_url => (e.compareUrl(_url, req.path) && req.method == "GET") || e.compareUrl("/api/c/{app}/{api}/utils/aggregate", req.path))) returnFilter = true;
 	return getdbAndCollection(involvedServiceIds)

@@ -46,7 +46,7 @@ module.exports = {
 		"/api/a/sec/identity/{appName}/certificate/download",
 		"/api/a/sec/keys/download/IEG",
 		"/api/a/sec/keys/download/CA",
-		"/api/c/{app}/{api}/export/download/{fileId}"
+		"/api/c/{app}/{api}/utils/export/download/{fileId}"
 	],
 	secret: {
 		partner: [

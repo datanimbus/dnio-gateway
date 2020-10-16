@@ -299,7 +299,7 @@ app.use(function(error, req, res, next) {
 function skipWorkflow(path, req) {
 	let paths = path.split("/");
 	if (paths[5] == "experienceHook"
-		|| paths[5] == "simulate"
+		|| paths[6] == "simulate"
 		|| (paths[5] == "file" && paths[6] == "upload")
 		|| authUtil.compareUrl("/api/c/{app}/{api}/utils/filetransfers/{id}", path)
 		|| authUtil.compareUrl("/api/c/{app}/{api}/utils/aggregate", path)) {

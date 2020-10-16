@@ -109,7 +109,7 @@ e.isIntenalAPICall = (_req) => {
 						_req.query.expand || _req.get("Cache")
 					)
 		) ||
-			e.compareUrl("/api/c/{app}/{api}/export", _req.path)
+			e.compareUrl("/api/c/{app}/{api}/utils/export", _req.path)
 	);
 };
 

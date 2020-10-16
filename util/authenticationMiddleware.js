@@ -50,7 +50,7 @@ function validateJWT(url, req, jwt) {
 					} else {
 						if (res.statusCode == 200) {
 							let promise = Promise.resolve();
-							if (req.method === "GET" && ((authUtil.compareUrl("/api/c/{app}/{api}", req.path) && (req.query.expand || req.get("Cache"))) || authUtil.compareUrl("/api/c/{app}/{api}/export", req.path))) {
+							if (req.method === "GET" && ((authUtil.compareUrl("/api/c/{app}/{api}", req.path) && (req.query.expand || req.get("Cache"))) || authUtil.compareUrl("/api/c/{app}/{api}/utils/export", req.path))) {
 								promise = cacheUtil.cacheValidateJWT(jwt, body, req);
 							}
 							return promise
