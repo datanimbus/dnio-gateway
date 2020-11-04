@@ -11,8 +11,7 @@ function isMonAccessControlValid(req) {
     }
     if (req.user.isSuperAdmin) return true;
     
-    /* Commentitng out these checks as they are not being used.
-    else if (authUtil.compareUrl("/api/a/mon/appCenter/{SRVC}/logs", req.path) || authUtil.compareUrl("/api/a/mon/appCenter/{SRVC}/logs/count", req.path)) {
+    if (authUtil.compareUrl("/api/a/mon/appCenter/{SRVC}/logs", req.path) || authUtil.compareUrl("/api/a/mon/appCenter/{SRVC}/logs/count", req.path)) {
         let permissionApp = req.user.roles.filter(_r => (_r.id === "PVDSAAP") && _r.entity == "SM").map(_r => _r.app);
         return appsAdmin.concat(permissionApp).indexOf(req.apiDetails.app) >= 0;
 
@@ -26,18 +25,52 @@ function isMonAccessControlValid(req) {
         let permissionApp = req.user.roles.filter(_r => (_r.id === "PVDSAPR") && _r.entity == "SM").map(_r => _r.app);
         return appsAdmin.concat(permissionApp).indexOf(req.apiDetails.app) >= 0;
 
-    } else 
-    */
-
-    if (authUtil.compareUrl("/api/a/mon/author/sm/audit", req.path) || authUtil.compareUrl("/api/a/mon/author/sm/audit/count", req.path) || authUtil.compareUrl("/api/a/mon/appCenter/{SRVC}/preHook", req.path)) {
+    } else if (authUtil.compareUrl("/api/a/mon/author/sm/audit", req.path) || authUtil.compareUrl("/api/a/mon/author/sm/audit/count", req.path)) {
         let permissionApp = req.user.roles.filter(_r => (_r.id === "PVDSASR") && _r.entity == "SM").map(_r => _r.app);
         return appsAdmin.concat(permissionApp).indexOf(req.apiDetails.app) >= 0;
 
+    } else if (authUtil.compareUrl("/api/a/mon/dataService/log", _req.path) || authUtil.compareUrl("/api/a/mon/dataService/log/count", _req.path)) {
+        if (_req.user.isSuperAdmin) return true;
+        let permissionApp = _req.user.roles.filter(_r => (_r.id === "PVDSIS") && _r.entity == "INS").map(_r => _r.app);
+        permissionApp = _.uniq(appsAdmin.concat(permissionApp));
+        if(!permissionApp.length) return false;
+        modifyMonLogFilter(_req, permissionApp);
+        return true;
+    } else if (authUtil.compareUrl("/api/a/mon/author/user/log", _req.path) || authUtil.compareUrl("/api/a/mon/author/user/log/count", _req.path)) {
+        if (_req.user.isSuperAdmin) return true;
+        let permissionApp = _req.user.roles.filter(_r => (_r.id === "PVUIS") && _r.entity == "INS").map(_r => _r.app);
+        permissionApp = _.uniq(appsAdmin.concat(permissionApp));
+        if(!permissionApp.length) return false;
+        modifyMonLogFilter(_req, permissionApp);
+        return true;
+
+    } else if (authUtil.compareUrl("/api/a/mon/author/group/log", _req.path) || authUtil.compareUrl("/api/a/mon/author/group/log/count", _req.path)) {
+        if (_req.user.isSuperAdmin) return true;
+        let permissionApp = _req.user.roles.filter(_r => (_r.id === "PVGIS") && _r.entity == "INS").map(_r => _r.app);
+        permissionApp = _.uniq(appsAdmin.concat(permissionApp));
+        if(!permissionApp.length) return false;
+        modifyMonLogFilter(_req, permissionApp);
+        return true;
     } else {
         return true;
     }
 }
 
+function modifyMonLogFilter(_req, permissionApp) {
+    let customFilter = {
+        $and: [{
+                app: {
+                    $in: permissionApp
+                }
+            }]
+    }
+    if(_req.query.filter) {
+        if(typeof _req.query.filter == 'string')
+            _req.query.filter = JSON.parse(_req.query.filter);
+        customFilter['$and'].push(_req.query.filter);
+    }
+    _req.query.filter = customFilter;
+ }
 
 function monAuthorizationMw(req, res, next) {
     if (req.path.startsWith("/api/a/mon/ui/logs") && req.body) {

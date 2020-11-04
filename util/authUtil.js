@@ -53,6 +53,7 @@ let roleIdMappingGroup = {
 	"AB": ["PMBBC", "PMBBCE", "PMBBU", "PMBBD", "PMBA", "PMBG", "PNBB", "PVBB", "PNBG", "PNBA"],
 	"ABM": ["PMBM", "PVBM", "PNBM"],
 	"AG": JSON.parse((JSON.stringify(groupAllPermArr))),
+	"AI": ["PNDSIS", "PNUIS", "PNGIS", "PVDSIS", "PVUIS", "PVGIS"]
 };
 
 e.validateRolesArray = function (roles, userRoles, type) {
