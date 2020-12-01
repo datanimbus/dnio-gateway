@@ -136,7 +136,7 @@ e.addRequestDetails = async (_req, _res, next) => {
 					{ "nextFlow": pathSplit[5] }
 				]
 			}
-			let flow = await db.find(false, "b2b.flows", filter, { projection: { app: 1 }})
+			let flows = await db.find(false, "b2b.flows", filter, { app: 1 })
 			if (flows[0]) {
 				_req.apiDetails = {
 					app: flows[0].app,

@@ -46,7 +46,10 @@ async function validateJWT(_req) {
 	.then(() => mongo.findOne(false, "userMgmt.users", { '_id': _req.user._id, 'isActive': true }, null))
 	.then(_user => _req.user = _user)
 	.then(() => cacheUtil.getApp(_req.user.isSuperAdmin, _req.tokenHash))
-	.then(_apps => _req.user.apps = _apps)
+	.then(_apps => {
+		logger.trace('user appp :: ', _apps)
+		_req.user.apps = _apps
+	})
 	.then(() => mongo.aggregate(false, "userMgmt.groups", getRolesAggregationPipeLine(_req.user._id)))
 	.then(_roles => _req.user.roles = _roles[0] ? _roles[0].roles : [])
 	.then(() => logger.trace(`Validate body: ${JSON.stringify(_req.user)}`))
