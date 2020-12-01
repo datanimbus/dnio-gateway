@@ -28,7 +28,7 @@ function getAdditionalData(req, res, next) {
                 logger.debug('app after auth object ', _d);
                 if (_d instanceof Error) throw _d
                 reqApp = _d
-                if (reqApp && apps.indexOf(reqApp) == -1) {
+                if (!_req.user.isSuperAdmin && reqApp && apps.indexOf(reqApp) == -1) {
                     res.status(403).json({
                         message: reqApp + " app is restricted"
                     })
