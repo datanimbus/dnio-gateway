@@ -7,7 +7,7 @@ e.isK8sEnv = () => {
 	return process.env.KUBERNETES_SERVICE_HOST && process.env.KUBERNETES_SERVICE_PORT;
 };
 
-e.odpNS = process.env.ODP_NAMESPACE || "appveen";
+e.odpNS = process.env.DATA_STACK_NAMESPACE || "appveen";
 process.env.MODE = process.env.MODE ? process.env.MODE : "PROD";
 
 e.debugDB = false;
@@ -78,7 +78,7 @@ e.mongoOptions = {
 	useUnifiedTopology: true
 	// TBD
 	// reconnectTries: process.env.MONGO_RECONN_TRIES,
-	// reconnectInterval: process.env.MONGO_RECONN_TIME,
+	// reconnectInterval: process.env.MONGO_RECONN_TIME_MILLI,
 };
 
 e.apiTimeout = process.env.API_REQUEST_TIMEOUT || 60;

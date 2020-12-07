@@ -7,8 +7,8 @@ bluebird.promisifyAll(redis);
 let logger = global.logger;
 let envConfig = require("../config/config");
 
-let host = process.env.REDIS_HOST;
-let port = process.env.REDIS_PORT;
+let host = process.env.CACHE_HOST;
+let port = process.env.CACHE_PORT;
 let client = null;
 
 let e = {};
@@ -66,6 +66,7 @@ e.getApp = async (_isSuperAdmin, _key) => {
 	if(_isSuperAdmin) return [];
 	let data = await client.getAsync(`app:${_key}`);
 	data = data ? JSON.parse(data) : [];
+	logger.debug("app data:: ", data);
 	return data;
 };
 
