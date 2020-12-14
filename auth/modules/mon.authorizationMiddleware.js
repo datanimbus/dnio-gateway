@@ -31,46 +31,44 @@ function isMonAccessControlValid(req) {
 
     } else if (authUtil.compareUrl("/api/a/mon/dataService/log", _req.path) || authUtil.compareUrl("/api/a/mon/dataService/log/count", _req.path)) {
         if (_req.user.isSuperAdmin) return true;
-        let permissionApp = _req.user.roles.filter(_r => (_r.id === "PVDSIS") && _r.entity == "INS").map(_r => _r.app);
+        let permissionApp = _req.user.roles.filter(_r => (_r.id === "PVISDS") && _r.entity == "INS").map(_r => _r.app);
         permissionApp = _.uniq(appsAdmin.concat(permissionApp));
         if(!permissionApp.length) return false;
-        modifyMonLogFilter(_req, permissionApp);
+        modifyMonLogFilter(_req, permissionApp, true);
         return true;
     } else if (authUtil.compareUrl("/api/a/mon/author/user/log", _req.path) || authUtil.compareUrl("/api/a/mon/author/user/log/count", _req.path)) {
         if (_req.user.isSuperAdmin) return true;
-        let permissionApp = _req.user.roles.filter(_r => (_r.id === "PVUIS") && _r.entity == "INS").map(_r => _r.app);
+        let permissionApp = _req.user.roles.filter(_r => (_r.id === "PVISU") && _r.entity == "INS").map(_r => _r.app);
         permissionApp = _.uniq(appsAdmin.concat(permissionApp));
         if(!permissionApp.length) return false;
-        modifyMonLogFilter(_req, permissionApp);
+        modifyMonLogFilter(_req, permissionApp, false);
         return true;
 
     } else if (authUtil.compareUrl("/api/a/mon/author/group/log", _req.path) || authUtil.compareUrl("/api/a/mon/author/group/log/count", _req.path)) {
         if (_req.user.isSuperAdmin) return true;
-        let permissionApp = _req.user.roles.filter(_r => (_r.id === "PVGIS") && _r.entity == "INS").map(_r => _r.app);
+        let permissionApp = _req.user.roles.filter(_r => (_r.id === "PVISG") && _r.entity == "INS").map(_r => _r.app);
         permissionApp = _.uniq(appsAdmin.concat(permissionApp));
         if(!permissionApp.length) return false;
-        modifyMonLogFilter(_req, permissionApp);
+        modifyMonLogFilter(_req, permissionApp, false);
         return true;
     } else {
         return true;
     }
 }
 
-function modifyMonLogFilter(_req, permissionApp) {
-    let customFilter = {
-        $and: [{
-                app: {
-                    $in: permissionApp
-                }
-            }]
-    }
-    if(_req.query.filter) {
-        if(typeof _req.query.filter == 'string')
-            _req.query.filter = JSON.parse(_req.query.filter);
-        customFilter['$and'].push(_req.query.filter);
-    }
-    _req.query.filter = customFilter;
- }
+function modifyMonLogFilter(_req, permissionApp, isDSLogApi) {
+	let customFilter = { $and: [{}] };
+	if(isDSLogApi)
+		customFilter["$and"][0]["app"] = { $in: permissionApp };
+	else
+		customFilter["$and"][0]["apps"] = { $in: permissionApp };
+	if(_req.query.filter) {
+		if(typeof _req.query.filter == "string")
+			_req.query.filter = JSON.parse(_req.query.filter);
+		customFilter["$and"].push(_req.query.filter);
+	}
+	_req.query.filter = JSON.stringify(customFilter);
+}
 
 function monAuthorizationMw(req, res, next) {
     if (req.path.startsWith("/api/a/mon/ui/logs") && req.body) {

@@ -53,7 +53,7 @@ let roleIdMappingGroup = {
 	"AB": ["PMBBC", "PMBBCE", "PMBBU", "PMBBD", "PMBA", "PMBG", "PNBB", "PVBB", "PNBG", "PNBA"],
 	"ABM": ["PMBM", "PVBM", "PNBM"],
 	"AG": JSON.parse((JSON.stringify(groupAllPermArr))),
-	"AI": ["PNDSIS", "PNUIS", "PNGIS", "PVDSIS", "PVUIS", "PVGIS"]
+	"AI": ["PNISDS", "PNISU", "PNISG", "PVISDS", "PVISU", "PVISG"]
 };
 
 e.validateRolesArray = function (roles, userRoles, type) {
@@ -464,7 +464,12 @@ e.isUrlPermitted = (permittedUrls, req) => {
 		return false;
 	}
 	else if (req.path.startsWith("/api/a/mon")) {
-		return true;
+		if(req.path.startsWith("/api/a/mon/dataService/log") 
+			|| req.path.startsWith("/api/a/mon/author/user/log") 
+			|| req.path.startsWith("/api/a/mon/author/group/log"))
+			return false;
+		else
+			return true;
 	}
 	else if (req.path.startsWith("/api/a/route")) {
 		return true;
@@ -698,7 +703,8 @@ function SMobjectValidate(req, smObject, allPermArr, msType) {
 	if (getHPerm) {
 		let returnObj = e.filterBody(getHPerm, ["W", "R"], smObject);
 		let isGroupRole = req.user.roles.find(_r => _r.entity === "GROUP" && (["PMGADS", "PVGADS", "PMGCDS", "PVGCDS"].indexOf(_r.id) > -1) && _r.app === smObject.app);
-		if ((!returnObj.name) && isGroupRole) {
+		let isInsightRole = req.user.roles.find(_r => _r.entity === "INS" && (["PVISDS", "PVISU", "PVISG"].indexOf(_r.id) > -1) && _r.app === smObject.app);
+		if ((!returnObj.name) && (isGroupRole || isInsightRole)) {
 			returnObj.name = smObject.name;
 			if (msType == "SM") {
 				returnObj.attributeCount = smObject.attributeCount;
