@@ -703,8 +703,9 @@ function SMobjectValidate(req, smObject, allPermArr, msType) {
 	if (getHPerm) {
 		let returnObj = e.filterBody(getHPerm, ["W", "R"], smObject);
 		let isGroupRole = req.user.roles.find(_r => _r.entity === "GROUP" && (["PMGADS", "PVGADS", "PMGCDS", "PVGCDS"].indexOf(_r.id) > -1) && _r.app === smObject.app);
-		let isInsightRole = req.user.roles.find(_r => _r.entity === "INS" && (["PVISDS", "PVISU", "PVISG"].indexOf(_r.id) > -1) && _r.app === smObject.app);
-		if ((!returnObj.name) && (isGroupRole || isInsightRole)) {
+		let isDSInsightRole = req.user.roles.find(_r => _r.entity === "INS" && _r.id === "PVISDS" && _r.app === smObject.app);
+		if ((!returnObj.name) && (isGroupRole || isDSInsightRole)) {
+			returnObj._id = smObject._id;
 			returnObj.name = smObject.name;
 			if (msType == "SM") {
 				returnObj.attributeCount = smObject.attributeCount;
