@@ -26,6 +26,6 @@ ENV IMAGE_TAG=__image_tag__
 
 EXPOSE 9080
 
-RUN chmod -R 777 /app/uploads
+RUN chmod -R 777 /app
 
 CMD node app.js

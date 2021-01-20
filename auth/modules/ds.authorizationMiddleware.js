@@ -66,7 +66,7 @@ function dsAuthorizationMw(req, res, next) {
                     else next();
                 } else {
                     let paths = req.path.split("/");
-                    if (req.method == "GET" || (req.method == "POST" && paths[6] == "simulate")) {
+                    if (req.method == "GET" || (req.method == "POST" && (paths[6] == "simulate" || paths[6] == "experienceHook"))) {
                         if (permissionAllowed.length > 0) {
                             if (!req.user.isSuperAdmin)
                                 return authUtil.checkRecordPermissionForUserCRUD(userPermissionIds, allPermission, req.method, "API", req.body, req).then(() => next());

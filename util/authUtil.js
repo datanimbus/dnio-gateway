@@ -479,6 +479,8 @@ e.isUrlPermitted = (permittedUrls, req) => {
 	}
 	else if (req.path.startsWith("/api/a/de")) {
 		return true;
+	} else if (e.compareUrl("/api/c/{app}/{dataService}/utils/fileTransfers/{fileId}/readStatus", req.path)) {
+		return true;
 	}
 	return permitted;
 };
@@ -1136,7 +1138,7 @@ e.getProxyResHandler = (permittedUrls) => {
 					}
 					promise.then((_d) => {
 						body = JSON.parse(JSON.stringify(_d));
-						let appcenterPermittedURL = ["/api/c/{app}/{api}/utils/filetransfers"];
+						let appcenterPermittedURL = ["/api/c/{app}/{api}/utils/filetransfers", "/api/c/{app}/{service}/experienceHook"];
 						if (req.user.isSuperAdmin || hasCUDPerm(req._highestPermission) || appcenterPermittedURL.some(_u => e.compareUrl(_u, req.path))) {
 							return res.json(body);
 						}

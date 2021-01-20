@@ -97,6 +97,7 @@ e.getRouterMiddleware = (config) => {
 		delete headers["accept-encoding"];
 		delete headers["if-none-match"];
 		headers.user = req.user ? req.user._id : null;
+		headers.isSuperAdmin = req.user ? req.user.isSuperAdmin: false;
 		reqConfig.headers = headers;
 		reqConfig.method = req.method;
 		reqConfig.path = getPath(req.path, config.pathRewrite);
