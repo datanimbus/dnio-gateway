@@ -16,7 +16,7 @@
     "homepage": "https://bitbucket.org/appveen/odp-gateway#readme",
     "dependencies": {
         "@appveen/odp-utils": "~1.5.8",
-        "@appveen/utils": "^1.2.3",
+        "@appveen/utils": "^2.0.0",
         "bluebird": "^3.5.1",
         "cookie-parser": "^1.4.3",
         "express": "^4.16.3",
