@@ -1138,7 +1138,7 @@ e.getProxyResHandler = (permittedUrls) => {
 					}
 					promise.then((_d) => {
 						body = JSON.parse(JSON.stringify(_d));
-						let appcenterPermittedURL = ["/api/c/{app}/{api}/utils/filetransfers", "/api/c/{app}/{service}/experienceHook"];
+						let appcenterPermittedURL = ["/api/c/{app}/{api}/utils/filetransfers", "/api/c/{app}/{service}/utils/experienceHook"];
 						if (req.user.isSuperAdmin || hasCUDPerm(req._highestPermission) || appcenterPermittedURL.some(_u => e.compareUrl(_u, req.path))) {
 							return res.json(body);
 						}
