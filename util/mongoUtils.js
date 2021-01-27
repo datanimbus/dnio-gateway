@@ -125,7 +125,7 @@ e.getUserApps = async (_id) => {
 		{ "$group": { "_id": "$app" } },
 		{ "$group": { "_id": null, "apps": { "$addToSet": "$_id" } } }
 	];
-	await e.aggregate(false, "userMgmt.users", aggregateQuery);
+	await e.aggregate(false, "userMgmt.groups", aggregateQuery);
 };
 
 e.getAppCenterDataServicesList = async (_id) => {
