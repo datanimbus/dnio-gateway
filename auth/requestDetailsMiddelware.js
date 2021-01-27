@@ -116,8 +116,8 @@ e.addRequestDetails = async (_req, _res, next) => {
 		}
 		
 		if (gwUtil.compareUrl("/api/a/sm/service/{Id}", _req.path) && _req.method === "PUT") {
-			let ds = await db.findOne(false, "services", pathSplit[5])
-			if(ds.draftVersion) ds = await db.findOne(false, "services.draft", pathSplit[5])
+			let ds = await db.findOne(false, "services", { _id: pathSplit[5] })
+			if(ds.draftVersion) ds = await db.findOne(false, { _id: pathSplit[5] })
 			_req.apiDetails = ds
 			_req.apiDetails.role = await db.findOne(false, "userMgmt.roles", { _id: pathSplit[5] })
 			return next()
@@ -136,7 +136,7 @@ e.addRequestDetails = async (_req, _res, next) => {
 					{ "nextFlow": pathSplit[5] }
 				]
 			}
-			let flow = await db.find(false, "b2b.flows", filter, { projection: { app: 1 }})
+			let flows = await db.find(false, "b2b.flows", filter, { app: 1 })
 			if (flows[0]) {
 				_req.apiDetails = {
 					app: flows[0].app,

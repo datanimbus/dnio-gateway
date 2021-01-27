@@ -392,7 +392,7 @@ function pmAuthorizationMw(req, res, next) {
                     if ((manageGroupApps.indexOf(reqApp) > -1) && req.method === "GET") {
                         return next();
                     }
-                    let flag = checkPermissionsSM(permissions, req.user.roles, reqEntity, "PM", reqApp, req);
+                    let flag = commonAuthZMw.checkPermissions(permissions, req.user.roles, reqEntity, "PM", reqApp, req);
                     logger.debug({ flag });
                     if (flag) {
                         return next();
@@ -407,7 +407,7 @@ function pmAuthorizationMw(req, res, next) {
                         next();
                         return;
                     }
-                    let flag = checkPermissionsSM(permissions, req.user.roles, reqEntity, "NS", reqApp, req);
+                    let flag = commonAuthZMw.checkPermissions(permissions, req.user.roles, reqEntity, "NS", reqApp, req);
                     logger.debug({ flag });
                     if (flag) {
                         next(); return;

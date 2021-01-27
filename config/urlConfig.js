@@ -9,6 +9,7 @@ module.exports = {
 	],
 	permittedUrl: [
 		"/api/a/rbac/login",
+		"/api/a/rbac/ldap/login",
 		"/api/a/rbac/azure/login",
 		"/api/a/rbac/azure/login/callback",
 		"/api/a/rbac/azure/userFetch/callback",
@@ -23,6 +24,7 @@ module.exports = {
 		"/api/a/rbac/usr/hb",
 		"/api/a/route/file/download",
 		"/api/a/workflow/file/download",
+		"/api/a/rbac/ldap/login",
 		"/api/a/rbac/azure/login",
 		"/api/a/rbac/azure/login/callback",
 		"/api/a/rbac/azure/userFetch/callback",
@@ -46,7 +48,7 @@ module.exports = {
 		"/api/a/sec/identity/{appName}/certificate/download",
 		"/api/a/sec/keys/download/IEG",
 		"/api/a/sec/keys/download/CA",
-		"/api/c/{app}/{api}/export/download/{fileId}"
+		"/api/c/{app}/{api}/utils/export/download/{fileId}"
 	],
 	secret: {
 		partner: [

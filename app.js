@@ -11,7 +11,7 @@ const fileUpload = require("express-fileupload");
 const port = process.env.PORT || 9080;
 
 const log4js = avUtils.logger.getLogger;
-const loggerName = process.env.KUBERNETES_SERVICE_HOST && process.env.KUBERNETES_SERVICE_PORT ? `[${process.env.HOSTNAME}] [${process.env.ODP_NAMESPACE}]` : "[gateway]";
+const loggerName = process.env.KUBERNETES_SERVICE_HOST && process.env.KUBERNETES_SERVICE_PORT ? `[${process.env.HOSTNAME}] [${process.env.DATA_STACK_NAMESPACE}]` : "[gateway]";
 const logger = log4js.getLogger(loggerName);
 let timeOut = process.env.API_REQUEST_TIMEOUT || 120;
 global.logger = logger;
@@ -300,8 +300,8 @@ app.use(function(error, req, res, next) {
 
 function skipWorkflow(path, req) {
 	let paths = path.split("/");
-	if (paths[5] == "experienceHook"
-		|| paths[5] == "simulate"
+	if (paths[6] == "experienceHook"
+		|| paths[6] == "simulate"
 		|| (paths[5] == "file" && paths[6] == "upload")
 		|| authUtil.compareUrl("/api/c/{app}/{api}/utils/filetransfers/{id}", path)
 		|| authUtil.compareUrl("/api/c/{app}/{api}/utils/aggregate", path)) {

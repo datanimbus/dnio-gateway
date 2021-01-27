@@ -41,7 +41,7 @@ function sendRequest(config, res) {
 		let pathSplit = config.path.split("/");
 		let pathArray = ["/b2bgw/downloadfile", "/workflow/file/download/{id}", "/pm/{app}/download/{type}/{id}", "/rbac/usr/bulkCreate/{id}/download", "/pm/ieg/download/{type}", "/pm/{app}/download/appagent/{id}/{type}", "/pm/{app}/download/partneragent/{id}/{type}", "/sec/identity/{appName}/fetch/download", "/sec/identity/{appName}/csr", "/sec/identity/{appName}/certificate/download", "/sec/keys/download/IEG", "/sec/keys/download/CA"];
 		if (pathArray.some((url) => authUtil.compareUrl(url, config.path))) newRes.pipe(res);
-		else if ((pathSplit[3] == "file" && pathSplit[4] == "download") || (pathSplit[3] && pathSplit[3].split("?")[0] == "export")) {
+		else if ((pathSplit[3] == "file" && pathSplit[4] == "download") || (pathSplit[4] && pathSplit[4].split("?")[0] == "export")) {
 			newRes.pipe(res);
 		}
 		if (config.files) {
@@ -97,6 +97,7 @@ e.getRouterMiddleware = (config) => {
 		delete headers["accept-encoding"];
 		delete headers["if-none-match"];
 		headers.user = req.user ? req.user._id : null;
+		headers.isSuperAdmin = req.user ? req.user.isSuperAdmin: false;
 		reqConfig.headers = headers;
 		reqConfig.method = req.method;
 		reqConfig.path = getPath(req.path, config.pathRewrite);

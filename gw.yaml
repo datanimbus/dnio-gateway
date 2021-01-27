@@ -32,7 +32,7 @@ spec:
     spec:
       containers:
         - name: gw
-          image: '__docker_registry_server__/odp:gw.__release__'
+          image: '__docker_registry_server__/data.stack:gw.__release__'
           ports:
             - containerPort: 9080
           livenessProbe:

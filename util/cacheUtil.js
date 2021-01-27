@@ -66,6 +66,7 @@ e.getApp = async (_isSuperAdmin, _key) => {
 	if(_isSuperAdmin) return [];
 	let data = await client.getAsync(`app:${_key}`);
 	data = data ? JSON.parse(data) : [];
+	logger.debug("app data:: ", data);
 	return data;
 };
 

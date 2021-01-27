@@ -1432,7 +1432,7 @@ e.getAuthzMiddleware = (permittedUrls) => {
 							else next();
 						} else {
 							let paths = _req.path.split("/");
-							if (_req.method == "GET" || (_req.method == "POST" && paths[5] == "simulate")) {
+							if (_req.method == "GET" || (_req.method == "POST" && (paths[6] == "simulate" || paths[6] == "experienceHook"))) {
 								if (permissionAllowed.length > 0) {
 									if (!_req.user.isSuperAdmin)
 										return authUtil.checkRecordPermissionForUserCRUD(userPermissionIds, allPermission, _req.method, "API", _req.body, _req).then(() => next());

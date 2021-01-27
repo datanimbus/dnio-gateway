@@ -47,7 +47,7 @@ e.createServiceList = async () => {
 e.updateServiceList = _data => {
 	logger.info("Updating routing map");
 	let hashMapValues =  getHashMapValues(_data);
-	global.masterServiceRouter[hashMapValues[0]] = hashMapValues[1];
+	if(hashMapValues) global.masterServiceRouter[hashMapValues[0]] = hashMapValues[1];
 };
 
 e.deleteServiceList = _data => {

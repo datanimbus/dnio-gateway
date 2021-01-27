@@ -32,7 +32,7 @@ function throwError(msg, statusCode) {
 	throw err;
 }
 
-e.groupRolesPermArr = ["PMGADS", "PVGADS", "PNGADS", "PMGAL", "PVGAL", "PNGAL", "PMGADF", "PVGADF", "PNGADF", "PMGAP", "PVGAP", "PNGAP", "PMGANS", "PVGANS", "PNGANS", "PMGAA", "PVGAA", "PNGAA", "PMGAU", "PVGAU", "PNGAU", "PMGAB", "PVGAB", "PNGAB", "PMGABM", "PVGABM", "PNGABM", "PMGAG", "PVGAG", "PNGAG", "PMGCDS", "PVGCDS", "PNGCDS", "PMGCI", "PVGCI", "PNGCI", "PMGCBM", "PVGCBM", "PNGCBM"];
+e.groupRolesPermArr = ["PMGADS", "PVGADS", "PNGADS", "PMGAL", "PVGAL", "PNGAL", "PMGADF", "PVGADF", "PNGADF", "PMGAP", "PVGAP", "PNGAP", "PMGANS", "PVGANS", "PNGANS", "PMGAA", "PVGAA", "PNGAA", "PMGAU", "PVGAU", "PNGAU", "PMGAB", "PVGAB", "PNGAB", "PMGABM", "PVGABM", "PNGABM", "PMGAG", "PVGAG", "PNGAG", "PMGCDS", "PVGCDS", "PNGCDS", "PMGCI", "PVGCI", "PNGCI", "PMGCBM", "PVGCBM", "PNGCBM", "PNGAIS", "PVGAIS", "PMGAIS"];
 
 e.groupBasicPermArr = ["PNGB", "PVGB", "PMGBC", "PMGBU", "PMGBD"];
 
@@ -53,6 +53,7 @@ let roleIdMappingGroup = {
 	"AB": ["PMBBC", "PMBBCE", "PMBBU", "PMBBD", "PMBA", "PMBG", "PNBB", "PVBB", "PNBG", "PNBA"],
 	"ABM": ["PMBM", "PVBM", "PNBM"],
 	"AG": JSON.parse((JSON.stringify(groupAllPermArr))),
+	"AI": ["PNISDS", "PNISU", "PNISG", "PVISDS", "PVISU", "PVISG"]
 };
 
 e.validateRolesArray = function (roles, userRoles, type) {
@@ -463,7 +464,12 @@ e.isUrlPermitted = (permittedUrls, req) => {
 		return false;
 	}
 	else if (req.path.startsWith("/api/a/mon")) {
-		return true;
+		if(req.path.startsWith("/api/a/mon/dataService/log") 
+			|| req.path.startsWith("/api/a/mon/author/user/log") 
+			|| req.path.startsWith("/api/a/mon/author/group/log"))
+			return false;
+		else
+			return true;
 	}
 	else if (req.path.startsWith("/api/a/route")) {
 		return true;
@@ -472,6 +478,8 @@ e.isUrlPermitted = (permittedUrls, req) => {
 		return true;
 	}
 	else if (req.path.startsWith("/api/a/de")) {
+		return true;
+	} else if (e.compareUrl("/api/c/{app}/{dataService}/utils/fileTransfers/{fileId}/readStatus", req.path)) {
 		return true;
 	}
 	return permitted;
@@ -605,11 +613,11 @@ function decryptArrData(data, nestedKey, app, forFile) {
 function getSecuredFields(app, api, req) {
 	let url = null;
 	if (process.env.KUBERNETES_SERVICE_HOST && process.env.KUBERNETES_SERVICE_PORT) {
-		url = "http://" + api.toLowerCase() + "." + config.odpNS + "-" + app.toLowerCase().replace(/ /g, "") + `/${app}/${api}/securedFields`;
+		url = "http://" + api.toLowerCase() + "." + config.odpNS + "-" + app.toLowerCase().replace(/ /g, "") + `/${app}/${api}/utils/securedFields`;
 	} else {
 		let host = global.masterServiceRouter[app + "/" + api];
 		if (host) {
-			url = host + `/${app}/${api}/securedFields`;
+			url = host + `/${app}/${api}/utils/securedFields`;
 		} else {
 			return Promise.reject(new Error("AppCenter host not found"));
 		}
@@ -697,7 +705,9 @@ function SMobjectValidate(req, smObject, allPermArr, msType) {
 	if (getHPerm) {
 		let returnObj = e.filterBody(getHPerm, ["W", "R"], smObject);
 		let isGroupRole = req.user.roles.find(_r => _r.entity === "GROUP" && (["PMGADS", "PVGADS", "PMGCDS", "PVGCDS"].indexOf(_r.id) > -1) && _r.app === smObject.app);
-		if ((!returnObj.name) && isGroupRole) {
+		let isDSInsightRole = req.user.roles.find(_r => _r.entity === "INS" && _r.id === "PVISDS" && _r.app === smObject.app);
+		if ((!returnObj.name) && (isGroupRole || isDSInsightRole)) {
+			returnObj._id = smObject._id;
 			returnObj.name = smObject.name;
 			if (msType == "SM") {
 				returnObj.attributeCount = smObject.attributeCount;
@@ -1083,7 +1093,7 @@ e.getProxyResHandler = (permittedUrls) => {
 						let promise = null;
 						if (isAppCenter) {
 							let app = splitPath[3];
-							if (e.compareUrl("/api/c/{app}/{service}/simulate", reqPath)) {
+							if (e.compareUrl("/api/c/{app}/{service}/utils/simulate", reqPath)) {
 								promise = Promise.resolve(body);
 							}
 							else {
@@ -1128,7 +1138,7 @@ e.getProxyResHandler = (permittedUrls) => {
 					}
 					promise.then((_d) => {
 						body = JSON.parse(JSON.stringify(_d));
-						let appcenterPermittedURL = ["/api/c/{app}/{api}/utils/filetransfers"];
+						let appcenterPermittedURL = ["/api/c/{app}/{api}/utils/filetransfers", "/api/c/{app}/{service}/experienceHook"];
 						if (req.user.isSuperAdmin || hasCUDPerm(req._highestPermission) || appcenterPermittedURL.some(_u => e.compareUrl(_u, req.path))) {
 							return res.json(body);
 						}
@@ -1376,7 +1386,7 @@ function getdbAndCollection(serviceids) {
 }
 
 function modifyAppcenterRequest(req, validIds, creationIds) {
-	if ((e.compareUrl("/api/c/{app}/{api}/", req.path) || e.compareUrl("/api/c/{app}/{api}/count", req.path) || e.compareUrl("/api/c/{app}/{api}/export", req.path)) && req.method == "GET") {
+	if ((e.compareUrl("/api/c/{app}/{api}/", req.path) || e.compareUrl("/api/c/{app}/{api}/utils/count", req.path) || e.compareUrl("/api/c/{app}/{api}/utils/export", req.path)) && req.method == "GET") {
 		let customFilter = {
 			"$and": [{ "$or": validIds }]
 		};
@@ -1403,12 +1413,12 @@ function modifyAppcenterRequest(req, validIds, creationIds) {
 			throwError("Insufficient user privilege", 403);
 		}
 	}
-	else if (e.compareUrl("/api/c/{app}/{api}/bulkShow", req.path) && req.method == "GET") {
+	else if (e.compareUrl("/api/c/{app}/{api}/utils/bulkShow", req.path) && req.method == "GET") {
 		let requestedIds = req.query.id.split(",");
 		let newIds = requestedIds.filter(_d => validIds.indexOf(_d) > -1);
 		req.query.id = newIds.join(",");
 	}
-	else if (e.compareUrl("/api/c/{app}/{api}/bulkDelete", req.path) && req.method == "DELETE") {
+	else if (e.compareUrl("/api/c/{app}/{api}/utils/bulkDelete", req.path) && req.method == "DELETE") {
 		let requestedIds = req.body.ids;
 		if (!requestedIds) return;
 		req.body.ids = requestedIds.filter(_d => validIds.indexOf(_d) > -1);
@@ -1590,7 +1600,7 @@ e.checkRecordPermissionForUserCRUD = function (userPermission, allPermission, me
 	let currentCollection = null;
 	let currentDBName = null;
 	let returnFilter = false;
-	let filterAPIs = ["/api/c/{app}/{api}/", "/api/c/{app}/{api}/count", "/api/c/{app}/{api}/export"];
+	let filterAPIs = ["/api/c/{app}/{api}/", "/api/c/{app}/{api}/utils/count", "/api/c/{app}/{api}/utils/export"];
 	let isCreationAPI = req.method === "POST" && !e.compareUrl("/api/c/{app}/{api}/utils/aggregate", req.path);
 	if (type == "API" && filterAPIs.some(_url => (e.compareUrl(_url, req.path) && req.method == "GET") || e.compareUrl("/api/c/{app}/{api}/utils/aggregate", req.path))) returnFilter = true;
 	return getdbAndCollection(involvedServiceIds)

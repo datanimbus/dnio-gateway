@@ -446,7 +446,7 @@ function validateData(_req, _res) {
 	// let flag = checkPermission(authUtil.flattenPermission(_req._highestPermission, "", ["W"]), data.headerMapping);
 	if (!flag) {
 		_res.status(403).json({
-			"message": "Not permission"
+			"message": "Not Permitted."
 		});
 		return;
 	}
@@ -567,7 +567,7 @@ function bulkCreate(_req, _res) {
 	// let flag = checkPermission(authUtil.flattenPermission(_req._highestPermission, "", ["W"]), data.headerMapping);
 	if (!flag) {
 		_res.status(403).json({
-			"message": "Not permission"
+			"message": "Not Permitted."
 		});
 		return;
 	}
@@ -586,9 +586,9 @@ function bulkCreate(_req, _res) {
 			let flag2 = isOperationAllowed(_req._highestPermission, _count, data.update.length);
 			if (!flag2) {
 				_res.status(403).json({
-					"message": "Not permission"
+					"message": "Not Permitted."
 				});
-				throw new Error("Not permission");
+				throw new Error("Not Permitted.");
 			}
 			return getServiceInfo(app, "/" + api);
 		})

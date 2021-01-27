@@ -42,16 +42,19 @@ async function validateJWT(_req) {
 	logger.debug(`[${_req.headers.TxnId}] Fetching ${_req.user._id} details from DB`)
 	return userManagementCache.isBlacklistedToken(_req.tokenHash)
 	.then(_flag => _flag ? Promise.reject(new Error("Token Blacklisted")) : userManagementCache.isValidToken(_req.tokenHash))
-	.then(_flag => _flag ? _flag : Promise.reject(new Error("Invalid Token")))
+	.then(_flag => _flag ? _flag : Promise.reject("Invalid Token"))
 	.then(() => mongo.findOne(false, "userMgmt.users", { '_id': _req.user._id, 'isActive': true }, null))
 	.then(_user => _req.user = _user)
 	.then(() => cacheUtil.getApp(_req.user.isSuperAdmin, _req.tokenHash))
-	.then(_apps => _req.user.apps = _apps)
+	.then(_apps => {
+		logger.trace(`[${_req.headers.TxnId}] user appp :: ${_apps}`)
+		_req.user.apps = _apps
+	})
 	.then(() => mongo.aggregate(false, "userMgmt.groups", getRolesAggregationPipeLine(_req.user._id)))
 	.then(_roles => _req.user.roles = _roles[0] ? _roles[0].roles : [])
-	.then(() => logger.trace(`Validate body: ${JSON.stringify(_req.user)}`))
+	.then(() => logger.trace(`[${_req.headers.TxnId}] Validate body: ${JSON.stringify(_req.user)}`))
 	.catch(_error => {
-		logger.error(_error)
+		logger.error(`[${_req.headers.TxnId}] ${_error}`)
 		throw 'Unauthorized'
 	});
 }
@@ -99,7 +102,7 @@ e.authN = async (_req, _res, _next) => {
 		if (!_req.user.roles) _req.user.roles = []
 		return _next()
 	} catch (_error) {
-		logger.error(_error)
+		logger.error(`[${_req.headers.TxnId}] ${_error}`)
 		if(_error == '500') return _res.status(500).end()
 		if (gwUtil.compareUrl("/api/a/rbac/logout", _req.path)) return _res.status(200).json({ message: "Logged out successfully" })
 		_res.status(401).json({ message: "Unauthorized" })
