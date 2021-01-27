@@ -6,7 +6,7 @@ let logger = global.logger;
 module.exports = (req, res, next) => {
 
 	if(gwUtil.isPermittedAuthZUrl(req)) return next()
-	logger.debug(`[${_req.headers.TxnId}] Authorization check : Started!`)
+	logger.debug(`[${req.headers.TxnId}] Authorization check : Started!`)
 
 	if(req.path.startsWith("/api/a/rbac")) {
 		return authorizationModules.userAuthorizationMw(req, res, next);

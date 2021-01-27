@@ -8,7 +8,7 @@ let e = {};
 e.requestLogger = (_req, _res, _next) => {
 	gwUtil.getTxnId(_req);
 	if (!_req.path.startsWith("/gw/health")) logger.info(`[${_req.headers.TxnId}] [${_req.hostname}] ${_req.method} ${_req.path}`);
-	_res.set("TxnId", _req.headers.TxnId)
+	_res.set("TxnId", _req.headers.TxnId);
 	_next();
 };
 

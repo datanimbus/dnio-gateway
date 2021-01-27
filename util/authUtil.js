@@ -9,9 +9,9 @@ const cacheUtil = require("./cacheUtil");
 let logger = global.logger;
 
 
-e.addSelect = function (arr, select) {
-	logger.debug(`e.addSelect: ${JSON.stringify(arr)}`);
-	logger.debug(`e.addSelect: ${JSON.stringify(select)}`);
+e.addSelect = function (txnId, arr, select) {
+	logger.trace(`[${txnId}] e.addSelect: arr : ${JSON.stringify(arr)}`);
+	logger.trace(`[${txnId}] e.addSelect: select : ${JSON.stringify(select)}`);
 	let selectArr = select;
 	// Next 2 line: Added by Jerry
 	// Date: 3rd Mar 2020
@@ -19,7 +19,7 @@ e.addSelect = function (arr, select) {
 	// Express.js handles it, we had to handle it in the code
 	if(typeof selectArr == "string") selectArr = selectArr.split(",");
 	if(typeof selectArr == "object") selectArr = selectArr.join(",").split(",");
-	logger.debug(`e.addSelect: ${JSON.stringify(selectArr)}`);
+	logger.trace(`[${txnId}] e.addSelect: selectArr : ${JSON.stringify(selectArr)}`);
 	if (!selectArr.some(_s => _s.startsWith("-"))) {
 		selectArr = selectArr.concat(arr);
 	}

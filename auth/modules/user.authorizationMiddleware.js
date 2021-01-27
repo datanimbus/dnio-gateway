@@ -336,7 +336,7 @@ function isUserAccessControlInvalid(_req) {
 	}
 	if ((authUtil.compareUrl("/api/a/rbac/usr", _req.path) || authUtil.compareUrl("/api/a/rbac/usr/{id}", _req.path) || authUtil.compareUrl("/api/a/rbac/usr/count", _req.path)) && _req.method === "GET") {
 		if (_req.query.select)
-			_req.query.select = authUtil.addSelect(["isSuperAdmin", "bot"], _req.query.select)
+			_req.query.select = authUtil.addSelect(_req.headers.TxnId, ["isSuperAdmin", "bot"], _req.query.select)
 		return false
 	}
 	if ((authUtil.compareUrl("/api/a/rbac/group", _req.path) || authUtil.compareUrl("/api/a/rbac/group/count", _req.path)) && _req.method === "GET") {
