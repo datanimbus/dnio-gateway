@@ -115,7 +115,7 @@ e.getPermissions = (_req, entity, app) => {
 	return promise
 		.then(_d => {
 			if (_d) {
-				logger.debug("Fetched role from cache");
+				logger.debug(`[${_req.headers.TxnId}] Fetched role from cache`);
 				return _d;
 			}
 			let filterObj = {};
@@ -134,7 +134,7 @@ e.getPermissions = (_req, entity, app) => {
 				method: "GET",
 				headers: {
 					"Content-Type": "application/json",
-					"TxnId": _req.get("txnId") ? _req.get("txnId") : gwUtil.getTxnId(_req),
+					"TxnId": _req.headers.TxnId,
 					"Authorization": _req.get("Authorization"),
 					"User": _req.user ? _req.user._id : null
 				},
@@ -144,21 +144,20 @@ e.getPermissions = (_req, entity, app) => {
 				},
 				json: true
 			};
-			logger.debug(options);
 			return new Promise((resolve, reject) => {
 				request.get(options, function (err, res, body) {
 					if (err) {
-						logger.error(err.message);
+						logger.error(`[${_req.headers.TxnId}] ${err.message}`);
 						reject(err);
 					} else if (!res) {
-						logger.error("User Manager DOWN");
+						logger.error(`[${_req.headers.TxnId}] User Manager DOWN`);
 						reject(new Error("User Manager DOWN"));
 					} else {
 						if (res.statusCode >= 200 && res.statusCode < 400) {
 							//caching only for app center expand API
 							if (_req.path.startsWith("/api/c")) {
 								cacheUtil.cacheRoleAppcenter(entity, body);
-								logger.debug("Role cached");
+								logger.debug(`[${_req.headers.TxnId}] Role cached`);
 							}
 							return resolve(body);
 						}
@@ -429,7 +428,7 @@ let manipulateBody = (body, req) => {
 				newData = body;
 			}
 		} catch (err) {
-			logger.error(err);
+			logger.error(`[${req.headers.TxnId}] ${err.message}`);
 			newData = {
 				message: err.message
 			};
@@ -1004,7 +1003,7 @@ e.getProxyResHandler = (permittedUrls) => {
 		// }
 		if (res.statusCode < 200 || res.statusCode >= 400) {
 			try {
-				logger.debug(`[${req.headers.TxnId}] getProxyResHandler : ${body}`);
+				logger.debug(`[${req.headers.TxnId}] getProxyResHandler : ${JSON.stringify(body)}`);
 				logger.debug(`[${req.headers.TxnId}] getProxyResHandler : ${typeof body}`);
 				let nBody = typeof body === "string" ? JSON.parse(body) : body;
 				logger.debug(`[${req.headers.TxnId}] ${JSON.stringify({ nBody })}`);

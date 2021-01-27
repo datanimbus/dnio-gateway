@@ -145,14 +145,14 @@ function getAdditionalData(req, res, next) {
         return Promise.reject(new Error('Url not configured in authorization'))
     } else {
         let apps = req.user.apps.map(obj => obj._id)
-        logger.debug(`Apps: ${apps.join(", ")}`)
+        logger.debug(`[${req.headers.TxnId}] Apps: ${JSON.stringify(apps)}`)
         // let perm = [];
         let reqApp = null
         let reqEntity = null
-        logger.debug(authObject)
+        logger.debug(`[${req.headers.TxnId}] ${JSON.stringify(authObject)}`)
         return authObject.getApp(req)
             .then(_d => {
-                logger.debug('app after auth object ', _d);
+                logger.debug(`[${req.headers.TxnId}] App after auth object : ${_d}`);
                 if (_d instanceof Error) throw _d
                 reqApp = _d
                 if (!req.user.isSuperAdmin && reqApp && apps.indexOf(reqApp) == -1) {
@@ -169,7 +169,7 @@ function getAdditionalData(req, res, next) {
             .then(() => authObject.getEntity(req))
             .then(entity => {
                 reqEntity = entity
-                logger.debug('reqEntity :: ', reqEntity);
+                logger.debug(`[${req.headers.TxnId}] reqEntity :: ${reqEntity}`);
                 if (!entity) {
                     sendForbidden(res)
                     return
@@ -182,7 +182,7 @@ function getAdditionalData(req, res, next) {
                 return Promise.resolve({ reqApp, reqEntity, permissions })
             })
             .catch(err => {
-                logger.error('Error in getting additional data :: ', err)
+                logger.error(`[${req.headers.TxnId}] Error in getting additional data :: ${err.message}`)
                 next(err)
             })
     }
