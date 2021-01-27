@@ -18,13 +18,9 @@ e.randomStr = function(len) {
 	return str;
 };
 
-e.getTxnId = (req) => {
-	let txnId = req.get("txnId") || req.txnId;
-	if (!txnId) {
-		txnId = sh.unique(uuid() + "-" + e.randomStr(5));
-		req.txnId = txnId;
-	}
-	return txnId;
+e.getTxnId = (_req) => {
+	_req.headers["TxnId"] = sh.unique(crypto.createHash("md5").update(uuid()).digest("hex"));
+	logger.debug(`getTxnId() :: _req.headers.TxnId :: ${_req.headers.TxnId}`);
 };
 
 e.checkReviewPermissionForService = (_req, _id, usrId) => {

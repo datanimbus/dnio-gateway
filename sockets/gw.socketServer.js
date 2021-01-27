@@ -49,8 +49,8 @@ function __pmSocketHander(){
 
 	socketClientPM.on("connect", () => logger.info("WS :: Connected to PM"))
 	socketClientPM.on("reconnect", (n) => logger.info("WS :: Reconnecting to PM " + n))
-	socketClientPM.on("reconnect_failed", (n) => logger.info("WS :: reconnecting to PM failed " + n))
-	socketClientPM.on("connect_error", (err) => logger.info("WS :: Connection error in PM:: " + err.message))
+	socketClientPM.on("reconnect_failed", (n) => logger.error("WS :: reconnecting to PM failed " + n))
+	socketClientPM.on("connect_error", (err) => logger.error("WS :: Connection error in PM:: " + err.message))
 
 	socketClientPM.on("flowStatus", (data) => {
 		logger.info("flowStatus from Partner Manager :", JSON.stringify(data))

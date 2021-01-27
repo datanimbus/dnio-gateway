@@ -37,11 +37,11 @@ function createServiceObject(reqBody, data) {
 }
 
 function smAuthorizationMw(req, res, next) {
-    logger.debug("Checking user auth in sm authz mw");
+    logger.debug(`[${req.headers.TxnId}] Checking user auth in sm authz mw`);
     if ((gwUtil.compareUrl("/api/a/sm/service/{srvcId}", req.path) || gwUtil.compareUrl("/api/a/sm/service", req.path) || gwUtil.compareUrl("/api/a/sm/globalSchema/{id}", req.path) || gwUtil.compareUrl("/api/a/sm/globalSchema", req.path))) {
         if (req.query.select) {
-            logger.debug(`e.getAuthzMiddleware :: req.query.select : ${JSON.stringify(req.query.select)}`)
-            req.query.select = authUtil.addSelect(["app"], req.query.select)
+            logger.trace(`[${req.headers.TxnId}] e.getAuthzMiddleware :: req.query.select : ${JSON.stringify(req.query.select)}`)
+            req.query.select = authUtil.addSelect(req.headers.TxnId, ["app"], req.query.select)
         }
     }
     if (req.path.startsWith("/api/a/sm") && req.method == "GET") {
@@ -60,8 +60,8 @@ function smAuthorizationMw(req, res, next) {
             let {reqApp, reqEntity, permissions} = data;
             if (permissions) {
                 if ((Array.isArray(reqEntity) && reqEntity.indexOf("SM") > -1) || reqEntity === "SM") {
-                    let flag = commonAuthZMw.checkPermissions(permissions, req.user.roles, reqEntity, "SM", reqApp, req)
-                    logger.debug({ flag })
+                    let flag = checkPermissionsSM(permissions, req.user.roles, reqEntity, "SM", reqApp, req)
+                    logger.debug(`[${req.headers.TxnId}] checkPermissions "SM" flag :: ${flag}`)
                     if (flag) {
                         if (authUtil.compareUrl("/api/a/sm/service/{Id}", req.path) && req.method === "PUT") {
                             req.body = createServiceObject(req.body, req.apiDetails)
@@ -72,8 +72,8 @@ function smAuthorizationMw(req, res, next) {
                     }
                 }
                 if ((Array.isArray(reqEntity) && reqEntity.indexOf("GS") > -1) || reqEntity === "GS") {
-                    let flag = commonAuthZMw.checkPermissions(permissions, req.user.roles, reqEntity, "GS", reqApp, req)
-                    logger.debug({ flag })
+                    let flag = checkPermissionsSM(permissions, req.user.roles, reqEntity, "GS", reqApp, req)
+                    logger.debug(`[${req.headers.TxnId}] checkPermissions "GS" flag :: ${flag}`)
                     if (flag) {
                         next(); return
                     } else {
@@ -82,11 +82,11 @@ function smAuthorizationMw(req, res, next) {
                 }
             } else {
                 // TBD what happens to else case
-                logger.info("No permissions for access");
+                logger.info(`[${req.headers.TxnId}] No permissions for access`);
                 return commonAuthZMw.sendForbidden(res);
             }
         }).catch(err => {
-            logger.error('Error in smAuthorizationMw::: ', err)
+            logger.error(`[${req.headers.TxnId}] Error in smAuthorizationMw : ${err.message}`)
             next(err)
         })
 }

@@ -49,6 +49,8 @@ logger.info(`Data service max JSON size :: ${maxJSONSize}`);
 let maxFileSize = process.env.MAX_FILE_SIZE || "5MB";
 logger.info(`Data service max file upload size :: ${maxFileSize}`);
 
+app.use(utilMiddleware.requestLogger);
+
 app.use(express.json({
 	inflate: true,
 	limit: maxJSONSize,
@@ -65,15 +67,15 @@ const storage = multer.diskStorage({
 	destination: function (req, file, cb) {
 		cb(null, "./uploads");
 	},
-	filename: function (req, file, cb) {
-		let extn = file.originalname.split(".").pop();
-		logger.debug(`File extn of file "${file.originalname}"" :: ${extn}`);
+	filename: function (_req, _file, _cb) {
+		let extn = _file.originalname.split(".").pop();
+		logger.debug(`[${_req.headers.TxnId}] File extn of file "${_file.originalname}"" :: ${extn}`);
 		let fileValidExtension = allowedFileTypes;
-		if (req.path.indexOf("fileMapper") > -1 || req.path.indexOf("bulkCreate") > -1) {
+		if (_req.path.indexOf("fileMapper") > -1 || _req.path.indexOf("bulkCreate") > -1) {
 			fileValidExtension = ["csv", "xlsx", "xls", "ods"];
 		}
-		if (fileValidExtension.indexOf(extn) == -1) return cb({ "message": "Invalid file extension!" });
-		cb(null, `tmp-${Date.now()}`);
+		if (fileValidExtension.indexOf(extn) == -1) return _cb({ "message": "Invalid file extension!" });
+		_cb(null, `tmp-${Date.now()}`);
 	},
 	limits: maxFileSize,
 });
@@ -148,12 +150,12 @@ app.use(router.getRouterMiddleware({
 		if (selectedKey) return Promise.resolve(fixRoutes[selectedKey]);
 		let api = req.path.split("/")[3] + "/" + req.path.split("/")[4];
 		if (req.method === "GET") {
-			return getDSApi(api);
+			return getDSApi(req, api);
 		} else {
 			return skipWorkflow(req.path, req)
 				.then(_flag => {
 					if (_flag) {
-						return getDSApi(api);
+						return getDSApi(req, api);
 					} else {
 						return "next";
 					}
@@ -168,14 +170,14 @@ app.use(router.getRouterMiddleware({
 }));
 
 
-function getDSApi(api) {
+function getDSApi(req, api) {
 	return new Promise((resolve, reject) => {
 		if (global.masterServiceRouter[api])
 			resolve(global.masterServiceRouter[api]);
 		else {
 			let apiSplit = api.split("/");
 			let filter = { app: apiSplit[0], api: "/" + apiSplit[1] };
-			logger.debug("calling getDSApi");
+			logger.debug(`${req.headers.TxnId} Calling getDSApi`);
 			request(config.get("sm") + "/sm/service", {
 				headers: {
 					"content-type": "application/json"
@@ -186,16 +188,16 @@ function getDSApi(api) {
 				}
 			}, (err, res, body) => {
 				if (err) {
-					logger.error("Error in getDSApi: ", err);
+					logger.error(`${req.headers.TxnId} Error in getDSApi: ${err}`);
 					reject(err);
 				} else if (res.statusCode != 200) {
-					logger.debug("res.status code in getDSApi :: ", res.statusCode);
-					logger.debug("Error in getDSApi: ", body);
+					logger.debug(`${req.headers.TxnId} res.status code in getDSApi :: ${res.statusCode}`);
+					logger.debug(`${req.headers.TxnId} Error in getDSApi: ${body}`);
 					reject(body);
 				} else {
 					let parsed = JSON.parse(body);
 					if (!parsed.length) {
-						logger.error("Response length in getDSApi : ", parsed.length);
+						logger.error(`${req.headers.TxnId} Response length in getDSApi : ${parsed.length}`);
 						reject("DS doesn't exists. :: ", api);
 					}
 					let dsDetails = parsed[0];
