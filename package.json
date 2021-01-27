@@ -1,5 +1,5 @@
 {
-    "name": "odp-gateway",
+    "name": "ds-gateway",
     "version": "4.0.0",
     "description": "",
     "main": "app.js",
@@ -9,14 +9,14 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+ssh://git@bitbucket.org/appveen/odp-gateway.git"
+        "url": "git+ssh://git@bitbucket.org/appveen/ds-gateway.git"
     },
     "author": "Jugnu Agrawal <jugnu@appveen.com>",
     "license": "ISC",
-    "homepage": "https://bitbucket.org/appveen/odp-gateway#readme",
+    "homepage": "https://bitbucket.org/appveen/ds-gateway#readme",
     "dependencies": {
         "@appveen/odp-utils": "~1.5.8",
-        "@appveen/utils": "^2.0.1",
+        "@appveen/utils": "^2.0.2",
         "bluebird": "^3.5.1",
         "cookie-parser": "^1.4.3",
         "express": "^4.16.3",

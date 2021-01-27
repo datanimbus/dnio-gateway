@@ -7,34 +7,34 @@ const db = require("../util/mongoUtils")
 let e = {};
 
 async function getManageRoleServiceList(_req) {
-	logger.debug("_req.user.roles -- ", JSON.stringify(_req.user.roles))
+	logger.debug(`[${_req.headers.TxnId}] _req.user.roles - ${JSON.stringify(_req.user.roles)}`)
 	let serviceList = await db.getAppCenterDataServicesList(_req.user._id)
 	serviceList = serviceList.entities
-	logger.debug("serviceList -- ", serviceList)
+	logger.debug(`[${_req.headers.TxnId}] serviceList - ${serviceList}`)
 	let manageServiceList = []
-	logger.debug(JSON.stringify({ serviceList }))
+	logger.debug(`[${_req.headers.TxnId}] ${JSON.stringify({ serviceList })}`)
 	return global.mongoConnectionAuthor.collection("userMgmt.roles").find({ _id: { $in: serviceList } }, { roles: 1, app: 1, entity: 1 }).toArray()
 		.then(roles => {
-			logger.debug(JSON.stringify(roles))
+			logger.debug(`[${_req.headers.TxnId}] ${JSON.stringify(roles)}`)
 			roles.forEach(_r => {
 				let manageIds = _r.roles.filter(_rr => _rr.operations && _rr.operations.find(_o => ["POST", "PUT", "DELETE", "REVIEW"].indexOf(_o.method) > -1)).map(_rr => _rr.id)
-				logger.debug(JSON.stringify({ manageIds }))
+				logger.debug(`[${_req.headers.TxnId}] ${JSON.stringify({ manageIds })}`)
 				if (manageIds && _req.user.roles.find(_rr => _rr.entity === _r.entity && manageIds.indexOf(_rr.id) > -1)) {
 					manageServiceList.push(_r.entity)
 				}
 			})
-			logger.debug(JSON.stringify({ manageServiceList }))
+			logger.debug(`[${_req.headers.TxnId}] ${JSON.stringify({ manageServiceList })}`)
 			return manageServiceList
 		})
 }
 
 e.addRequestDetails = async (_req, _res, next) => {
-	logger.debug(`Add request details called!`)
+	logger.debug(`[${_req.headers.TxnId}] Add request details called!`)
 	try {
 		if (_req.path == "/api/a/pm/agentRegistry/IEG/password") return next()
 		if (gwUtil.compareUrl("/api/a/workflow/serviceList", _req.path)) return next()
 
-		logger.debug("Add request detail")
+		logger.debug(`[${_req.headers.TxnId}] Add request detail`)
 		
 		if (_req.body) {
 			delete _req.body._metadata
@@ -42,7 +42,7 @@ e.addRequestDetails = async (_req, _res, next) => {
 		}
 
 		let pathSplit = _req.path.split("/")
-		logger.debug(`Path array :: ${pathSplit}`)
+		logger.debug(`[${_req.headers.TxnId}] Path array :: ${pathSplit}`)
 		let promise = Promise.resolve()
 		
 		if (_req.path.startsWith("/api/a/rbac/group")) {
@@ -241,11 +241,11 @@ e.addRequestDetails = async (_req, _res, next) => {
 			return next()
 		}
 
-		logger.debug("No request details needs to be set!")
+		logger.debug(`[${_req.headers.TxnId}] No request details needs to be set!`)
 		return next()
 
 	} catch (e) {
-		logger.error(e)
+		logger.error(`[${_req.headers.TxnId}] ${e.message}`)
 		return _res.status(500).json({ message: "Cannot find details of the request" })
 	}
 }
