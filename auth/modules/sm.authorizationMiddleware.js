@@ -40,8 +40,8 @@ function smAuthorizationMw(req, res, next) {
     logger.debug("Checking user auth in sm authz mw");
     if ((gwUtil.compareUrl("/api/a/sm/service/{srvcId}", req.path) || gwUtil.compareUrl("/api/a/sm/service", req.path) || gwUtil.compareUrl("/api/a/sm/globalSchema/{id}", req.path) || gwUtil.compareUrl("/api/a/sm/globalSchema", req.path))) {
         if (req.query.select) {
-            logger.debug(`e.getAuthzMiddleware :: req.query.select : ${JSON.stringify(req.query.select)}`)
-            req.query.select = authUtil.addSelect(["app"], req.query.select)
+            logger.debug(`[${req.headers.TxnId}] e.smAuthorizationMw :: req.query.select : ${JSON.stringify(req.query.select)}`)
+            req.query.select = authUtil.addSelect(req.headers.TxnId, ["app"], req.query.select)
         }
     }
     if (req.path.startsWith("/api/a/sm") && req.method == "GET") {
@@ -60,7 +60,7 @@ function smAuthorizationMw(req, res, next) {
             let {reqApp, reqEntity, permissions} = data;
             if (permissions) {
                 if ((Array.isArray(reqEntity) && reqEntity.indexOf("SM") > -1) || reqEntity === "SM") {
-                    let flag = commonAuthZMw.checkPermissionsSM(permissions, req.user.roles, reqEntity, "SM", reqApp, req)
+                    let flag = commonAuthZMw.checkPermissions(permissions, req.user.roles, reqEntity, "SM", reqApp, req)
                     logger.debug({ flag })
                     if (flag) {
                         if (authUtil.compareUrl("/api/a/sm/service/{Id}", req.path) && req.method === "PUT") {
@@ -72,7 +72,7 @@ function smAuthorizationMw(req, res, next) {
                     }
                 }
                 if ((Array.isArray(reqEntity) && reqEntity.indexOf("GS") > -1) || reqEntity === "GS") {
-                    let flag = commonAuthZMw.checkPermissionsSM(permissions, req.user.roles, reqEntity, "GS", reqApp, req)
+                    let flag = commonAuthZMw.checkPermissions(permissions, req.user.roles, reqEntity, "GS", reqApp, req)
                     logger.debug({ flag })
                     if (flag) {
                         next(); return

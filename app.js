@@ -116,16 +116,6 @@ app.get("/api/a/rbac/user/role", authUtil.highestPermissionHandlerUser);
 app.get("/api/a/rbac/group/role", authUtil.highestPermissionHandlerGroup);
 app.get("/api/a/rbac/usr/workflow", authUtil.workFlowCalculator);
 
-// Keeping temporarily, should be removed after testing 
-// app.use((req, res, next) => {
-// 	if(req.path.startsWith("/api/a/sm") || req.path.startsWith("/api/a/rbac")
-// 		|| req.path.startsWith("/api/a/mon") || req.path.startsWith("/api/a/workflow")
-// 		|| req.path.startsWith("/api/a/sec") || req.path.startsWith("/api/a/pm"))
-// 		authorizationMiddleware(req,res,next);
-// 	else
-// 		oldAuthzMw.getAuthzMiddleware(urlConfig.permittedAuthZUrl)(req,res,next);
-// });
-
 app.use(authorizationMiddleware);
 
 app.use(fileMapper.fileMapperHandler);
