@@ -93,7 +93,7 @@ e.addRequestDetails = async (_req, _res, next) => {
 
 			_req.apiDetails = await db.findOne(false, "userMgmt.users", { _id: pathSplit[5] }, null)
 			let aggregationResult = await db.getUserApps(pathSplit[5])
-			_req.apiDetails.app = aggregationResult[0].apps
+			_req.apiDetails.app = aggregationResult ? aggregationResult[0].apps : [];
 			return next()
 		}
 
@@ -111,8 +111,8 @@ e.addRequestDetails = async (_req, _res, next) => {
 		
 		if (gwUtil.compareUrl("/api/a/rbac/{userType}/{_id}/status/{userState}", _req.path)) {
 			let aggregationResult = await db.getUserApps(pathSplit[5])
-			_req.apiDetails.app = aggregationResult[0].apps
-			return next()
+			_req.apiDetails.app = aggregationResult ? aggregationResult[0].apps : []
+			return next();
 		}
 		
 		if (gwUtil.compareUrl("/api/a/sm/service/{Id}", _req.path) && _req.method === "PUT") {
