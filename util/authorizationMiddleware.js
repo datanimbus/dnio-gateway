@@ -42,7 +42,7 @@ function getRbacApp(_req) {
 }
 
 function isAccessControlInvalid(_req) {
-	logger.debug("Checking user auth");
+	logger.debug(`[${_req.headers.TxnId}] Checking user auth`);
 	let accessLevel = _req.user.accessControl.accessLevel;
 	let pathSegment = _req.path.split("/");
 	if (_req.user.isSuperAdmin) return false;
@@ -70,7 +70,7 @@ function isAccessControlInvalid(_req) {
 		}
 		permissionApp = _req.user.roles.filter(_r => (allowedPermission.indexOf(_r.id) > -1) && _r.entity === "BM").map(_r => _r.app);
 		let appPermission = appsAllowed.concat(permissionApp).indexOf(app) == -1;
-		logger.debug(JSON.stringify({ appPermission, app }));
+		logger.debug(`[${_req.headers.TxnId}] ${JSON.stringify({ appPermission, app })}`);
 		if (!appPermission)
 			return false;
 		if (_req.method === "GET") {
@@ -201,7 +201,7 @@ function isAccessControlInvalid(_req) {
 		else if (_req.method === "PUT") {
 			// User cannot change roles if he is part of that group.
 			if (_req.apiDetails && _req.apiDetails.users && _req.body.roles && _req.apiDetails.roles && (_req.apiDetails.users.indexOf(_req.user._id) > -1) && !_.isEqual(JSON.parse(JSON.stringify(_req.body.roles)), JSON.parse(JSON.stringify(_req.apiDetails.roles)))) {
-				logger.error("User cannot change roles if he is part of that group.");
+				logger.error(`[${_req.headers.TxnId}] User cannot change roles if he is part of that group.`);
 				return true;
 			}
 
@@ -209,7 +209,7 @@ function isAccessControlInvalid(_req) {
 			let addedUser = _req.body.users ? _.difference(_req.body.users, _req.apiDetails.users) : [];
 			let removedUser = _req.body.users ? _.difference(_req.apiDetails.users, _req.body.users) : [];
 			if (addedUser.concat(removedUser).indexOf(_req.user._id) > -1) {
-				logger.error("User cannot add or remove himself from group.");
+				logger.error(`[${_req.headers.TxnId}] User cannot add or remove himself from group.`);
 				return true;
 			}
 
@@ -221,7 +221,7 @@ function isAccessControlInvalid(_req) {
 				let userFlag = _req.user && _req.user.roles && _req.user.roles.find(_r => _r.app === reqApp && _r.id == "PMGMUC" && _r.entity === "GROUP");
 				let botFlag = _req.user && _req.user.roles && _req.user.roles.find(_r => _r.app === reqApp && _r.id == "PMGMBC" && _r.entity === "GROUP");
 				if (!userFlag && !botFlag) {
-					logger.error("Add member permission check");
+					logger.error(`[${_req.headers.TxnId}] Add member permission check`);
 					return true;
 				}
 				let userExistFlag = addedUser.some(_u => (userList.indexOf(_u) > -1));
@@ -229,11 +229,11 @@ function isAccessControlInvalid(_req) {
 				// let userExistFlag = _req.apiDetails.usersDetail.find(_u => !_u.bot && addedUser.indexOf(_u._id) > -1);
 				// let botExistFlag = _req.apiDetails.usersDetail.find(_u => _u.bot && addedUser.indexOf(_u._id) > -1);
 				if (!userFlag && userExistFlag) {
-					logger.error("Add member permission check");
+					logger.error(`[${_req.headers.TxnId}] Add member permission check`);
 					return true;
 				}
 				if (!botFlag && botExistFlag) {
-					logger.error("Add member permission check");
+					logger.error(`[${_req.headers.TxnId}] Add member permission check`);
 					return true;
 				}
 			}
@@ -243,7 +243,7 @@ function isAccessControlInvalid(_req) {
 				let userFlag = _req.user && _req.user.roles && _req.user.roles.find(_r => _r.app === reqApp && _r.id == "PMGMUD" && _r.entity === "GROUP");
 				let botFlag = _req.user && _req.user.roles && _req.user.roles.find(_r => _r.app === reqApp && _r.id == "PMGMBD" && _r.entity === "GROUP");
 				if (!userFlag && !botFlag) {
-					logger.error("Remove member permission check");
+					logger.error(`[${_req.headers.TxnId}] Remove member permission check`);
 					return true;
 				}
 				let userExistFlag = removedUser.some(_u => (userList.indexOf(_u) > -1));
@@ -251,11 +251,11 @@ function isAccessControlInvalid(_req) {
 				// let userExistFlag = _req.apiDetails.usersDetail.find(_u => !_u.bot && removedUser.indexOf(_u._id) > -1);
 				// let botExistFlag = _req.apiDetails.usersDetail.find(_u => _u.bot && removedUser.indexOf(_u._id) > -1);
 				if (!userFlag && userExistFlag) {
-					logger.error("Remove member permission check");
+					logger.error(`[${_req.headers.TxnId}] Remove member permission check`);
 					return true;
 				}
 				if (!botFlag && botExistFlag) {
-					logger.error("Remove member permission check");
+					logger.error(`[${_req.headers.TxnId}] Remove member permission check`);
 					return true;
 				}
 			}
@@ -264,7 +264,7 @@ function isAccessControlInvalid(_req) {
 			if (_req.body.name && (_req.body.name != _req.apiDetails.name)) {
 				let flag = _req.user && _req.user.roles && _req.user.roles.find(_r => _r.app === reqApp && _r.id == "PMGBU" && _r.entity === "GROUP");
 				if (!flag) {
-					logger.error("Update Basic update permission check");
+					logger.error(`[${_req.headers.TxnId}] Update Basic update permission check`);
 					return true;
 				}
 			}
@@ -274,17 +274,17 @@ function isAccessControlInvalid(_req) {
 
 			let addedRoles = _req.body.roles ? _.differenceWith(_req.body.roles, _req.apiDetails.roles, (a, b) => keyList.every(_k => a[_k] === b[_k])) : [];
 			let removedRoles = _req.body.roles ? _.differenceWith(_req.apiDetails.roles, _req.body.roles, (a, b) => keyList.every(_k => a[_k] === b[_k])) : [];
-			logger.debug({ apiDetails: JSON.stringify(_req.apiDetails.roles), addedRoles, removedRoles });
+			logger.debug(`[${_req.headers.TxnId}] ${JSON.stringify({ apiDetails: JSON.stringify(_req.apiDetails.roles), addedRoles, removedRoles })}`);
 			let flag = authUtil.validateRolesArray(addedRoles, _req.user.roles, "M");
 			let removedWithPerm = authUtil.validateRolesArray(removedRoles, _req.user.roles, "V");
 			let removedWithoutPerm = _req.body.roles ? _.differenceWith(removedRoles, removedWithPerm, (a, b) => keyList.every(_k => a[_k] === b[_k])) : [];
 			if (_req.body.roles) {
 				_req.body.roles = _req.body.roles.concat(removedWithoutPerm);
 			}
-			logger.debug(JSON.stringify({ removedWithPerm, removedWithoutPerm, roles: _req.body.roles }));
+			logger.debug(`[${_req.headers.TxnId}] ${JSON.stringify({ removedWithPerm, removedWithoutPerm, roles: _req.body.roles })}`);
 			if (!flag) {
-				logger.debug("Roles changed " + JSON.stringify(addedRoles));
-				logger.error("User cannot add or remove roles without permission.");
+				logger.debug(`[${_req.headers.TxnId}] Roles changed ${JSON.stringify(addedRoles)}`);
+				logger.error(`[${_req.headers.TxnId}] User cannot add or remove roles without permission.`);
 			}
 			return !flag;
 		}
@@ -344,7 +344,7 @@ function isAccessControlInvalid(_req) {
 		if (appAdminsFlag) return false;
 		let isBot = _req.body && _req.body.user && _req.body.user.bot;
 		if (authUtil.compareUrl("/api/a/rbac/usr/{username}/{app}/import", _req.path)) isBot = _req.apiDetails && _req.apiDetails.bot;
-		logger.debug({ isBot });
+		logger.debug(`[${_req.headers.TxnId}] isBot :: ${isBot}`);
 		let manageUserFlag = _req.user.roles.find(_r => (isBot ? _r.id === "PMBBC" : _r.id === "PMUBC") && _r.entity === "USER" && _r.app === app);
 		let manageGroupFlag = _req.user.roles.find(_r => (isBot ? _r.id === "PMBG" : _r.id === "PMUG") && _r.entity === "USER" && _r.app === app);
 		if (_req.body.groups && _req.body.groups.length > 0 && !manageGroupFlag) return true;
@@ -942,7 +942,7 @@ function isPMapiInvalid(_req) {
 				}
 			}
 
-			logger.debug(_req.query.filter);
+			logger.debug(`[${_req.headers.TxnId}] _req.query.filter :: ${JSON.stringify(_req.query.filter)}`);
 			return false;
 		}
 	}
@@ -995,7 +995,7 @@ function isWorkflowInvalid(_req) {
 	let pathSegment = _req.path.split("/");
 	_req.user.roles = _req.user.roles.filter(r => r.entity);
 	if (authUtil.compareUrl("/api/a/workflow/serviceList", _req.path)) {
-		logger.debug(JSON.stringify("_req.user.roles -- ", _req.user.roles));
+		logger.debug(`[${_req.headers.TxnId}] ${JSON.stringify("_req.user.roles -- ", _req.user.roles)}`);
 		let serviceList = _req.user.roles.filter(_r => _r.type == "appcenter" && !(_r.entity.startsWith("INTR") || _r.entity.startsWith("BM_"))).map(_r => _r.entity);
 		if (_req.query.filter) {
 			let oldFilter = _req.query.filter;
@@ -1023,7 +1023,7 @@ function isWorkflowInvalid(_req) {
 	if (authUtil.compareUrl("/api/a/workflow/action", _req.path)) {
 		let serviceList = _req.apiDetails.manageServiceList;
 		let reqServiceList = _req.apiDetails.map(_a => _a.serviceId);
-		logger.debug(JSON.stringify({ serviceList, reqServiceList }));
+		logger.debug(`[${_req.headers.TxnId}] ${JSON.stringify({ serviceList, reqServiceList })}`);
 		return !reqServiceList.every(_s => serviceList.indexOf(_s) > -1);
 	}
 	if (authUtil.compareUrl("/api/a/workflow/{id}", _req.path) || authUtil.compareUrl("/api/a/workflow/doc/{id}", _req.path)) {
@@ -1163,7 +1163,7 @@ function checkPermissionsSM(relatedPermissions, userPermission, reqEntity, sMTyp
 	}
 
 
-	logger.debug(JSON.stringify({ relatedPermissions, userPermission, reqEntity, sMType, reqApp }));
+	logger.debug(`[${_req.headers.TxnId}] ${JSON.stringify({ relatedPermissions, userPermission, reqEntity, sMType, reqApp })}`);
 	let expEntityId = Array.isArray(reqEntity) && reqEntity.find(_rE => _rE.startsWith(sMType + "_"));
 	let expFlag = expEntityId && Array.isArray(reqEntity) && userPermission.find(_usrP => _usrP.entity === expEntityId);
 	let allPermission = null;
@@ -1171,11 +1171,11 @@ function checkPermissionsSM(relatedPermissions, userPermission, reqEntity, sMTyp
 	allPermission = expFlag ? relatedPermissions.find(_rlP => _rlP.entity === expEntityId) : relatedPermissions.find(_rlP => _rlP.entity !== expEntityId);
 	allowedUserPermission = _req.user.roles.filter(_r => (_r.app === allPermission.app) && (_r.entity === allPermission.entity)).map(_o => _o.id);
 	allPermission.fields = JSON.parse(allPermission.fields);
-	logger.debug(JSON.stringify({ allowedUserPermission, allPermission }));
+	logger.debug(`[${_req.headers.TxnId}] ${JSON.stringify({ allowedUserPermission, allPermission })}`);
 	let highestPermissionObject = authUtil.computeMethodAllowed(allowedUserPermission, allPermission, isAdminUser);
-	logger.debug(JSON.stringify({ highestPermissionObject }));
+	logger.debug(`[${_req.headers.TxnId}] ${JSON.stringify({ highestPermissionObject })}`);
 	let highestPermission = highestPermissionObject.find(_hpo => _hpo.method === _req.method);
-	logger.debug(JSON.stringify({ highestPermission }));
+	logger.debug(`[${_req.headers.TxnId}] ${JSON.stringify({ highestPermission })}`);
 	if (!highestPermission) return false;
 
 	return highestPermission ? authUtil.checkPermission(highestPermission.fields, ["W"], _req.body) : false;

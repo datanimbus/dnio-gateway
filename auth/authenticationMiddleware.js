@@ -35,11 +35,11 @@ async function validateJWT(_req) {
 	if (_req.get("Cache")) {
 		let dataFromCache = await cacheUtil.getCachedValidateJWT(_req.get("Cache"), _req.tokenHash)
 		if(dataFromCache) {
-			logger.debug("Data fetched from internal cache")
+			logger.debug(`[${_req.headers.TxnId}] Data fetched from internal cache`)
 			return _d
 		}
 	}
-	logger.debug(`Fetching ${_req.user._id} details from DB`)
+	logger.debug(`[${_req.headers.TxnId}] Fetching ${_req.user._id} details from DB`)
 	return userManagementCache.isBlacklistedToken(_req.tokenHash)
 	.then(_flag => _flag ? Promise.reject(new Error("Token Blacklisted")) : userManagementCache.isValidToken(_req.tokenHash))
 	.then(_flag => _flag ? _flag : Promise.reject(new Error("Invalid Token")))
@@ -86,10 +86,10 @@ e.authN = async (_req, _res, _next) => {
 
 	if (gwUtil.isPermittedURL(_req)) return _next()
 
-	logger.debug(`Requested URL - ${_req.path} - needs AuthN check!`)
+	logger.debug(`[${_req.headers.TxnId}] Requested URL - ${_req.path} - needs AuthN check!`)
 	
 	let isDownloadUrl = gwUtil.isDownloadURL(_req)
-	logger.debug(`Requested URL - ${_req.path} - will download/export a file? ${isDownloadUrl}`)
+	logger.debug(`[${_req.headers.TxnId}] Requested URL - ${_req.path} - will download/export a file? ${isDownloadUrl}`)
 	
 	let urlsplit = _req.path.split("/")
 	if ((urlsplit[5] == "export" && urlsplit[6] == "download") || (urlsplit[5] == "file" && urlsplit[6] == "download")) isDownloadUrl = true

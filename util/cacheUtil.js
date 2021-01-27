@@ -7,8 +7,8 @@ bluebird.promisifyAll(redis);
 let logger = global.logger;
 let envConfig = require("../config/config");
 
-let host = process.env.REDIS_HOST;
-let port = process.env.REDIS_PORT;
+let host = process.env.CACHE_HOST;
+let port = process.env.CACHE_PORT;
 let client = null;
 
 let e = {};
@@ -16,7 +16,7 @@ let e = {};
 function getClusterNodes() {
 	let nodes = [];
 	//format: 127.0.0.1,127.0.0.2:8990 results in 127.0.0.1:6379 and 127.0.0.2:8990 respectively
-	let clusterNodes = process.env.REDIS_CLUSTER.split(",");
+	let clusterNodes = process.env.CACHE_CLUSTER.split(",");
 	clusterNodes.map(node => {
 		nodes.push({
 			host: node.split(":")[0],
@@ -27,13 +27,13 @@ function getClusterNodes() {
 }
 
 e.init = () => {
-	if (process.env.REDIS_CLUSTER) {
-		logger.info("Connecting to Redis cluster");
-		logger.info("Redis cluster nodes :: ", JSON.stringify(getClusterNodes()));
+	if (process.env.CACHE_CLUSTER) {
+		logger.info("Connecting to Cache cluster");
+		logger.info("Cache cluster nodes :: ", JSON.stringify(getClusterNodes()));
 		client = new redis.Cluster(getClusterNodes());
 	}
 	else {
-		logger.info("Connecting to standalone Redis");
+		logger.info("Connecting to standalone Cache");
 		client = redis.createClient(port, host);
 	}
 	client.on("error", function (err) {
@@ -41,7 +41,7 @@ e.init = () => {
 	});
 
 	client.on("connect", function () {
-		logger.info("Redis client connected");
+		logger.info("Cache client connected");
 	});
 };
 
