@@ -124,7 +124,7 @@ e.getRouterMiddleware = (config) => {
 				if (result && !res.headersSent) {
 					let resBody;
 					try {
-						logger.info('result::: ', result.body)
+						logger.info("result::: ", result.body);
 						if(result.statusCode == 302 && result.headers) {
 							if(result.headers.location) {
 								res.setHeader("Location", result.headers.location
