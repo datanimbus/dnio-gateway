@@ -1213,14 +1213,14 @@ function createServiceObject(reqBody, data) {
 }
 
 e.getAuthzMiddleware = (permittedUrls) => {
-	logger.debug("getAuthzMiddleware");
 	return (_req, _res, next) => {
+		logger.trace(`[${_req.headers.TxnId}] getAuthzMiddleware`);
 		if (_req.path.startsWith("/api/a/mon/ui/logs") && _req.body) {
 			_req.body.userId = _req.user._id;
 		}
 		if ((authUtil.compareUrl("/api/a/sm/service/{srvcId}", _req.path) || authUtil.compareUrl("/api/a/sm/service", _req.path) || authUtil.compareUrl("/api/a/sm/globalSchema/{id}", _req.path) || authUtil.compareUrl("/api/a/sm/globalSchema", _req.path))) {
 			if (_req.query.select) {
-				logger.debug(`e.getAuthzMiddleware :: _req.query.select : ${JSON.stringify(_req.query.select)}`);
+				logger.debug(`[${_req.headers.TxnId}] e.getAuthzMiddleware :: _req.query.select : ${JSON.stringify(_req.query.select)}`);
 				_req.query.select = authUtil.addSelect(["app"], _req.query.select);
 			}
 		}
@@ -1260,7 +1260,7 @@ e.getAuthzMiddleware = (permittedUrls) => {
 					return next();
 				})
 				.catch(err => {
-					logger.error(err);
+					logger.error(`[${_req.headers.TxnId}] ${err}`);
 					next(err);
 				});
 		}
@@ -1282,7 +1282,7 @@ e.getAuthzMiddleware = (permittedUrls) => {
 			});
 		} else {
 			let apps = _req.user.apps.map(obj => obj._id);
-			logger.debug(`Apps: ${apps.join(", ")}`);
+			logger.debug(`[${_req.headers.TxnId}] Apps: ${apps.join(", ")}`);
 			let highestPermission = null;
 			// let perm = [];
 			let reqApp = null;
@@ -1290,8 +1290,8 @@ e.getAuthzMiddleware = (permittedUrls) => {
 			logger.debug(authObject);
 			authObject.getApp(_req)
 				.then(_d => {
-					logger.debug("After auth object");
-					logger.debug(_d);
+					logger.debug(`[${_req.headers.TxnId}] After auth object`);
+					logger.debug(`[${_req.headers.TxnId}] ${JSON.stringify(_d)}`);
 					if (_d instanceof Error) throw _d;
 					reqApp = _d;
 					if (reqApp && apps.indexOf(reqApp) == -1) {
@@ -1311,7 +1311,7 @@ e.getAuthzMiddleware = (permittedUrls) => {
 				.then(() => authObject.getEntity(_req))
 				.then(entity => {
 					reqEntity = entity;
-					logger.debug({ reqEntity });
+					logger.trace(`[${_req.headers.TxnId}] reqEntity : ${JSON.stringify(reqEntity)}`);
 					if (!entity) {
 						sendForbidden(_res);
 						return;
@@ -1326,11 +1326,11 @@ e.getAuthzMiddleware = (permittedUrls) => {
 						// To fetch all the permission id the user has for a app and entity.
 						if (_req.user.roles && Array.isArray(_req.user.roles)) {
 							userPermissionIds = _req.user.roles.filter(_r => (reqApp ? _r.app === reqApp : true) && (Array.isArray(reqEntity) ? reqEntity.indexOf(_r.entity) > -1 : _r.entity === reqEntity)).map(_o => _o.id);
-							logger.debug(`Permission Ids :: ${userPermissionIds.join(", ")}`);
+							logger.debug(`[${_req.headers.TxnId}] Permission Ids :: ${userPermissionIds.join(", ")}`);
 						}
 						if ((Array.isArray(reqEntity) && reqEntity.indexOf("SM") > -1) || reqEntity === "SM") {
 							let flag = checkPermissionsSM(_p, _req.user.roles, reqEntity, "SM", reqApp, _req);
-							logger.debug({ flag });
+							logger.debug(`[${_req.headers.TxnId}] checkPermissionsSM() : SM : flag : ${flag}`);
 							if (flag) {
 								if (authUtil.compareUrl("/api/a/sm/service/{Id}", _req.path) && _req.method === "PUT") {
 									_req.body = createServiceObject(_req.body, _req.apiDetails);
@@ -1343,7 +1343,7 @@ e.getAuthzMiddleware = (permittedUrls) => {
 						}
 						if ((Array.isArray(reqEntity) && reqEntity.indexOf("GS") > -1) || reqEntity === "GS") {
 							let flag = checkPermissionsSM(_p, _req.user.roles, reqEntity, "GS", reqApp, _req);
-							logger.debug({ flag });
+							logger.debug(`[${_req.headers.TxnId}] checkPermissionsSM() : GS : flag : ${flag}`);
 							if (flag) {
 								next(); return;
 							} else {
@@ -1358,7 +1358,7 @@ e.getAuthzMiddleware = (permittedUrls) => {
 								return;
 							}
 							let flag = checkPermissionsSM(_p, _req.user.roles, reqEntity, "PM", reqApp, _req);
-							logger.debug({ flag });
+							logger.debug(`[${_req.headers.TxnId}] checkPermissionsSM() : PM : flag : ${flag}`);
 							if (flag) {
 								next(); return;
 							} else {
@@ -1374,7 +1374,7 @@ e.getAuthzMiddleware = (permittedUrls) => {
 								return;
 							}
 							let flag = checkPermissionsSM(_p, _req.user.roles, reqEntity, "NS", reqApp, _req);
-							logger.debug({ flag });
+							logger.debug(`[${_req.headers.TxnId}] checkPermissionsSM() : NS : flag : ${flag}`);
 							if (flag) {
 								next(); return;
 							} else {
@@ -1384,7 +1384,7 @@ e.getAuthzMiddleware = (permittedUrls) => {
 						}
 
 						let allPermission = _p[0];
-						logger.debug(JSON.stringify({ allPermission }));
+						logger.debug(`[${_req.headers.TxnId}] ${JSON.stringify({ allPermission })}`);
 						if (!allPermission) {
 							sendForbidden(_res);
 							return;
@@ -1401,11 +1401,11 @@ e.getAuthzMiddleware = (permittedUrls) => {
 							return next();
 						}
 						let permissionAllowed = highestPermissionObject.map(_h => _h.method);
-						logger.debug(JSON.stringify({ permissionAllowed }));
+						logger.debug(`[${_req.headers.TxnId}] ${JSON.stringify({ permissionAllowed })}`);
 						if (authUtil.compareUrl("/api/c/{app}/{api}/utils/aggregate", _req.path)) {
 							if (_req.body) {
 								if (permissionAllowed.length === 0) {
-									logger.debug("fields " + JSON.stringify(getObj[0].fields));
+									logger.debug(`[${_req.headers.TxnId}] fields : ${JSON.stringify(getObj[0].fields)}`);
 									let fields = authUtil.flattenPermission(getObj[0].fields, "", ["W", "R"]);
 									let projection = fields.reduce((acc, curr) => {
 										acc[curr] = 1;
@@ -1417,7 +1417,7 @@ e.getAuthzMiddleware = (permittedUrls) => {
 									} else {
 										_req.body = [query, _req.body];
 									}
-									logger.debug("Updated body " + JSON.stringify(_req.body));
+									logger.debug(`[${_req.headers.TxnId}] Updated body : ${JSON.stringify(_req.body)}`);
 								}
 								if (!_req.user.isSuperAdmin)
 									return authUtil.checkRecordPermissionForUserCRUD(userPermissionIds, allPermission, _req.method, "API", _req.body, _req).then(() => next());
@@ -1439,7 +1439,7 @@ e.getAuthzMiddleware = (permittedUrls) => {
 									else next();
 								} else {
 									highestPermission = getObj[0].fields;
-									logger.debug(JSON.stringify({ highestPermission }));
+									logger.debug(`[${_req.headers.TxnId}] ${JSON.stringify({ highestPermission })}`);
 									if (!highestPermission || _.isEmpty(highestPermission)) {
 										sendForbidden(_res);
 										return;
@@ -1454,14 +1454,14 @@ e.getAuthzMiddleware = (permittedUrls) => {
 									else next();
 								}
 							} else {
-								logger.error("returning from here");
+								logger.error(`[${_req.headers.TxnId}] Returning from here`);
 								sendForbidden(_res);
 							}
 						}
 					}
 				})
 				.catch(err => {
-					logger.error(err);
+					logger.error(`[${_req.headers.TxnId}] ${err.message}`);
 					next(err);
 				});
 		}
