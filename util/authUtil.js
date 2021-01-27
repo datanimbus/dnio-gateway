@@ -1004,13 +1004,13 @@ e.getProxyResHandler = (permittedUrls) => {
 		// }
 		if (res.statusCode < 200 || res.statusCode >= 400) {
 			try {
-				logger.debug(`[${req.headers.TxnId} getProxyResHandler : ${body}]`)
-				logger.debug(`[${req.headers.TxnId} getProxyResHandler : ${typeof body}]`)
+				logger.debug(`[${req.headers.TxnId}] getProxyResHandler : ${body}`);
+				logger.debug(`[${req.headers.TxnId}] getProxyResHandler : ${typeof body}`);
 				let nBody = typeof body === "string" ? JSON.parse(body) : body;
-				logger.debug(`[${req.headers.TxnId} ${JSON.stringify({ nBody })}`);
+				logger.debug(`[${req.headers.TxnId}] ${JSON.stringify({ nBody })}`);
 				if (!Array.isArray(nBody) && !nBody.message) res.status(res.statusCode).json({ message: "Internal Server Error" });
 			} catch (err) {
-				logger.error(`[${req.headers.TxnId} ${err}`);
+				logger.error(`[${req.headers.TxnId}] ${err}`);
 				return res.status(res.statusCode).send(body);
 			}
 		}
