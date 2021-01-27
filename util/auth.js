@@ -63,7 +63,7 @@ module.exports = [{
 		return Promise.resolve("SM");
 	},
 	getApp: (req) => {
-		logger.debug("auth.js - /api/a/sm - getApp()");
+		logger.debug(`[${req.headers.TxnId}] auth.js - /api/a/sm - getApp()`);
 		let splitUrl = req.path.split("/");
 		if (authUtil.compareUrl("/api/a/sm/{app}/service/start", req.path) || authUtil.compareUrl("/api/a/sm/{app}/service/stop", req.path)) {
 			return Promise.resolve(splitUrl[4]);
@@ -83,18 +83,18 @@ module.exports = [{
 					});
 			}
 		} else if (req.method === "DELETE" && !(req.path.endsWith("purge/all") || req.path.endsWith("purge/log") || req.path.endsWith("purge/audit") || req.path.endsWith("draftDelete") || req.path.endsWith("purge/author-audit"))) {
-			logger.debug(`${type} :: DELETE `);
+			logger.debug(`[${req.headers.TxnId}] ${type} :: DELETE `);
 			let serviceId = req.path.split("/").pop();
 			return getServiceInfo(serviceId, type)
 				.then(srvcInfo => {
-					logger.debug(`srvcInfo - ${JSON.stringify(srvcInfo)}`);
+					logger.debug(`[${req.headers.TxnId}] srvcInfo - ${JSON.stringify(srvcInfo)}`);
 					if (srvcInfo)
 						return Promise.resolve(srvcInfo.app);
 					throw new Error("Service " + serviceId + " not found");
 				});
 		}
 		else if (req.method === "DELETE" && (req.path.endsWith("purge/all") || req.path.endsWith("purge/log") || req.path.endsWith("purge/audit") || req.path.endsWith("draftDelete") || req.path.endsWith("purge/author-audit"))) {
-			logger.debug(`${type} :: DELETE with purge`);
+			logger.debug(`[${req.headers.TxnId}] ${type} :: DELETE with purge`);
 			let serviceId = req.path.split("/")[4];
 
 			return getServiceInfo(serviceId, type)
