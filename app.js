@@ -59,7 +59,7 @@ app.use(express.json({
 
 // FILE UPLOAD CONFIGURATIONS
 
-let allowedFileTypes = process.env.ODP_ALLOWED_FILE_TYPE || config.defaultAllowedFileTypes;
+let allowedFileTypes = process.env.ALLOWED_FILE_TYPES || config.defaultAllowedFileTypes;
 allowedFileTypes = allowedFileTypes.split(",");
 logger.info(`Allowed file types : ${allowedFileTypes}`);
 
