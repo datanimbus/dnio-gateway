@@ -40,7 +40,7 @@ function __smSocketHandler(){
 			socketClients[key].emit("deleteService", data)
 		})
 		// delete global.masterServiceRouter[escape(data.app) + data.api]
-		delete e.deleteServiceList(data)
+		delete routingMap.deleteServiceList(data)
 	})
 }
 
