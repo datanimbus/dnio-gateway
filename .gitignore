@@ -5,3 +5,5 @@ uploads
 coverage
 .nyc_output
 .DS_Store
+build.sh
+send.sh

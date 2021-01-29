@@ -87,7 +87,7 @@ module.exports = [{
 			let serviceId = req.path.split("/").pop();
 			return getServiceInfo(serviceId, type)
 				.then(srvcInfo => {
-					logger.debug(`[${req.headers.TxnId}] srvcInfo - ${JSON.stringify(srvcInfo)}`);
+					logger.trace(`[${req.headers.TxnId}] srvcInfo - ${JSON.stringify(srvcInfo)}`);
 					if (srvcInfo)
 						return Promise.resolve(srvcInfo.app);
 					throw new Error("Service " + serviceId + " not found");

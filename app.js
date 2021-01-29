@@ -11,7 +11,9 @@ const fileUpload = require("express-fileupload");
 const port = process.env.PORT || 9080;
 
 const log4js = avUtils.logger.getLogger;
-const loggerName = process.env.KUBERNETES_SERVICE_HOST && process.env.KUBERNETES_SERVICE_PORT ? `[${process.env.HOSTNAME}] [${process.env.DATA_STACK_NAMESPACE}]` : "[gateway]";
+let version = require('./package.json').version;
+const loggerName = (process.env.KUBERNETES_SERVICE_HOST && process.env.KUBERNETES_SERVICE_PORT) ? `[${process.env.DATA_STACK_NAMESPACE}] [${process.env.HOSTNAME}] [GW ${version}]` : `[GW ${version}]`;
+
 const logger = log4js.getLogger(loggerName);
 let timeOut = process.env.API_REQUEST_TIMEOUT || 120;
 global.logger = logger;
