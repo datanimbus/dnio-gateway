@@ -14,7 +14,7 @@ function getHashMapValues(_data){
 			URL = "http://" + _data.api.split("/")[1] + "." + config.odpNS + "-" + _data.app.toLowerCase().replace(/ /g, "");
 		}
 		// global.masterServiceRouter[escape(_data.app) + _data.api] = URL
-		logger.debug(`Routing map :: ${_data.app}${_data.api} : ${URL}`);
+		logger.trace(`Routing map :: ${_data.app}${_data.api} : ${URL}`);
 		return [`${_data.app}${_data.api}`, `${URL}`];
 	}
 	return null;

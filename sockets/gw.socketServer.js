@@ -100,7 +100,6 @@ module.exports = (_server) => {
 
 	// Handling UI socket connections
 	io.on("connection", (socket) => {
-		logger.debug(`Socket: ${JSON.stringify(socket)}`)
 		logger.info("Socket Connected :", socket.id)
 		if (socket.handshake.query.app) {
 			socketClients[socket.id] = socket
