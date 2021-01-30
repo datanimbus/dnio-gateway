@@ -2,6 +2,8 @@
 
 const request = require("request-promise");
 const config = require("../config/config");
+const sh = require("shorthash");
+const crypto = require("crypto");
 
 let logger = global.logger;
 
@@ -14,7 +16,7 @@ function getHashMapValues(_data){
 			URL = "http://" + _data.api.split("/")[1] + "." + config.odpNS + "-" + _data.app.toLowerCase().replace(/ /g, "");
 		}
 		// global.masterServiceRouter[escape(_data.app) + _data.api] = URL
-		logger.debug(`Routing map :: ${_data.app}${_data.api} : ${URL}`);
+		logger.trace(`Routing map :: ${_data.app}${_data.api} : ${URL}`);
 		return [`${_data.app}${_data.api}`, `${URL}`];
 	}
 	return null;
@@ -29,7 +31,7 @@ e.createServiceList = async () => {
 			count: -1,
 		},
 		headers: {
-			"TxnId": Date.now()
+			"TxnId": `GW_${sh.unique(crypto.createHash("md5").update(Date.now().toString()).digest("hex"))}`
 		},
 		json: true
 	};

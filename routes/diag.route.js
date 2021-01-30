@@ -1,4 +1,7 @@
 const request = require('request-promise')
+const sh = require("shorthash");
+const crypto = require("crypto");
+
 const express = require('express')
 var router = express.Router()
 
@@ -85,7 +88,7 @@ function readinessCheck(_serviceShortName) {
     return request({
     	"uri": url,
     	"headers": {
-    		"TxnId": Date.now()
+    		"TxnId": `GW_${sh.unique(crypto.createHash("md5").update(Date.now().toString()).digest("hex"))}`
     	}
     })
     .then(_ => {

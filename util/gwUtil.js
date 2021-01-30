@@ -20,7 +20,7 @@ e.randomStr = function(len) {
 
 e.getTxnId = (_req) => {
 	_req.headers["TxnId"] = sh.unique(crypto.createHash("md5").update(uuid()).digest("hex"));
-	logger.debug(`getTxnId() :: _req.headers.TxnId :: ${_req.headers.TxnId}`);
+	if (!_req.path.startsWith("/gw/health")) logger.debug(`getTxnId() :: _req.headers.TxnId :: ${_req.headers.TxnId}`);
 };
 
 e.checkReviewPermissionForService = (_req, _id, usrId) => {

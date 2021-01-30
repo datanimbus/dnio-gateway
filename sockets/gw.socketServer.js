@@ -9,33 +9,33 @@ const config = require("../config/config.js")
 function __smSocketHandler(){
 	let socketClientSM = ioClient.connect(config.get("sm"))
 
-	socketClientSM.on("reconnect", (n) => logger.info("WS :: Reconnecting to SM " + n))
-	socketClientSM.on("reconnect_failed", (n) => logger.info("WS :: reconnecting to SM failed " + n))
-	socketClientSM.on("connect_error", (err) => logger.info("WS :: Connection error in SM:: " + err.message))
+	socketClientSM.on("reconnect", (n) => logger.info("WS :: SM :: Reconnecting to SM " + n))
+	socketClientSM.on("reconnect_failed", (n) => logger.info("WS :: SM :: reconnecting to SM failed " + n))
+	socketClientSM.on("connect_error", (err) => logger.info("WS :: SM :: Connection error in SM:: " + err.message))
 
 	socketClientSM.on("connect", () => {
-		logger.info("WS :: Connected to SM")
+		logger.info("WS :: SM :: Connected to SM")
 		routingMap.createServiceList()
 	})
 
 	socketClientSM.on("serviceStatus", (data) => {
-		logger.info("serviceStatus from Service Manager :", JSON.stringify(data))
+		logger.info("WS :: SM :: Service status from Service Manager :", JSON.stringify(data))
 		Object.keys(socketClients).forEach(key => {
 			socketClients[key].emit("serviceStatus", data)
 		})
-		logger.info("Status update received for " + data.api + " under " + data.app)
+		logger.info("WS :: SM :: Status update received for " + data.api + " under " + data.app)
 		routingMap.updateServiceList(data)
 	})
 
 	socketClientSM.on("newService", (data) => {
-		logger.info("newService from Service Manager :", JSON.stringify(data))
+		logger.info("WS :: SM :: New service from Service Manager :", JSON.stringify(data))
 		Object.keys(socketClients).forEach(key => {
 			socketClients[key].emit("newService", data)
 		})
 	})
 
 	socketClientSM.on("deleteService", (data) => {
-		logger.info("deleteService from Service Manager :", JSON.stringify(data))
+		logger.info("WS :: SM :: Delete service from Service Manager :", JSON.stringify(data))
 		Object.keys(socketClients).forEach(key => {
 			socketClients[key].emit("deleteService", data)
 		})
@@ -47,41 +47,41 @@ function __smSocketHandler(){
 function __pmSocketHander(){
 	let socketClientPM = ioClient.connect(config.get("pm"))
 
-	socketClientPM.on("connect", () => logger.info("WS :: Connected to PM"))
-	socketClientPM.on("reconnect", (n) => logger.info("WS :: Reconnecting to PM " + n))
-	socketClientPM.on("reconnect_failed", (n) => logger.error("WS :: reconnecting to PM failed " + n))
-	socketClientPM.on("connect_error", (err) => logger.error("WS :: Connection error in PM:: " + err.message))
+	socketClientPM.on("connect", () => logger.info("WS :: PM :: Connected to PM"))
+	socketClientPM.on("reconnect", (n) => logger.info("WS :: PM :: Reconnecting to PM " + n))
+	socketClientPM.on("reconnect_failed", (n) => logger.error("WS :: PM :: Reconnecting to PM failed " + n))
+	socketClientPM.on("connect_error", (err) => logger.error("WS :: PM :: Connection error in PM:: " + err.message))
 
 	socketClientPM.on("flowStatus", (data) => {
-		logger.info("flowStatus from Partner Manager :", JSON.stringify(data))
+		logger.info("WS :: PM :: Flow status from Partner Manager :", JSON.stringify(data))
 		Object.keys(socketClients).forEach(key => {
 			socketClients[key].emit("flowStatus", data)
 		})
 	})
 
 	socketClientPM.on("flowCreated", (data) => {
-		logger.info("flowCreated from Partner Manager :", JSON.stringify(data))
+		logger.info("WS :: PM :: Flow created from Partner Manager :", JSON.stringify(data))
 		Object.keys(socketClients).forEach(key => {
 			socketClients[key].emit("flowCreated", data)
 		})
 	})
 
 	socketClientPM.on("flowDeleted", (data) => {
-		logger.info("flowDeleted from Partner Manager :", JSON.stringify(data))
+		logger.info("WS :: PM :: Flow deleted from Partner Manager :", JSON.stringify(data))
 		Object.keys(socketClients).forEach(key => {
 			socketClients[key].emit("flowDeleted", data)
 		})
 	})
 
 	socketClientPM.on("interactionCreated", (data) => {
-		logger.info("interactionCreated from Partner Manager :", JSON.stringify(data))
+		logger.info("WS :: PM :: Interaction created from Partner Manager :", JSON.stringify(data))
 		Object.keys(socketClients).forEach(key => {
 			socketClients[key].emit("interactionCreated", data)
 		})
 	})
 
 	socketClientPM.on("interactionUpdated", (data) => {
-		logger.info("interactionUpdated from Partner Manager :", JSON.stringify(data))
+		logger.info("WS :: PM :: Interaction updated from Partner Manager :", JSON.stringify(data))
 		Object.keys(socketClients).forEach(key => {
 			socketClients[key].emit("interactionUpdated", data)
 		})
@@ -100,7 +100,6 @@ module.exports = (_server) => {
 
 	// Handling UI socket connections
 	io.on("connection", (socket) => {
-		logger.debug(`Socket: ${JSON.stringify(socket)}`)
 		logger.info("Socket Connected :", socket.id)
 		if (socket.handshake.query.app) {
 			socketClients[socket.id] = socket
