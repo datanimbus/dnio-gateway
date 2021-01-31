@@ -71,6 +71,7 @@ const storage = multer.diskStorage({
 		cb(null, "./uploads");
 	},
 	filename: function (_req, _file, _cb) {
+		logger.debug(`[${_req.headers.TxnId}] File details :: ${JSON.stringify(_file)}`);
 		let extn = _file.originalname.split(".").pop();
 		logger.debug(`[${_req.headers.TxnId}] File extn of file "${_file.originalname}"" :: ${extn}`);
 		let fileValidExtension = allowedFileTypes;
@@ -86,6 +87,7 @@ let upload = multer({ storage: storage });
 app.use((req, res, next) => {
 	let urlSplit = req.path.split("/");
 	if ((urlSplit[5] && urlSplit[5] === "fileMapper") || (urlSplit[4] && urlSplit[4] === "usr" && urlSplit[5] && urlSplit[5] === "bulkCreate")) {
+		logger.info(`[${req.headers.TxnId}] File upload for ds filemapper or user.`)
 		upload.single("file")(req, res, next);
 	} else {
 		fileUpload({ useTempFiles: true })(req, res, next);

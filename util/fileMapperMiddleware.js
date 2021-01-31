@@ -333,16 +333,20 @@ function sheetSelect(_req, _res) {
 }
 
 function requestValidation(req, body, fileId, invalidSNo) {
+	let txnId = req.headers["TxnId"]
 	let api = req.path.split("/")[3] + "/" + req.path.split("/")[4];
+	logger.debug(`[${txnId}] Request validation :: API :: ${api}`)
 	let host = global.masterServiceRouter[api];
+	logger.debug(`[${txnId}] Request validation :: Host :: ${host}`)
 	let url = host + "/" + api + `/fileMapper/${fileId}/mapping`;
+	logger.debug(`[${txnId}] Request validation :: URL :: ${url}`)
 	delete body.sheetData;
 	body.invalidSNo = invalidSNo;
 	let options = {
 		url: url,
 		method: "PUT",
 		headers: {
-			"TxnId": req.get("txnId") ? req.get("txnId") : gwUtil.getTxnId(req),
+			"TxnId": txnId,
 			"Authorization": req.get("Authorization"),
 			"User": req.user ? req.user._id : null
 		},
@@ -352,13 +356,20 @@ function requestValidation(req, body, fileId, invalidSNo) {
 	return new Promise((resolve, reject) => {
 		request.put(options, function (err, res, body) {
 			if (err) {
-				logger.error(err.message);
-			} else if (!res) logger.error("Service is DOWN");
+				logger.error(`[${txnId}] Request validation :: ${err.message}`)
+				reject(err)
+			} else if (!res) {
+				logger.error(`[${txnId}] Request validation :: Service is down`)
+				reject(new Error("Service is DOWN"));
+			}
 			else {
 				if (res.statusCode >= 200 && res.statusCode < 400) {
+					logger.trace(`[${txnId}] Request validation :: ${JSON.stringify(body)}`)
 					resolve(body);
 				} else {
-					reject(new Error(res.body && res.body.message ? res.body.message : "Request failed"));
+					let message = res.body && res.body.message ? res.body.message : "Request failed"
+					logger.error(`[${txnId}] Request validation :: ${message}`)
+					reject(new Error(message));
 				}
 			}
 		});
@@ -441,33 +452,36 @@ function substituteMappingSheetToSchema(sheetArr, headerMapping) {
 }
 
 function validateData(_req, _res) {
+	let txnId = _req.headers["TxnId"]
 	let data = _req.body;
+	logger.trace(`[${txnId}] Validate data :: ${JSON.stringify(data)}`)
 	let flag = isFileMapperAllowed(_req._highestPermission);
+	logger.debug(`[${txnId}] Validate data :: File mapper allowed? ${flag ? "YES" : "NO"}`)
 	// let flag = checkPermission(authUtil.flattenPermission(_req._highestPermission, "", ["W"]), data.headerMapping);
 	if (!flag) {
-		_res.status(403).json({
-			"message": "Not Permitted."
-		});
+		_res.status(403).json({"message": "Not Permitted."});
 		return;
 	}
 	let urlSplit = _req.path.split("/");
+	logger.debug(`[${txnId}] Validate data :: URL split :: ${urlSplit}`)
 	let fileName = urlSplit[6];
+	logger.debug(`[${txnId}] Validate data :: Filename :: ${fileName}`)
 	let db = `${config.odpNS}-${urlSplit[3]}`;
+	logger.debug(`[${txnId}] Validate data :: DB :: ${db}`)
 	let collectionName = urlSplit[4];
+	logger.debug(`[${txnId}] Validate data :: Collection :: ${collectionName}`)
 	let sNo = 1;
 
 	if (_req.user.isSuperAdmin) {
+	logger.debug(`[${txnId}] Validate data :: Is super admin? YES`)
 		return requestValidation(_req, _req.body, data.fileId, JSON.stringify([]))
-			.then((_d) => {
-				_res.json(_d);
-			})
+			.then((_d) => _res.json(_d))
 			.catch(err => {
-				_res.status(500).json({
-					message: err.message
-				});
-				logger.error(err);
+				logger.error(`[${txnId}] Validate data :: ${err.message}`)
+				_res.status(500).json({message: err.message})
 			});
 	}
+	logger.debug(`[${txnId}] Validate data :: Is super admin? NO`)
 	return getSheetDataFromGridFS(fileName, db, collectionName)
 		.then((bufferData) => {
 			let wb = XLSX.read(bufferData, { type: "buffer", cellDates: true, cellNF: false, cellText: true, dateNF: "YYYY-MM-DD HH:MM:SS" });
@@ -497,9 +511,7 @@ function validateData(_req, _res) {
 					if (invalidsNo.length > 100) throw new Error("Insufficient user privilege");
 					return requestValidation(_req, reqBody, data.fileId, JSON.stringify(invalidsNo));
 				})
-				.then((_d) => {
-					_res.json(_d);
-				})
+				.then((_d) => _res.json(_d))
 				.catch(err => {
 					_res.status(500).json({
 						message: err.message
@@ -649,13 +661,26 @@ function getServiceInfo(app, api) {
 }
 
 e.fileMapperHandler = (req, res, next) => {
+	let txnId = req.get("TxnId") || req.headers.TxnId
 	let urlSplit = req.path.split("/");
 	if (urlSplit[5] && urlSplit[5] === "fileMapper") {
-		logger.debug("Invoked fileMapperHandler()");
-		if (urlSplit[6] === "upload") return upload(req, res);
-		if (req.method === "PUT" && urlSplit[7] == "mapping") return validateData(req, res);
-		if (req.method === "PUT" && !urlSplit[7]) return sheetSelect(req, res);
-		if (req.method === "POST") return bulkCreate(req, res);
+		logger.debug(`[${txnId}] Filemapper :: url split :: ${urlSplit}`)
+		if (urlSplit[6] === "upload") {
+			logger.debug(`[${txnId}] Filemapper :: Upload`)
+			return upload(req, res);
+		}
+		if (req.method === "PUT" && urlSplit[7] == "mapping") {
+			logger.debug(`[${txnId}] Filemapper :: Mapping`)
+			return validateData(req, res);
+		}
+		if (req.method === "PUT" && !urlSplit[7]) {
+			logger.debug(`[${txnId}] Filemapper :: Sheet selection`)
+			return sheetSelect(req, res);
+		}
+		if (req.method === "POST") {
+			logger.debug(`[${txnId}] Filemapper :: Bulk create`)
+			return bulkCreate(req, res);
+		}
 		if (req.method === "GET") {
 			if (authUtil.compareUrl("/api/c/{app}/{api}/fileMapper/{fileId}", req.path) || authUtil.compareUrl("/api/c/{app}/{api}/fileMapper/{fileId}/count", req.path))
 				return next();

@@ -135,56 +135,56 @@ function checkPermissions(relatedPermissions, userPermission, reqEntity, sMType,
  * req, res, next
  */
 function getAdditionalData(req, res, next) {
+		let txnId = req.headers.TxnId
     let authObject = authLogic.find(obj => {
-        return req.path.startsWith(obj.url)
+      return req.path.startsWith(obj.url)
     });
+    logger.debug(`[${txnId}] Addnl data :: Auth object :: ${authObject}`)
     if (!authObject) {
-        res.status(401).json({
-            message: "Url not configured in authorization"
-        })
-        return Promise.reject(new Error('Url not configured in authorization'))
+      res.status(401).json({ message: "Url not configured in authorization" })
+  		logger.error(`[${txnId}] Addnl data :: Url not configured in authorization`)
+      return Promise.reject(new Error('Url not configured in authorization'))
     } else {
-        let apps = req.user.apps.map(obj => obj._id)
-        logger.debug(`[${req.headers.TxnId}] Apps: ${JSON.stringify(apps)}`)
-        // let perm = [];
-        let reqApp = null
-        let reqEntity = null
-        logger.debug(`[${req.headers.TxnId}] ${JSON.stringify(authObject)}`)
-        return authObject.getApp(req)
-            .then(_d => {
-                logger.debug(`[${req.headers.TxnId}] App after auth object : ${_d}`);
-                if (_d instanceof Error) throw _d
-                reqApp = _d
-                if (!req.user.isSuperAdmin && reqApp && apps.indexOf(reqApp) == -1) {
-                    res.status(403).json({
-                        message: reqApp + " app is restricted"
-                    })
-                    throw new Error(reqApp + " app is restricted")
-                }
-            }, _d => {
-                res.status(404).json({ message: _d.message })
-                next(new Error(_d))
-                return
-            })
-            .then(() => authObject.getEntity(req))
-            .then(entity => {
-                reqEntity = entity
-                logger.debug(`[${req.headers.TxnId}] reqEntity :: ${reqEntity}`);
-                if (!entity) {
-                    sendForbidden(res)
-                    return
-                }
-                // TO BE OPTIMIZED
-                return authUtil.getPermissions(req, entity, reqApp)
-            })
-            .then((permissions) => {
-                // logger.debug('Permissions of app : ', permissions);
-                return Promise.resolve({ reqApp, reqEntity, permissions })
-            })
-            .catch(err => {
-                logger.error(`[${req.headers.TxnId}] Error in getting additional data :: ${err.message}`)
-                next(err)
-            })
+      let apps = req.user.apps.map(obj => obj._id)
+    	logger.debug(`[${txnId}] Addnl data :: Apps :: ${JSON.stringify(apps)}`)
+      let reqApp = null
+      let reqEntity = null
+      return authObject.getApp(req)
+        .then(_d => {
+          logger.debug(`[${txnId}] Addnl data :: App after auth object : ${_d}`);
+          if (_d instanceof Error) throw _d
+          reqApp = _d
+          if (!req.user.isSuperAdmin && reqApp && apps.indexOf(reqApp) == -1) {
+          	logger.error(`[${txnId}] Addnl data :: ${reqApp} app is restricted`);
+            res.status(403).json({ message: `${reqApp} app is restricted`})
+            throw new Error(`${reqApp} app is restricted`)
+          }
+        }, _err => {
+          logger.error(`[${txnId}] Addnl data :: ${_err.message}`);
+          res.status(404).json({ message: _err.message })
+          next(new Error(_err))
+          return
+        })
+        .then(() => authObject.getEntity(req))
+        .then(entity => {
+          reqEntity = entity
+          logger.debug(`[${txnId}] Addnl data :: Entity :: ${entity}`);
+          if (!entity) {
+          	logger.error(`[${txnId}] Addnl data :: Entity not found`);
+            return sendForbidden(res)
+          }
+          // TO BE OPTIMIZED
+          return authUtil.getPermissions(req, entity, reqApp)
+        })
+        .then((permissions) => {
+          logger.trace(`[${txnId}] Addnl data :: Permissions :: ${JSON.stringify(permissions)}`);
+          // logger.debug('Permissions of app : ', permissions);
+          return Promise.resolve({ reqApp, reqEntity, permissions })
+        })
+        .catch(err => {
+          logger.error(`[${txnId}] Error in getting additional data :: ${err.message}`)
+          next(err)
+        })
     }
 }
 

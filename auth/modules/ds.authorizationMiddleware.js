@@ -4,24 +4,28 @@ let commonAuthZMw = require("./common.authorizationMiddleware");
 
 
 function dsAuthorizationMw(req, res, next) {
+		let txnId = req.headers.TxnId
     const allowedApiEndPoint = ["file", "hook"];
     if (req.path.startsWith("/api/c") && allowedApiEndPoint.indexOf(req.path.split("/")[5]) > -1) {
-        return next();;
+        return next();
     }
     commonAuthZMw.getAdditionalData(req, res, next)
         .then(data => {
             let { reqApp, reqEntity, permissions } = data;
+            logger.debug(`[${txnId}] DS AuthMW :: Additional data :: App :: ${reqApp}`);
+            logger.debug(`[${txnId}] DS AuthMW :: Additional data :: Entity :: ${reqEntity}`);
             if (permissions) {
                 let userPermissionIds = [];
                 // To fetch all the permission id the user has for a app and entity.
                 if (req.user.roles && Array.isArray(req.user.roles)) {
-                    userPermissionIds = req.user.roles.filter(_r => (reqApp ? _r.app === reqApp : true) && (Array.isArray(reqEntity) ? reqEntity.indexOf(_r.entity) > -1 : _r.entity === reqEntity)).map(_o => _o.id);
-                    logger.debug(`Permission Ids :: ${userPermissionIds.join(", ")}`);
+                  userPermissionIds = req.user.roles.filter(_r => (reqApp ? _r.app === reqApp : true) && (Array.isArray(reqEntity) ? reqEntity.indexOf(_r.entity) > -1 : _r.entity === reqEntity)).map(_o => _o.id);
+                  logger.debug(`[${txnId}] DS AuthMW :: Permission Ids :: ${userPermissionIds.join(", ")}`);
                 }
                 let allPermission = permissions[0];
-                logger.debug('allPermission :: ', JSON.stringify({ allPermission }));
+                logger.trace(`[${txnId}] DS AuthMW :: All permission :: ${JSON.stringify({ allPermission })}`);
                 if (!allPermission) {
-                    return commonAuthZMw.sendForbidden(_res);
+                	logger.error(`[${txnId}] DS AuthMW :: All permission :: Not allowed`);
+                  return commonAuthZMw.sendForbidden(_res);
                 }
                 allPermission.fields = (typeof (allPermission.fields) == "object") ? allPermission.fields : JSON.parse(allPermission.fields);
                 let urlArr = req.path.split("/");
@@ -35,11 +39,11 @@ function dsAuthorizationMw(req, res, next) {
                     return next();
                 }
                 let permissionAllowed = highestPermissionObject.map(_h => _h.method);
-                logger.debug(JSON.stringify({ permissionAllowed }));
+                logger.trace(`[${txnId}] DS AuthMW :: Permission allowed :: ${JSON.stringify(permissionAllowed)}`);
                 if (authUtil.compareUrl("/api/c/{app}/{api}/utils/aggregate", req.path)) {
                     if (req.body) {
                         if (permissionAllowed.length === 0) {
-                            logger.debug("fields " + JSON.stringify(getObj[0].fields));
+                            logger.trace(`[${txnId}] DS AuthMW :: Fields ${JSON.stringify(getObj[0].fields)}`);
                             let fields = authUtil.flattenPermission(getObj[0].fields, "", ["W", "R"]);
                             let projection = fields.reduce((acc, curr) => {
                                 acc[curr] = 1;
@@ -51,7 +55,7 @@ function dsAuthorizationMw(req, res, next) {
                             } else {
                                 req.body = [query, req.body];
                             }
-                            logger.debug("Updated body " + JSON.stringify(req.body));
+                            logger.trace(`[${txnId}] DS AuthMW :: Updated body :: ${JSON.stringify(req.body)}`);
                         }
                         if (!req.user.isSuperAdmin)
                             return authUtil.checkRecordPermissionForUserCRUD(userPermissionIds, allPermission, req.method, "API", req.body, req).then(() => next());
