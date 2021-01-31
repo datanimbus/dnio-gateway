@@ -4,9 +4,10 @@ var authorizationModules = require("./modules/index");
 let logger = global.logger;
 
 module.exports = (req, res, next) => {
-
+	let txnId = req.headers.TxnId
+	
 	if(gwUtil.isPermittedAuthZUrl(req)) return next()
-	logger.debug(`[${req.headers.TxnId}] Authorization check : Started!`)
+	logger.debug(`[${txnId}] Authorization check : Started!`)
 
 	if(req.path.startsWith("/api/a/rbac")) {
 		return authorizationModules.userAuthorizationMw(req, res, next);
@@ -23,7 +24,7 @@ module.exports = (req, res, next) => {
 	} else if(req.path.startsWith("/api/c/")) {
 		return authorizationModules.dsAuthorizationMw(req, res, next);
 	} else {
-		logger.error('Url not registered.');
+		logger.error(`[${txnId}] Url not registered.`);
 		res.status(404).json({ message: "Url not registered." });
 		return next(new Error("Url not registered."))
 	}
