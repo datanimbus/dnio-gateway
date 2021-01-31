@@ -333,13 +333,13 @@ function sheetSelect(_req, _res) {
 }
 
 function requestValidation(req, body, fileId, invalidSNo) {
-	let txnId = req.headers["TxnId"]
+	let txnId = req.headers["TxnId"];
 	let api = req.path.split("/")[3] + "/" + req.path.split("/")[4];
-	logger.debug(`[${txnId}] Request validation :: API :: ${api}`)
+	logger.debug(`[${txnId}] Request validation :: API :: ${api}`);
 	let host = global.masterServiceRouter[api];
-	logger.debug(`[${txnId}] Request validation :: Host :: ${host}`)
+	logger.debug(`[${txnId}] Request validation :: Host :: ${host}`);
 	let url = host + "/" + api + `/fileMapper/${fileId}/mapping`;
-	logger.debug(`[${txnId}] Request validation :: URL :: ${url}`)
+	logger.debug(`[${txnId}] Request validation :: URL :: ${url}`);
 	delete body.sheetData;
 	body.invalidSNo = invalidSNo;
 	let options = {
@@ -356,19 +356,19 @@ function requestValidation(req, body, fileId, invalidSNo) {
 	return new Promise((resolve, reject) => {
 		request.put(options, function (err, res, body) {
 			if (err) {
-				logger.error(`[${txnId}] Request validation :: ${err.message}`)
-				reject(err)
+				logger.error(`[${txnId}] Request validation :: ${err.message}`);
+				reject(err);
 			} else if (!res) {
-				logger.error(`[${txnId}] Request validation :: Service is down`)
+				logger.error(`[${txnId}] Request validation :: Service is down`);
 				reject(new Error("Service is DOWN"));
 			}
 			else {
 				if (res.statusCode >= 200 && res.statusCode < 400) {
-					logger.trace(`[${txnId}] Request validation :: ${JSON.stringify(body)}`)
+					logger.trace(`[${txnId}] Request validation :: ${JSON.stringify(body)}`);
 					resolve(body);
 				} else {
-					let message = res.body && res.body.message ? res.body.message : "Request failed"
-					logger.error(`[${txnId}] Request validation :: ${message}`)
+					let message = res.body && res.body.message ? res.body.message : "Request failed";
+					logger.error(`[${txnId}] Request validation :: ${message}`);
 					reject(new Error(message));
 				}
 			}
@@ -452,36 +452,36 @@ function substituteMappingSheetToSchema(sheetArr, headerMapping) {
 }
 
 function validateData(_req, _res) {
-	let txnId = _req.headers["TxnId"]
+	let txnId = _req.headers["TxnId"];
 	let data = _req.body;
-	logger.trace(`[${txnId}] Validate data :: ${JSON.stringify(data)}`)
+	logger.trace(`[${txnId}] Validate data :: ${JSON.stringify(data)}`);
 	let flag = isFileMapperAllowed(_req._highestPermission);
-	logger.debug(`[${txnId}] Validate data :: File mapper allowed? ${flag ? "YES" : "NO"}`)
+	logger.debug(`[${txnId}] Validate data :: File mapper allowed? ${flag ? "YES" : "NO"}`);
 	// let flag = checkPermission(authUtil.flattenPermission(_req._highestPermission, "", ["W"]), data.headerMapping);
 	if (!flag) {
 		_res.status(403).json({"message": "Not Permitted."});
 		return;
 	}
 	let urlSplit = _req.path.split("/");
-	logger.debug(`[${txnId}] Validate data :: URL split :: ${urlSplit}`)
+	logger.debug(`[${txnId}] Validate data :: URL split :: ${urlSplit}`);
 	let fileName = urlSplit[6];
-	logger.debug(`[${txnId}] Validate data :: Filename :: ${fileName}`)
+	logger.debug(`[${txnId}] Validate data :: Filename :: ${fileName}`);
 	let db = `${config.odpNS}-${urlSplit[3]}`;
-	logger.debug(`[${txnId}] Validate data :: DB :: ${db}`)
+	logger.debug(`[${txnId}] Validate data :: DB :: ${db}`);
 	let collectionName = urlSplit[4];
-	logger.debug(`[${txnId}] Validate data :: Collection :: ${collectionName}`)
+	logger.debug(`[${txnId}] Validate data :: Collection :: ${collectionName}`);
 	let sNo = 1;
 
 	if (_req.user.isSuperAdmin) {
-	logger.debug(`[${txnId}] Validate data :: Is super admin? YES`)
+		logger.debug(`[${txnId}] Validate data :: Is super admin? YES`);
 		return requestValidation(_req, _req.body, data.fileId, JSON.stringify([]))
 			.then((_d) => _res.json(_d))
 			.catch(err => {
-				logger.error(`[${txnId}] Validate data :: ${err.message}`)
-				_res.status(500).json({message: err.message})
+				logger.error(`[${txnId}] Validate data :: ${err.message}`);
+				_res.status(500).json({message: err.message});
 			});
 	}
-	logger.debug(`[${txnId}] Validate data :: Is super admin? NO`)
+	logger.debug(`[${txnId}] Validate data :: Is super admin? NO`);
 	return getSheetDataFromGridFS(fileName, db, collectionName)
 		.then((bufferData) => {
 			let wb = XLSX.read(bufferData, { type: "buffer", cellDates: true, cellNF: false, cellText: true, dateNF: "YYYY-MM-DD HH:MM:SS" });
@@ -661,24 +661,24 @@ function getServiceInfo(app, api) {
 }
 
 e.fileMapperHandler = (req, res, next) => {
-	let txnId = req.get("TxnId") || req.headers.TxnId
+	let txnId = req.get("TxnId") || req.headers.TxnId;
 	let urlSplit = req.path.split("/");
 	if (urlSplit[5] && urlSplit[5] === "fileMapper") {
-		logger.debug(`[${txnId}] Filemapper :: url split :: ${urlSplit}`)
+		logger.debug(`[${txnId}] Filemapper :: url split :: ${urlSplit}`);
 		if (urlSplit[6] === "upload") {
-			logger.debug(`[${txnId}] Filemapper :: Upload`)
+			logger.debug(`[${txnId}] Filemapper :: Upload`);
 			return upload(req, res);
 		}
 		if (req.method === "PUT" && urlSplit[7] == "mapping") {
-			logger.debug(`[${txnId}] Filemapper :: Mapping`)
+			logger.debug(`[${txnId}] Filemapper :: Mapping`);
 			return validateData(req, res);
 		}
 		if (req.method === "PUT" && !urlSplit[7]) {
-			logger.debug(`[${txnId}] Filemapper :: Sheet selection`)
+			logger.debug(`[${txnId}] Filemapper :: Sheet selection`);
 			return sheetSelect(req, res);
 		}
 		if (req.method === "POST") {
-			logger.debug(`[${txnId}] Filemapper :: Bulk create`)
+			logger.debug(`[${txnId}] Filemapper :: Bulk create`);
 			return bulkCreate(req, res);
 		}
 		if (req.method === "GET") {
