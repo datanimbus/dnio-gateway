@@ -99,7 +99,7 @@ app.use((req, res, next) => {
 	} else {
 		const sizeInBytes = fileSizeParser(maxFileSize);
 		if (req.files && req.files.file && req.files.file.size > sizeInBytes) {
-			res.status(413).json({ message: 'File Too Large, max file size should be '+maxFileSize });
+			res.status(413).json({ message: "File Too Large, max file size should be "+maxFileSize });
 		} else {
 			next();
 		}
