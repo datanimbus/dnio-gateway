@@ -6,6 +6,7 @@ const multer = require("multer");
 const cookieParser = require("cookie-parser");
 const avUtils = require("@appveen/utils");
 const fileUpload = require("express-fileupload");
+const fileSizeParser = require("filesize-parser");
 
 
 const port = process.env.PORT || 9080;
@@ -30,7 +31,7 @@ const userHBRouter = require("./routes/userHB.route");
 const authenticationMiddleware = require("./auth/authenticationMiddleware");
 const authorizationMiddleware = require("./auth/authorizationMiddleware");
 const requestDetailsMiddelware = require("./auth/requestDetailsMiddelware");
-const bulkImportUser= require("./util/bulkImportUserMiddleware");
+const bulkImportUser = require("./util/bulkImportUserMiddleware");
 
 
 config.init();
@@ -79,8 +80,7 @@ const storage = multer.diskStorage({
 		}
 		if (fileValidExtension.indexOf(extn) == -1) return _cb({ "message": "Invalid file extension!" });
 		_cb(null, `tmp-${Date.now()}`);
-	},
-	limits: maxFileSize,
+	}
 });
 let upload = multer({ storage: storage });
 
@@ -90,6 +90,20 @@ app.use((req, res, next) => {
 		upload.single("file")(req, res, next);
 	} else {
 		fileUpload({ useTempFiles: true })(req, res, next);
+	}
+});
+
+app.use((req, res, next) => {
+	let urlSplit = req.path.split("/");
+	if ((urlSplit[5] && urlSplit[5] === "fileMapper") || (urlSplit[4] && urlSplit[4] === "usr" && urlSplit[5] && urlSplit[5] === "bulkCreate")) {
+		next();
+	} else {
+		const sizeInBytes = fileSizeParser(maxFileSize);
+		if (req.files && req.files.file && req.files.file.size > sizeInBytes) {
+			res.status(413).json({ message: "File Too Large, max file size should be "+maxFileSize });
+		} else {
+			next();
+		}
 	}
 });
 
@@ -127,7 +141,7 @@ app.use(bulkImportUser);
 
 app.use(router.getRouterMiddleware({
 	target: config.get("gw"),
-	router: function(req) {
+	router: function (req) {
 		let fixRoutes = {
 			"/api/a/rbac": config.get("user"),
 			"/api/a/sm": config.get("sm"),
@@ -278,7 +292,7 @@ app.use((req, res) => {
 	});
 });
 
-app.use(function(error, req, res, next) {
+app.use(function (error, req, res, next) {
 	if (error) {
 		logger.error(error);
 		if (!res.headersSent) {

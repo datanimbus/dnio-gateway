@@ -116,7 +116,7 @@ e.addRequestDetails = async (_req, _res, next) => {
 		
 		if (gwUtil.compareUrl("/api/a/sm/service/{Id}", _req.path) && _req.method === "PUT") {
 			let ds = await db.findOne(false, "services", { _id: pathSplit[5] })
-			if(ds.draftVersion) ds = await db.findOne(false, { _id: pathSplit[5] })
+			if(ds.draftVersion) ds = await db.findOne(false, "services.draft" ,{ _id: pathSplit[5] })
 			_req.apiDetails = ds
 			_req.apiDetails.role = await db.findOne(false, "userMgmt.roles", { _id: pathSplit[5] })
 			return next()
