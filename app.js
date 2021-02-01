@@ -142,7 +142,7 @@ app.use(router.getRouterMiddleware({
 		let selectedKey = Object.keys(fixRoutes).find(key => req.path.startsWith(key));
 		if (selectedKey) return Promise.resolve(fixRoutes[selectedKey]);
 		let api = req.path.split("/")[3] + "/" + req.path.split("/")[4];
-		logger.info(`${req.headers.TxnId} Master service router API :: ${api}`)
+		logger.info(`${req.headers.TxnId} Master service router API :: ${api}`);
 		if (req.method === "GET") {
 			return getDSApi(req, api);
 		} else {
@@ -167,7 +167,7 @@ app.use(router.getRouterMiddleware({
 function getDSApi(req, api) {
 	return new Promise((resolve, reject) => {
 		if (global.masterServiceRouter[api]) {
-			logger.debug(`[${req.headers.TxnId}] Routing to :: ${global.masterServiceRouter[api]}`)
+			logger.debug(`[${req.headers.TxnId}] Routing to :: ${global.masterServiceRouter[api]}`);
 			resolve(global.masterServiceRouter[api]);
 		} else {
 			let apiSplit = api.split("/");

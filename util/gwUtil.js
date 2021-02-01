@@ -39,14 +39,14 @@ e.checkReviewPermissionForService = (_req, _id, usrId) => {
 		};
 		request(options, (_err, _res) => {
 			if (_err) {
-				logger.error(`[${txnId}] Review permission :: User - ${usrId}, DS - ${_id} :: ${_err.message}`)
+				logger.error(`[${txnId}] Review permission :: User - ${usrId}, DS - ${_id} :: ${_err.message}`);
 				reject(_err);
 			} else {
 				if (_res.statusCode == 404) {
-					logger.info(`[${txnId}] Review permission required? :: User - ${usrId}, DS - ${_id} :: YES`)
+					logger.info(`[${txnId}] Review permission required? :: User - ${usrId}, DS - ${_id} :: YES`);
 					return resolve(true);
 				}
-				logger.info(`[${txnId}] Review permission required? :: User - ${usrId}, DS - ${_id} :: NO`)
+				logger.info(`[${txnId}] Review permission required? :: User - ${usrId}, DS - ${_id} :: NO`);
 				return resolve(false);
 			}
 		});

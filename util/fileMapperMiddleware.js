@@ -682,7 +682,7 @@ e.fileMapperHandler = (req, res, next) => {
 		}
 		if (req.method === "PUT" && urlSplit[8] == "readStatus") {
 			logger.debug(`[${txnId}] Filemapper :: Read status`);
-			return next()
+			return next();
 		}
 		if (req.method === "GET") {
 			if (authUtil.compareUrl("/api/c/{app}/{api}/utils/fileMapper/{fileId}", req.path) || authUtil.compareUrl("/api/c/{app}/{api}/utils/fileMapper/{fileId}/count", req.path))
