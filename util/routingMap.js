@@ -15,7 +15,7 @@ function getHashMapValues(_data){
 		if (process.env.GW_ENV == "K8s") {
 			URL = "http://" + _data.api.split("/")[1] + "." + config.odpNS + "-" + _data.app.toLowerCase().replace(/ /g, "");
 		}
-		global.serviceMap[URL] = `${_data.app}/${_data.name}`
+		global.serviceMap[URL] = `${_data.app}/${_data.name}`;
 		logger.trace(`Routing map :: ${_data.app}${_data.api} : ${URL}`);
 		return [`${_data.app}${_data.api}`, `${URL}`];
 	}

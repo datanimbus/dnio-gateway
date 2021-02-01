@@ -40,7 +40,7 @@ global.mongoAppCenterConnected = false;
 global.mongoAuthorConnected = false;
 require("./util/mongoUtils").init();
 
-global.serviceMap = {}
+global.serviceMap = {};
 
 const app = express();
 cacheUtil.init();

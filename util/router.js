@@ -9,7 +9,6 @@ const fs = require("fs");
 
 function sendRequest(txnId, config, res) {
 	let url = config.host + config.path;
-	logger.debug(config)
 	logger.debug(`[${txnId}] Send request :: URL :: ${url}`)
 	let options = {
 		url: url,
