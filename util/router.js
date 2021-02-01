@@ -9,7 +9,7 @@ const fs = require("fs");
 
 function sendRequest(txnId, config, res) {
 	let url = config.host + config.path;
-	logger.debug(`[${txnId}] Send request :: URL :: ${url}`)
+	logger.debug(`[${txnId}] Send request :: URL :: ${url}`);
 	let options = {
 		url: url,
 		method: config.method,
@@ -21,7 +21,7 @@ function sendRequest(txnId, config, res) {
 		options.json = true;
 		options.body = config.body;
 	}
-	let errMessage = `Error connecting to ${global.serviceMap[config.host]}. Please make sure that the data service is running. Try starting and stopping the data service from Author.`
+	let errMessage = `Error connecting to ${global.serviceMap[config.host]}. Please make sure that the data service is running. Try starting and stopping the data service from Author.`;
 	return new Promise((resolve, reject) => {
 		let newRes = request[config.method.toLowerCase()](options, function (err, resp) {
 			if (err) {
@@ -30,7 +30,7 @@ function sendRequest(txnId, config, res) {
 			} else if (!resp) {
 				logger.error(`[${txnId}] Send request :: ${config.host} DOWN`);
 				reject(new Error(errMessage));
-			} else resolve(resp)
+			} else resolve(resp);
 			if (config.files) {
 				Object.keys(config.files).forEach(file => {
 					fs.unlinkSync(config.files[file].tempFilePath);
@@ -73,9 +73,9 @@ e.getRouterMiddleware = (config) => {
 		let txnId = req.headers["TxnId"];
 
 		// Nothing to do with OPTIONS
-		if (req.method === "OPTIONS") return next()
+		if (req.method === "OPTIONS") return next();
 		
-		logger.debug(`[${txnId}] Routing MW :: ${JSON.stringify(config)}`)
+		logger.debug(`[${txnId}] Routing MW :: ${JSON.stringify(config)}`);
 		let reqConfig = {};
 		let router = config.router;
 		let routerPromise = Promise.resolve();
@@ -135,12 +135,12 @@ e.getRouterMiddleware = (config) => {
 								);
 							}
 							logger.info(`[${txnId}] Routing MW :: Set-Cookie :: ${result.headers["set-cookie"] || "NIL"}`);
-							if(result.headers["set-cookie"]) res.setHeader("set-cookie", result.headers["set-cookie"]) 
+							if(result.headers["set-cookie"]) res.setHeader("set-cookie", result.headers["set-cookie"]); 
 						}
 						resBody = typeof result.body === "object" ? result.body : (result.body ? JSON.parse(result.body) : "");
 					} catch (err) {
 						logger.error(`[${txnId}] Routing MW :: ${err.message}`);
-						return res.status(result.statusCode).send(result.body)
+						return res.status(result.statusCode).send(result.body);
 					}
 					if (config.onRes && typeof config.onRes === "function") {
 						res.status(result.statusCode);
@@ -152,7 +152,7 @@ e.getRouterMiddleware = (config) => {
 			})
 			.catch(err => {
 				logger.error(`[${txnId}] Routing MW :: ${err.message}`);
-				if (!res.headersSent) res.status(500).json({ "message": err.message })
+				if (!res.headersSent) res.status(500).json({ "message": err.message });
 			});
 	};
 };

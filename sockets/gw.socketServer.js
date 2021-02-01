@@ -100,14 +100,16 @@ module.exports = (_server) => {
 
 	// Handling UI socket connections
 	io.on("connection", (socket) => {
-		logger.info("Socket Connected :", socket.id)
+		logger.info(`WS :: UI :: ${socket.handshake.query.app} Connected`)
+		logger.debug(`WS :: UI :: ${socket.handshake.query.app} :: ${socket.id}`)
 		if (socket.handshake.query.app) {
 			socketClients[socket.id] = socket
 			global.socketClients = socketClients
 		}
 
 		socket.on("disconnect", () => {
-			logger.info("Socket Disconnected :", socket.id)
+			logger.info(`WS :: UI :: ${socket.handshake.query.app} Disconnected`)
+			logger.info(`WS :: UI :: ${socket.id} Disconnected`)
 			if (socketClients && socketClients[socket.id]) {
 				delete socketClients[socket.id]
 				global.socketClients = socketClients
