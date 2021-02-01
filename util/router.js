@@ -7,9 +7,11 @@ let envConfig = require("../config/config");
 let fileValidator = require("@appveen/utils").fileValidator;
 const fs = require("fs");
 
-function sendRequest(config, res) {
+function sendRequest(txnId, config, res) {
 	let url = config.host + config.path;
-	var options = {
+	logger.debug(config)
+	logger.debug(`[${txnId}] Send request :: URL :: ${url}`)
+	let options = {
 		url: url,
 		method: config.method,
 		headers: config.headers,
@@ -20,17 +22,16 @@ function sendRequest(config, res) {
 		options.json = true;
 		options.body = config.body;
 	}
+	let errMessage = `Error connecting to ${global.serviceMap[config.host]}. Please make sure that the data service is running. Try starting and stopping the data service from Author.`
 	return new Promise((resolve, reject) => {
 		let newRes = request[config.method.toLowerCase()](options, function (err, resp) {
 			if (err) {
-				logger.error(err);
-				reject(err);
+				logger.error(`[${txnId}] Send request :: ${err.message}`);
+				reject(new Error(errMessage));
 			} else if (!resp) {
-				logger.error(config.host + " DOWN");
-				reject(new Error(config.host + " DOWN"));
-			} else {
-				resolve(resp);
-			}
+				logger.error(`[${txnId}] Send request :: ${config.host} DOWN`);
+				reject(new Error(errMessage));
+			} else resolve(resp)
 			if (config.files) {
 				Object.keys(config.files).forEach(file => {
 					fs.unlinkSync(config.files[file].tempFilePath);
@@ -70,9 +71,12 @@ function getPath(path, pathRewrite) {
 
 e.getRouterMiddleware = (config) => {
 	return (req, res, next) => {
-		if (req.method === "OPTIONS") {
-			return next();
-		}
+		let txnId = req.headers["TxnId"];
+
+		// Nothing to do with OPTIONS
+		if (req.method === "OPTIONS") return next()
+		
+		logger.debug(`[${txnId}] Routing MW :: ${JSON.stringify(config)}`)
 		let reqConfig = {};
 		let router = config.router;
 		let routerPromise = Promise.resolve();
@@ -110,7 +114,7 @@ e.getRouterMiddleware = (config) => {
 			}
 		}
 		if (headers.cache) {
-			logger.debug("API request validation cache id " + headers.cache);
+			logger.debug(`[${txnId}] Routing MW :: API request validation cache id :: ${headers.cache}`);
 		}
 		reqConfig.files = req.files;
 		return routerPromise
@@ -119,28 +123,25 @@ e.getRouterMiddleware = (config) => {
 					next();
 					return;
 				}
-				return sendRequest(reqConfig, res);
+				return sendRequest(txnId, reqConfig, res);
 			})
 			.then(result => {
 				if (result && !res.headersSent) {
 					let resBody;
 					try {
-						logger.trace(`[${req.headers.TxnId}] result::: ${JSON.stringify(result.body)}`);
+						logger.trace(`[${txnId}] Routing MW :: Body ::  ${JSON.stringify(result.body)}`);
 						if(result.statusCode == 302 && result.headers) {
 							if(result.headers.location) {
 								res.setHeader("Location", result.headers.location
 								);
 							}
-							logger.info("headers:: ", result.headers["set-cookie"]);
-							if(result.headers["set-cookie"]) {
-								res.setHeader("set-cookie", result.headers["set-cookie"]);
-							}
+							logger.info(`[${txnId}] Routing MW :: Set-Cookie :: ${result.headers["set-cookie"] || "NIL"}`);
+							if(result.headers["set-cookie"]) res.setHeader("set-cookie", result.headers["set-cookie"]) 
 						}
 						resBody = typeof result.body === "object" ? result.body : (result.body ? JSON.parse(result.body) : "");
 					} catch (err) {
-						logger.error(err);
-						res.status(result.statusCode).send(result.body);
-						return;
+						logger.error(`[${txnId}] Routing MW :: ${err.message}`);
+						return res.status(result.statusCode).send(result.body)
 					}
 					if (config.onRes && typeof config.onRes === "function") {
 						res.status(result.statusCode);
@@ -151,9 +152,8 @@ e.getRouterMiddleware = (config) => {
 				}
 			})
 			.catch(err => {
-				logger.error(err);
-				if (!res.headersSent)
-					res.status(500).json({ "message": err.message });
+				logger.error(`[${txnId}] Routing MW :: ${err.message}`);
+				if (!res.headersSent) res.status(500).json({ "message": err.message })
 			});
 	};
 };
