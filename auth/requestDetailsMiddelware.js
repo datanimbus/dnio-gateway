@@ -29,12 +29,11 @@ async function getManageRoleServiceList(_req) {
 }
 
 e.addRequestDetails = async (_req, _res, next) => {
-	logger.debug(`[${_req.headers.TxnId}] Add request details called!`)
 	try {
 		if (_req.path == "/api/a/pm/agentRegistry/IEG/password") return next()
 		if (gwUtil.compareUrl("/api/a/workflow/serviceList", _req.path)) return next()
 
-		logger.debug(`[${_req.headers.TxnId}] Add request detail`)
+		logger.debug(`[${_req.headers.TxnId}] Add request detail required`)
 		
 		if (_req.body) {
 			delete _req.body._metadata

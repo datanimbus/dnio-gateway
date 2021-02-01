@@ -1,38 +1,5 @@
 const authUtil = require("../util/authUtil");
 let logger = global.logger;
-/*
-var getServiceInfo = (filter, select, _req, type) => {
-		let url = config.get('sm');
-		url += type === 'GS' ? '/sm/globalSchema' : '/sm/service';
-		var options = {
-				url: url,
-				method: 'GET',
-				headers: {
-						'Content-Type': 'application/json',
-						'TxnId': _req.get('txnId') ? _req.get('txnId') : authUtil.generateTxnId(),
-						'Authorization': _req.get('Authorization'),
-						'User': _req.user ? _req.user._id : null
-				},
-				qs: {
-						filter: filter,
-						select: select
-				}
-		};
-		return new Promise((resolve, reject) => {
-				request.get(options, function (err, res) {
-						if (err) {
-								reject(err);
-						} else if (!res) {
-								reject(new Error('Service Manager DOWN'));
-						} else {
-								let result = JSON.parse(res.body);
-								if (result && result[0]) resolve(result[0]);
-								else resolve(null);
-						}
-				});
-		});
-};
-*/
 
 function getServiceInfo(id, collectionName) {
 	return global.mongoConnectionAuthor.collection(collectionName).findOne({ _id: id }, { app: 1 });

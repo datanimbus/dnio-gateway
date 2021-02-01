@@ -626,7 +626,7 @@ function getSecuredFields(app, api, req) {
 		method: "GET",
 		headers: {
 			"Content-Type": "application/json",
-			"TxnId": req.get("txnId") ? req.get("txnId") : gwUtil.getTxnId(req),
+			"TxnId": req.get("TxnId") ? req.get("TxnId") : gwUtil.getTxnId(req),
 			"Authorization": req.get("Authorization"),
 			"User": req.get("user")
 		},

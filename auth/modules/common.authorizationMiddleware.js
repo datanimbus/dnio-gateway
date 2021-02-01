@@ -139,7 +139,7 @@ function getAdditionalData(req, res, next) {
     let authObject = authLogic.find(obj => {
       return req.path.startsWith(obj.url)
     });
-    logger.debug(`[${txnId}] Addnl data :: Auth object :: ${authObject}`)
+    logger.debug(`[${txnId}] Addnl data :: Auth object :: ${JSON.stringify(authObject)}`)
     if (!authObject) {
       res.status(401).json({ message: "Url not configured in authorization" })
   		logger.error(`[${txnId}] Addnl data :: Url not configured in authorization`)

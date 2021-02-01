@@ -170,7 +170,7 @@ function getSheetDataFromGridFS(fileName, _db, collection) {
 
 function sheetSelect(_req, _res) {
 	logger.debug(`Sheet select : ${JSON.stringify(_req.body)}`);
-	let fileName = _req.path.split("/")[6];
+	let fileName = _req.path.split("/")[7];
 	logger.debug(`fileName :: ${fileName}`);
 	let sheetId = _req.body.sheet;
 	let type = _req.body.type;
@@ -338,7 +338,7 @@ function requestValidation(req, body, fileId, invalidSNo) {
 	logger.debug(`[${txnId}] Request validation :: API :: ${api}`);
 	let host = global.masterServiceRouter[api];
 	logger.debug(`[${txnId}] Request validation :: Host :: ${host}`);
-	let url = host + "/" + api + `/fileMapper/${fileId}/mapping`;
+	let url = host + "/" + api + `/utils/fileMapper/${fileId}/mapping`;
 	logger.debug(`[${txnId}] Request validation :: URL :: ${url}`);
 	delete body.sheetData;
 	body.invalidSNo = invalidSNo;
@@ -464,7 +464,7 @@ function validateData(_req, _res) {
 	}
 	let urlSplit = _req.path.split("/");
 	logger.debug(`[${txnId}] Validate data :: URL split :: ${urlSplit}`);
-	let fileName = urlSplit[6];
+	let fileName = urlSplit[7];
 	logger.debug(`[${txnId}] Validate data :: Filename :: ${fileName}`);
 	let db = `${config.odpNS}-${urlSplit[3]}`;
 	logger.debug(`[${txnId}] Validate data :: DB :: ${db}`);
@@ -663,17 +663,16 @@ function getServiceInfo(app, api) {
 e.fileMapperHandler = (req, res, next) => {
 	let txnId = req.get("TxnId") || req.headers.TxnId;
 	let urlSplit = req.path.split("/");
-	if (urlSplit[5] && urlSplit[5] === "fileMapper") {
-		logger.debug(`[${txnId}] Filemapper :: url split :: ${urlSplit}`);
-		if (urlSplit[6] === "upload") {
+	if (urlSplit[6] && urlSplit[6] === "fileMapper") {
+		if (urlSplit[7] === "upload") {
 			logger.debug(`[${txnId}] Filemapper :: Upload`);
 			return upload(req, res);
 		}
-		if (req.method === "PUT" && urlSplit[7] == "mapping") {
+		if (req.method === "PUT" && urlSplit[8] == "mapping") {
 			logger.debug(`[${txnId}] Filemapper :: Mapping`);
 			return validateData(req, res);
 		}
-		if (req.method === "PUT" && !urlSplit[7]) {
+		if (req.method === "PUT" && !urlSplit[8]) {
 			logger.debug(`[${txnId}] Filemapper :: Sheet selection`);
 			return sheetSelect(req, res);
 		}
@@ -681,11 +680,15 @@ e.fileMapperHandler = (req, res, next) => {
 			logger.debug(`[${txnId}] Filemapper :: Bulk create`);
 			return bulkCreate(req, res);
 		}
+		if (req.method === "PUT" && urlSplit[8] == "readStatus") {
+			logger.debug(`[${txnId}] Filemapper :: Read status`);
+			return next();
+		}
 		if (req.method === "GET") {
-			if (authUtil.compareUrl("/api/c/{app}/{api}/fileMapper/{fileId}", req.path) || authUtil.compareUrl("/api/c/{app}/{api}/fileMapper/{fileId}/count", req.path))
+			if (authUtil.compareUrl("/api/c/{app}/{api}/utils/fileMapper/{fileId}", req.path) || authUtil.compareUrl("/api/c/{app}/{api}/utils/fileMapper/{fileId}/count", req.path))
 				return next();
 		}
-		next(new Error("Unknown API for fileMapper"));
+		next("Unknown API for fileMapper");
 	} else {
 		next();
 	}
