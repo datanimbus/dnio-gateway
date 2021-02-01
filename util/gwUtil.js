@@ -24,6 +24,7 @@ e.getTxnId = (_req) => {
 };
 
 e.checkReviewPermissionForService = (_req, _id, usrId) => {
+	let txnId = _req.get("TxnId") || _req.headers.TxnId;
 	return new Promise((resolve, reject) => {
 		const options = {
 			url: config.baseUrlUSR + `/usr/reviewpermissionservice/${_id}?user=${usrId}`,
@@ -38,9 +39,14 @@ e.checkReviewPermissionForService = (_req, _id, usrId) => {
 		};
 		request(options, (_err, _res) => {
 			if (_err) {
+				logger.error(`[${txnId}] Review permission :: User - ${usrId}, DS - ${_id} :: ${_err.message}`)
 				reject(_err);
 			} else {
-				if (_res.statusCode == 404) return resolve(true);
+				if (_res.statusCode == 404) {
+					logger.info(`[${txnId}] Review permission required? :: User - ${usrId}, DS - ${_id} :: YES`)
+					return resolve(true);
+				}
+				logger.info(`[${txnId}] Review permission required? :: User - ${usrId}, DS - ${_id} :: NO`)
 				return resolve(false);
 			}
 		});

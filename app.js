@@ -86,8 +86,7 @@ let upload = multer({ storage: storage });
 
 app.use((req, res, next) => {
 	let urlSplit = req.path.split("/");
-	if ((urlSplit[5] && urlSplit[5] === "fileMapper") || (urlSplit[4] && urlSplit[4] === "usr" && urlSplit[5] && urlSplit[5] === "bulkCreate")) {
-		logger.info(`[${req.headers.TxnId}] File upload for ds filemapper or user.`);
+	if ((urlSplit[6] && urlSplit[6] === "fileMapper") || (urlSplit[4] && urlSplit[4] === "usr" && urlSplit[5] && urlSplit[5] === "bulkCreate")) {
 		upload.single("file")(req, res, next);
 	} else {
 		fileUpload({ useTempFiles: true })(req, res, next);
@@ -143,6 +142,7 @@ app.use(router.getRouterMiddleware({
 		let selectedKey = Object.keys(fixRoutes).find(key => req.path.startsWith(key));
 		if (selectedKey) return Promise.resolve(fixRoutes[selectedKey]);
 		let api = req.path.split("/")[3] + "/" + req.path.split("/")[4];
+		logger.info(`${req.headers.TxnId} Master service router API :: ${api}`)
 		if (req.method === "GET") {
 			return getDSApi(req, api);
 		} else {
@@ -166,9 +166,10 @@ app.use(router.getRouterMiddleware({
 
 function getDSApi(req, api) {
 	return new Promise((resolve, reject) => {
-		if (global.masterServiceRouter[api])
+		if (global.masterServiceRouter[api]) {
+			logger.debug(`[${req.headers.TxnId}] Routing to :: ${global.masterServiceRouter[api]}`)
 			resolve(global.masterServiceRouter[api]);
-		else {
+		} else {
 			let apiSplit = api.split("/");
 			let filter = { app: apiSplit[0], api: "/" + apiSplit[1] };
 			logger.debug(`${req.headers.TxnId} Calling getDSApi`);
@@ -223,9 +224,8 @@ app.use((req, res) => {
 	} else {
 		if (req.method === "PUT") {
 			const pathSegments = req.path.split("/");
-			if (authUtil.compareUrl("/api/c/{app}/{api}/{id}/math", req.path)) {
-				ids = [path[3]];
-			} else if (pathSegments[5] && pathSegments[5] == "bulkUpdate") {
+			if (authUtil.compareUrl("/api/c/{app}/{api}/{id}/math", req.path)) ids = [path[3]];
+			else if (pathSegments[5] && pathSegments[5] == "bulkUpdate") {
 				ids = req.query.id ? req.query.id.split(",") : [];
 			} else {
 				ids = [path[path.length - 1]];

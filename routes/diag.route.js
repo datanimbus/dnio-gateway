@@ -111,15 +111,15 @@ function readinessCheck(_serviceShortName) {
 }
 
 function dsFileImportStatusHandler(req, res) {
-    logger.debug('Received fileInput Status');
-    logger.debug(req.body);
-    Object.keys(global.socketClients).forEach(key => {
-        if (global.socketClients[key].handshake.query.userId == req.body.userId) {
-            logger.debug('Sending to ' + req.body.userId + ' on channel ' + 'file-' + req.params.action);
-            global.socketClients[key].emit('file-' + req.params.action, req.body);
-        }
-    });
-    res.json({ message: 'ok thanks' });
+	let txnId = req.headers["TxnId"];
+  logger.debug(`[${txnId}] Received fileInput Status :: ${JSON.stringify(req.body)}`);
+  Object.keys(global.socketClients).forEach(key => {
+    if (global.socketClients[key].handshake.query.userId == req.body.userId) {
+      logger.debug(`[${txnId}] Sending to ${req.body.userId} on channel file-${req.params.action}`);
+      global.socketClients[key].emit('file-' + req.params.action, req.body);
+    }
+  });
+  res.json({ message: `Ok, thanks!` });
 }
 
 module.exports = {
