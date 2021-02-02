@@ -21,7 +21,7 @@ function sendRequest(txnId, config, res) {
 		options.json = true;
 		options.body = config.body;
 	}
-	let errMessage = `Error connecting to ${global.serviceMap[config.host]}. Please make sure that the data service is running. Try starting and stopping the data service from Author.`;
+	let errMessage = `Error connecting to data service`;
 	return new Promise((resolve, reject) => {
 		let newRes = request[config.method.toLowerCase()](options, function (err, resp) {
 			if (err) {
