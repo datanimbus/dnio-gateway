@@ -147,7 +147,7 @@ app.use(router.getRouterMiddleware({
 			"/api/a/sm": config.get("sm"),
 			"/api/a/pm": config.get("pm"),
 			"/api/a/mon": config.get("mon"),
-			"/api/a/workflow": config.get("wf"),
+			// "/api/a/workflow": config.get("wf"),
 			"/api/a/route": config.get("b2b"),
 			"/api/a/sec": config.get("sec"),
 			"/api/a/b2bgw": config.get("b2bgw"),
@@ -157,18 +157,19 @@ app.use(router.getRouterMiddleware({
 		if (selectedKey) return Promise.resolve(fixRoutes[selectedKey]);
 		let api = req.path.split("/")[3] + "/" + req.path.split("/")[4];
 		logger.info(`${req.headers.TxnId} Master service router API :: ${api}`);
-		if (req.method === "GET") {
-			return getDSApi(req, api);
-		} else {
-			return skipWorkflow(req.path, req)
-				.then(_flag => {
-					if (_flag) {
-						return getDSApi(req, api);
-					} else {
-						return "next";
-					}
-				});
-		}
+		return getDSApi(req, api);
+		// if (req.method === "GET") {
+		// 	return getDSApi(req, api);
+		// } else {
+		// 	return skipWorkflow(req.path, req)
+		// 		.then(_flag => {
+		// 			if (_flag) {
+		// 				return getDSApi(req, api);
+		// 			} else {
+		// 				return "next";
+		// 			}
+		// 		});
+		// }
 	},
 	pathRewrite: {
 		"/api/a": "",
@@ -306,33 +307,33 @@ app.use(function (error, req, res, next) {
 	}
 });
 
-function skipWorkflow(path, req) {
-	let paths = path.split("/");
-	if (paths[6] == "experienceHook"
-		|| paths[6] == "simulate"
-		|| (paths[5] == "file" && paths[6] == "upload")
-		|| authUtil.compareUrl("/api/c/{app}/{api}/utils/filetransfers/{id}", path)
-		|| authUtil.compareUrl("/api/c/{app}/{api}/utils/aggregate", path)) {
-		return Promise.resolve(true);
-	} else {
-		const api = "/" + paths[4];
-		const app = paths[3];
-		return global.mongoConnectionAuthor.collection("services").findOne({
-			"app": app,
-			"api": api,
-			"_metadata.deleted": false
-		}, {
-			app: 1,
-			api: 1
-		})
-			.then((_d) => {
-				if (!_d) throw new Error("No service found");
-				req.serviceId = _d._id;
-				req.app = _d.app;
-				return gwUtil.checkReviewPermissionForService(req, _d._id, req.user._id);
-			});
-	}
-}
+// function skipWorkflow(path, req) {
+// 	let paths = path.split("/");
+// 	if (paths[6] == "experienceHook"
+// 		|| paths[6] == "simulate"
+// 		|| (paths[5] == "file" && paths[6] == "upload")
+// 		|| authUtil.compareUrl("/api/c/{app}/{api}/utils/filetransfers/{id}", path)
+// 		|| authUtil.compareUrl("/api/c/{app}/{api}/utils/aggregate", path)) {
+// 		return Promise.resolve(true);
+// 	} else {
+// 		const api = "/" + paths[4];
+// 		const app = paths[3];
+// 		return global.mongoConnectionAuthor.collection("services").findOne({
+// 			"app": app,
+// 			"api": api,
+// 			"_metadata.deleted": false
+// 		}, {
+// 			app: 1,
+// 			api: 1
+// 		})
+// 			.then((_d) => {
+// 				if (!_d) throw new Error("No service found");
+// 				req.serviceId = _d._id;
+// 				req.app = _d.app;
+// 				return gwUtil.checkReviewPermissionForService(req, _d._id, req.user._id);
+// 			});
+// 	}
+// }
 
 
 var server = app.listen(port, (err) => {
