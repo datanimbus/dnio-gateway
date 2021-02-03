@@ -156,7 +156,7 @@ app.use(router.getRouterMiddleware({
 		let selectedKey = Object.keys(fixRoutes).find(key => req.path.startsWith(key));
 		if (selectedKey) return Promise.resolve(fixRoutes[selectedKey]);
 		let api = req.path.split("/")[3] + "/" + req.path.split("/")[4];
-		logger.info(`${req.headers.TxnId} Master service router API :: ${api}`);
+		logger.info(`[${req.headers.TxnId}] Master service router API :: ${api}`);
 		return getDSApi(req, api);
 		// if (req.method === "GET") {
 		// 	return getDSApi(req, api);
@@ -198,17 +198,17 @@ function getDSApi(req, api) {
 				}
 			}, (err, res, body) => {
 				if (err) {
-					logger.error(`${req.headers.TxnId} Error in getDSApi: ${err}`);
+					logger.error(`[${req.headers.TxnId}] Error in getDSApi: ${err}`);
 					reject(err);
 				} else if (res.statusCode != 200) {
-					logger.debug(`${req.headers.TxnId} res.status code in getDSApi :: ${res.statusCode}`);
-					logger.debug(`${req.headers.TxnId} Error in getDSApi: ${body}`);
+					logger.debug(`[${req.headers.TxnId}] res.status code in getDSApi :: ${res.statusCode}`);
+					logger.debug(`[${req.headers.TxnId}] Error in getDSApi: ${body}`);
 					reject(body);
 				} else {
 					let parsed = JSON.parse(body);
 					if (!parsed.length) {
-						logger.error(`${req.headers.TxnId} Response length in getDSApi : ${parsed.length}`);
-						reject("DS doesn't exists. :: ", api);
+						logger.error(`[${req.headers.TxnId}] Response length in getDSApi : ${parsed.length}`);
+						return reject(new Error(`Data Service with ${api} api doesn't exist.`));
 					}
 					let dsDetails = parsed[0];
 					let URL = "http://localhost:" + dsDetails.port;
