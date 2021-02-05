@@ -54,8 +54,9 @@ e.checkReviewPermissionForService = (_req, _id, usrId) => {
 };
 
 e.compareUrl = (tempUrl, url) => {
-	let tempUrlSegment = tempUrl.split("/");
-	let urlSegment = url.split("/");
+	
+	let tempUrlSegment = tempUrl.split("/").filter(_d => _d != "");
+	let urlSegment = url.split("/").filter(_d => _d != "");
 	if (tempUrlSegment.length != urlSegment.length) return false;
 
 	tempUrlSegment.shift();
