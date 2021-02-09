@@ -1952,7 +1952,7 @@ e.workflowServiceList = async (req, res) => {
 		const filter = req.query.filter;
 		let services = [];
 		services = await httpRequest({
-			url: config.get("sm") + "/service",
+			url: config.get("sm") + "/sm/service",
 			method: "GET",
 			headers: {
 				"Content-Type": "application/json",
