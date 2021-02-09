@@ -1984,11 +1984,12 @@ e.workflowServiceList = async (req, res) => {
 				}).catch(err => {
 					logger.error(`[${req.get("TxnId")}] Error from ${e.name}`);
 					logger.error(err);
-					resolve([]);
+					resolve({});
 				});
 			});
 		});
 		services = await Promise.all(docsPromise);
+		services = Object.assign.apply({}, services);
 		res.status(200).json(services);
 	} catch (err) {
 		logger.error(`[${req.get("TxnId")}] Error from Service Manager`);
