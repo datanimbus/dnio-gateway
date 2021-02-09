@@ -126,7 +126,8 @@ e.addRequestDetails = async (_req, _res, next) => {
 				_req.path != "/api/a/pm/flow/count" && 
 				!gwUtil.compareUrl("/api/a/pm/flow/{app}/stopAll", _req.path) && 
 				!gwUtil.compareUrl("/api/a/pm/flow/{app}/startAll", _req.path) && 
-				( gwUtil.compareUrl("/api/a/pm/flow/{id}", _req.path) || gwUtil.compareUrl("/api/a/pm/flow/{id}/{action}", _req.path) )
+				( gwUtil.compareUrl("/api/a/pm/flow/{id}", _req.path) || gwUtil.compareUrl("/api/a/pm/flow/{id}/{action}", _req.path))
+				&& !gwUtil.compareUrl("/api/a/pm/flow/status/count", _req.path)
 			) {
 			let filter = { 
 				"$or" : [
@@ -244,7 +245,8 @@ e.addRequestDetails = async (_req, _res, next) => {
 		return next()
 
 	} catch (e) {
-		logger.error(`[${_req.headers.TxnId}] ${e.message}`)
+		logger.error(`[${_req.headers.TxnId}] ${e}`)
+		logger.error('error :::', e)
 		return _res.status(500).json({ message: "Cannot find details of the request" })
 	}
 }
