@@ -17,8 +17,8 @@ e.addSelect = function (txnId, arr, select) {
 	// Date: 3rd Mar 2020
 	// The following lines added to take care client-side HTTP Parameter Pollution(HPP)
 	// Express.js handles it, we had to handle it in the code
-	if(typeof selectArr == "string") selectArr = selectArr.split(",");
-	if(typeof selectArr == "object") selectArr = selectArr.join(",").split(",");
+	if (typeof selectArr == "string") selectArr = selectArr.split(",");
+	if (typeof selectArr == "object") selectArr = selectArr.join(",").split(",");
 	logger.trace(`[${txnId}] e.addSelect: selectArr : ${JSON.stringify(selectArr)}`);
 	if (!selectArr.some(_s => _s.startsWith("-"))) {
 		selectArr = selectArr.concat(arr);
@@ -218,10 +218,10 @@ e.filterBody = (permission, permissionAllowed, reqBody, forFile) => {
 				if (e.isNotNullObject(permission[key])) {
 					if (permission[key]["_p"]) {
 						if (permissionAllowed.indexOf(permission[key]["_p"]) > -1) newReqBody[key] = reqBody[key];
-					} else if (forFile && typeof reqBody[key] == "string" && Object.keys(permission[key]).length == 2 
+					} else if (forFile && typeof reqBody[key] == "string" && Object.keys(permission[key]).length == 2
 						&& permission[key]["value"] && permission[key]["checksum"] && permission[key]["value"]["_p"]) {
 						// checking permission of secure field's value fields DEF3056
-						if(permissionAllowed.indexOf(permission[key]["value"]["_p"]) > -1)
+						if (permissionAllowed.indexOf(permission[key]["value"]["_p"]) > -1)
 							newReqBody[key] = reqBody[key];
 					} else {
 						if (permission[key]["_id"] && permission[key]["_href"] && permissionAllowed.indexOf(permission[key]["_id"]["_p"]) > -1) newReqBody[key] = reqBody[key];
@@ -463,8 +463,8 @@ e.isUrlPermitted = (permittedUrls, req) => {
 		return false;
 	}
 	else if (req.path.startsWith("/api/a/mon")) {
-		if(req.path.startsWith("/api/a/mon/dataService/log") 
-			|| req.path.startsWith("/api/a/mon/author/user/log") 
+		if (req.path.startsWith("/api/a/mon/dataService/log")
+			|| req.path.startsWith("/api/a/mon/author/user/log")
 			|| req.path.startsWith("/api/a/mon/author/group/log"))
 			return false;
 		else
@@ -1150,61 +1150,61 @@ e.getProxyResHandler = (permittedUrls) => {
 							res.status(500).json({ message: err.message });
 						});
 					/*    
-                    if (urlArr[5] && (urlArr[5] == 'audit') || req.path.startsWith('/api/a/sm/audit')) {
-                        if (req.user.isSuperAdmin || hasCUDPerm(req._highestPermission)) {
-                            return res.json(body);
-                        } else if (highestPermission && e.hasAnyReadPermission(highestPermission)) {
-                            let newBody = null;
-                            if (Array.isArray(body)) {
-                                newBody = body.map(obj => {
-                                    obj.data.new = obj.data.new ? e.filterBody(highestPermission, ['R'], obj.data.new) : null;
-                                    obj.data.old = obj.data.old ? e.filterBody(highestPermission, ['R'], obj.data.old) : null;
-                                    return obj;
-                                });
-                            } else {
-                                newBody = JSON.parse(JSON.stringify(body));
-                                newBody.data.new = body.data.new ? e.filterBody(highestPermission, ['R'], body.data.new) : null;
-                                newBody.data.old = body.data.old ? e.filterBody(highestPermission, ['R'], body.data.old) : null;
-                            }
-                            return res.json(newBody);
-                        } else {
-                            return res.status(403).json({ 'message': 'No permission' });
-                        }
-                    } else if (urlArr[5] && (urlArr[5] == 'logs' || urlArr[5] == 'webHookStatus')) {
-                        if (req.user.isSuperAdmin || (highestPermission && e.hasAnyReadPermission(highestPermission))) {
-                            return res.json(body);
-                        } else {
-                            return res.status(403).json({ 'message': 'No permission' });
-                        }
-                    } else {
-                        if (res.statusCode < 200 || res.statusCode >= 400) {
-                            return res.send(body);
-                        }
-                        let promise = null;
-                        if (isAppCenter) {
-                            let app = splitPath[3];
-                            promise = getSecuredFields(splitPath[3], splitPath[4], req)
-                                .then(secureFields => {
-                                    return secureFields.reduce((acc, curr) => {
-                                        return acc.then(_d => Array.isArray(_d) ? decryptArrData(_d, curr, app) : decryptData(_d, curr, app));
-                                    }, Promise.resolve(body));
-                                });
-                        } else {
-                            promise = Promise.resolve(body);
-                        }
-                        promise.then((_d) => {
-                            body = JSON.parse(JSON.stringify(_d));
-                            if (req.user.isSuperAdmin || hasCUDPerm(req._highestPermission)) {
-                                return res.json(body);
-                            }
-                            let output = manipulateBody(body, req);
-                            return res.json(output);
-                        })
-                            .catch(err => {
-                                res.status(500).json({ message: err.message });
-                            });
+					if (urlArr[5] && (urlArr[5] == 'audit') || req.path.startsWith('/api/a/sm/audit')) {
+						if (req.user.isSuperAdmin || hasCUDPerm(req._highestPermission)) {
+							return res.json(body);
+						} else if (highestPermission && e.hasAnyReadPermission(highestPermission)) {
+							let newBody = null;
+							if (Array.isArray(body)) {
+								newBody = body.map(obj => {
+									obj.data.new = obj.data.new ? e.filterBody(highestPermission, ['R'], obj.data.new) : null;
+									obj.data.old = obj.data.old ? e.filterBody(highestPermission, ['R'], obj.data.old) : null;
+									return obj;
+								});
+							} else {
+								newBody = JSON.parse(JSON.stringify(body));
+								newBody.data.new = body.data.new ? e.filterBody(highestPermission, ['R'], body.data.new) : null;
+								newBody.data.old = body.data.old ? e.filterBody(highestPermission, ['R'], body.data.old) : null;
+							}
+							return res.json(newBody);
+						} else {
+							return res.status(403).json({ 'message': 'No permission' });
+						}
+					} else if (urlArr[5] && (urlArr[5] == 'logs' || urlArr[5] == 'webHookStatus')) {
+						if (req.user.isSuperAdmin || (highestPermission && e.hasAnyReadPermission(highestPermission))) {
+							return res.json(body);
+						} else {
+							return res.status(403).json({ 'message': 'No permission' });
+						}
+					} else {
+						if (res.statusCode < 200 || res.statusCode >= 400) {
+							return res.send(body);
+						}
+						let promise = null;
+						if (isAppCenter) {
+							let app = splitPath[3];
+							promise = getSecuredFields(splitPath[3], splitPath[4], req)
+								.then(secureFields => {
+									return secureFields.reduce((acc, curr) => {
+										return acc.then(_d => Array.isArray(_d) ? decryptArrData(_d, curr, app) : decryptData(_d, curr, app));
+									}, Promise.resolve(body));
+								});
+						} else {
+							promise = Promise.resolve(body);
+						}
+						promise.then((_d) => {
+							body = JSON.parse(JSON.stringify(_d));
+							if (req.user.isSuperAdmin || hasCUDPerm(req._highestPermission)) {
+								return res.json(body);
+							}
+							let output = manipulateBody(body, req);
+							return res.json(output);
+						})
+							.catch(err => {
+								res.status(500).json({ message: err.message });
+							});
 
-                    }*/
+					}*/
 				}
 			}, (err) => {
 				res.status(403).json({ message: err.message });
@@ -1946,4 +1946,77 @@ e.workFlowCalculator = (req, res) => {
 };
 
 
+e.workflowServiceList = async (req, res) => {
+	try {
+		const app = req.params.app;
+		const filter = req.query.filter;
+		let services = [];
+		services = await httpRequest({
+			url: config.get("sm") + "/sm/service",
+			method: "GET",
+			headers: {
+				"Content-Type": "application/json",
+				"TxnId": req.get("TxnId"),
+			},
+			qs: {
+				select: "name,api,app",
+				filter: JSON.stringify({ app }),
+				count: -1
+			},
+			json: true
+		});
+		const docsPromise = services.map((e) => {
+			return new Promise((resolve) => {
+				const url = "http://" + e.api.split("/")[1] + "." + config.odpNS + "-" + e.app.toLowerCase().replace(/ /g, "") + "/" + e.app + e.api + "/utils/workflow/serviceList";
+				httpRequest({
+					url,
+					method: "GET",
+					headers: {
+						"Content-Type": "application/json",
+						"TxnId": req.get("TxnId"),
+					},
+					qs: {
+						filter: filter,
+					},
+					json: true
+				}).then(data => {
+					resolve(data);
+				}).catch(err => {
+					logger.error(`[${req.get("TxnId")}] Error from ${e.name}`);
+					logger.error(err);
+					resolve({});
+				});
+			});
+		});
+		services = await Promise.all(docsPromise);
+		services = Object.assign.apply({}, services);
+		res.status(200).json(services);
+	} catch (err) {
+		logger.error(`[${req.get("TxnId")}] Error from Service Manager`);
+		logger.error(err);
+		res.status(500).json({ message: err.message });
+	}
+};
+
+
 module.exports = e;
+
+
+
+function httpRequest(options) {
+	return new Promise((resolve, reject) => {
+		request(options, function (err, res, body) {
+			if (err) {
+				reject(err);
+			} else if (!res) {
+				reject(new Error("Module is DOWN"));
+			} else {
+				if (res.statusCode >= 200 && res.statusCode < 400) {
+					return resolve(body);
+				} else {
+					return reject(new Error(res.body.message ? res.body.message : "Unable fetch data"));
+				}
+			}
+		});
+	});
+}
