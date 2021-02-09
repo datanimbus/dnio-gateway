@@ -1957,8 +1957,6 @@ e.workflowServiceList = async (req, res) => {
 			headers: {
 				"Content-Type": "application/json",
 				"TxnId": req.get("TxnId"),
-				"Authorization": req.get("Authorization"),
-				"User": req.user ? req.user._id : null
 			},
 			qs: {
 				select: "name,api,app",
@@ -1967,28 +1965,28 @@ e.workflowServiceList = async (req, res) => {
 			},
 			json: true
 		});
-		const docsPromise = services.map(async (e) => {
-			const url = "http://" + e.api.split("/")[1] + "." + config.odpNS + "-" + e.app.toLowerCase().replace(/ /g, "") + "/" + e.app + e.api + "/utils/workflow/serviceList";
-			try {
-				return await httpRequest({
+		const docsPromise = services.map((e) => {
+			return new Promise((resolve) => {
+				const url = "http://" + e.api.split("/")[1] + "." + config.odpNS + "-" + e.app.toLowerCase().replace(/ /g, "") + "/" + e.app + e.api + "/utils/workflow/serviceList";
+				httpRequest({
 					url,
 					method: "GET",
 					headers: {
 						"Content-Type": "application/json",
 						"TxnId": req.get("TxnId"),
-						"Authorization": req.get("Authorization"),
-						"User": req.user ? req.user._id : null
 					},
 					qs: {
 						filter: filter,
 					},
 					json: true
+				}).then(data => {
+					resolve(data);
+				}).catch(err => {
+					logger.error(`[${req.get("TxnId")}] Error from ${e.name}`);
+					logger.error(err);
+					resolve([]);
 				});
-			} catch (e) {
-				logger.error(`[${req.get("TxnId")}] Error from ${e.name}`);
-				logger.error(e);
-				return e;
-			}
+			});
 		});
 		services = await Promise.all(docsPromise);
 		res.status(200).json(services);
