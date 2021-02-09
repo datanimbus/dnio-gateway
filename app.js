@@ -132,7 +132,7 @@ app.get("/api/a/rbac/usr/role", authUtil.highestPermissionHandlerCurrentUser);
 app.get("/api/a/rbac/user/role", authUtil.highestPermissionHandlerUser);
 app.get("/api/a/rbac/group/role", authUtil.highestPermissionHandlerGroup);
 app.get("/api/a/rbac/usr/workflow", authUtil.workFlowCalculator);
-app.get("/api/a/:app/workflow/serviceList", authUtil.workflowServiceList);
+app.get("/api/a/workflow/:app/serviceList", authUtil.workflowServiceList);
 
 app.use(authorizationMiddleware);
 
