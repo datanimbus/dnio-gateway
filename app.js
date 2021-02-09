@@ -100,7 +100,7 @@ app.use((req, res, next) => {
 	} else {
 		const sizeInBytes = fileSizeParser(maxFileSize);
 		if (req.files && req.files.file && req.files.file.size > sizeInBytes) {
-			res.status(413).json({ message: "File Too Large, max file size should be "+maxFileSize });
+			res.status(413).json({ message: "File Too Large, max file size should be " + maxFileSize });
 		} else {
 			next();
 		}
@@ -132,6 +132,7 @@ app.get("/api/a/rbac/usr/role", authUtil.highestPermissionHandlerCurrentUser);
 app.get("/api/a/rbac/user/role", authUtil.highestPermissionHandlerUser);
 app.get("/api/a/rbac/group/role", authUtil.highestPermissionHandlerGroup);
 app.get("/api/a/rbac/usr/workflow", authUtil.workFlowCalculator);
+app.get("/api/a/:app/workflow/serviceList", authUtil.workflowServiceList);
 
 app.use(authorizationMiddleware);
 
