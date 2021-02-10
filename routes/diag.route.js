@@ -34,7 +34,6 @@ function diagnosticHandler(req, res) {
     promises.push(readinessCheck('pm'))
     promises.push(readinessCheck('ne'))
     promises.push(readinessCheck('mon'))
-    promises.push(readinessCheck('wf'))
 
     Promise.all(promises)
         .then(
@@ -67,10 +66,6 @@ function dependencyCheck() {
             logger.trace(data);
             return readinessCheck('sec')
         })
-        .then(data => {
-            logger.trace(data);
-            return readinessCheck('wf')
-        })
         .then(data => logger.trace(data))
         .catch(err => {
         	logger.error(err)
@@ -82,7 +77,6 @@ function dependencyCheck() {
 function readinessCheck(_serviceShortName) {
     let url = `${_serviceShortName}/health/ready`
     if (_serviceShortName == "user") url = 'rbac/health/ready'
-    if (_serviceShortName == "wf") url = 'workflow/health/ready'
     url = `${config.get(_serviceShortName)}/${url}`
     logger.trace(`Calling readiness url for ${_serviceShortName.toUpperCase()} :: ${url}`);
     return request({
@@ -98,7 +92,6 @@ function readinessCheck(_serviceShortName) {
       if (_serviceShortName == 'ne') return Promise.resolve("Notification Engine is connected.")
       if (_serviceShortName == 'mon') return Promise.resolve("Monitoring is connected.")
       if (_serviceShortName == 'sec') return Promise.resolve("Security module is connected.")
-      if (_serviceShortName == 'wf') return Promise.resolve("Workflow service is connected.")
     }, _error => {
       if (_serviceShortName == 'user') return Promise.reject("Unable to reach User Management")
       if (_serviceShortName == 'sm') return Promise.reject("Unable to reach Service Manager")
@@ -106,7 +99,6 @@ function readinessCheck(_serviceShortName) {
       if (_serviceShortName == 'ne') return Promise.reject("Unable to reach Notification Engine")
       if (_serviceShortName == 'mon') return Promise.reject("Unable to reach Monitoring")
       if (_serviceShortName == 'sec') return Promise.reject("Unable to reach Security module")
-      if (_serviceShortName == 'wf') return Promise.reject("Unable to reach Workflow service")
     })
 }
 

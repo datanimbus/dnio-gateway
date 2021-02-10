@@ -24,7 +24,7 @@ const utilMiddleware = require("./util/utilMiddleware");
 const authUtil = require("./util/authUtil");
 const fileMapper = require("./util/fileMapperMiddleware");
 const router = require("./util/router.js");
-const gwUtil = require("./util/gwUtil");
+// const gwUtil = require("./util/gwUtil");
 const cacheUtil = require("./util/cacheUtil");
 const diagRouter = require("./routes/diag.route");
 const userHBRouter = require("./routes/userHB.route");
@@ -224,75 +224,6 @@ function getDSApi(req, api) {
 
 	});
 }
-
-app.use((req, res) => {
-	let urlconstruct = "";
-	let pathconstruct = "";
-
-	pathconstruct = req.originalUrl.split("/");
-	urlconstruct = config.get("wf") + "/workflow";
-
-	const path = pathconstruct;
-	path.splice(1, 2);
-	let ids = [];
-	if (req.body._id && req.body._id.trim()) {
-		ids = [req.body._id];
-	} else {
-		if (req.method === "PUT") {
-			const pathSegments = req.path.split("/");
-			if (authUtil.compareUrl("/api/c/{app}/{api}/{id}/math", req.path)) ids = [path[3]];
-			else if (pathSegments[5] && pathSegments[5] == "bulkUpdate") {
-				ids = req.query.id ? req.query.id.split(",") : [];
-			} else {
-				ids = [path[path.length - 1]];
-			}
-		}
-		if (req.method === "DELETE") {
-			if (req.body.ids) {
-				ids = req.body.ids;
-			} else {
-				ids = [path[path.length - 1]];
-			}
-		}
-	}
-	if (req.query.draft == "true") {
-		req.query.status = "draft";
-	} else {
-		req.query.status = "pending";
-	}
-	request({
-		url: urlconstruct,
-		method: "POST",
-		headers: {
-			"Content-Type": "application/json",
-			"TxnId": req.get("txnId") ? req.get("txnId") : gwUtil.getTxnId(req),
-			"Authorization": req.get("Authorization"),
-			"User": req.user ? req.user._id : null
-		},
-		body: {
-			documentIds: ids,
-			operation: req.method,
-			serviceId: req.serviceId,
-			app: req.app,
-			data: req.body,
-			path: path.join("/")
-		},
-		qs: req.query,
-		json: true
-	}, (wfErr, wfRes, body) => {
-		if (wfErr) {
-			res.status(500).json({
-				message: wfErr.message
-			});
-			return;
-		}
-		if (wfRes.statusCode !== 200) {
-			res.status(wfRes.statusCode).json(body);
-		} else {
-			res.json(body);
-		}
-	});
-});
 
 app.use(function (error, req, res, next) {
 	if (error) {
