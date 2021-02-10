@@ -405,7 +405,7 @@ function getStagedBulkCreateDocCount(app, api, filter, fileId, req) {
 	return new Promise((resolve, reject) => {
 		request.get(options, function (err, res, body) {
 			if (err) {
-				logger.error(`[${req.get('txnId')}] Error in getStagedBulkCreateDocCount :: `, err);
+				logger.error(`[${req.get("txnId")}] Error in getStagedBulkCreateDocCount :: `, err);
 				reject(err);
 			} else if (!res) {
 				logger.error("Service DOWN");
@@ -415,7 +415,7 @@ function getStagedBulkCreateDocCount(app, api, filter, fileId, req) {
 				if (res.statusCode >= 200 && res.statusCode < 400) {
 					resolve(body);
 				} else {
-					logger.error(`[${req.get('txnId')}] Error response in getStagedBulkCreateDocCount :: `, body);
+					logger.error(`[${req.get("txnId")}] Error response in getStagedBulkCreateDocCount :: `, body);
 					reject(new Error(res.body && res.body.message ? "Request failed:: " + res.body.message : "Request failed"));
 				}
 			}
@@ -551,14 +551,14 @@ function requestBulkCreate(req, body, filename) {
 	return new Promise((resolve, reject) => {
 		request.post(options, function (err, res, body) {
 			if (err) {
-				logger.error(`[${req.get('txnid')}] Error in requestBulkCreate :: `, err);
+				logger.error(`[${req.get("txnid")}] Error in requestBulkCreate :: `, err);
 				reject(err);
 			} else if (!res) logger.error("Service is DOWN");
 			else {
 				if (res.statusCode >= 200 && res.statusCode < 400) {
 					resolve(body);
 				} else {
-					logger.error(`[${req.get('txnid')}] Error response in requestBulkCreate :: `, body);
+					logger.error(`[${req.get("txnid")}] Error response in requestBulkCreate :: `, body);
 					reject(new Error(res.body && res.body.message ? "Request failed:: " + res.body.message : "Request failed bulk create"));
 				}
 			}
