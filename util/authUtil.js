@@ -552,105 +552,105 @@ function decryptText(_d, app) {
 	});
 }
 
-function decryptData(data, nestedKey, app, forFile) {
-	let keys = nestedKey.split(".");
-	if (keys.length == 1) {
-		if (data[keys[0]]) {
-			if (Array.isArray(data[keys[0]])) {
-				let promises = data[keys[0]].map(_d => {
-					return decryptText(_d.value, app)
-						.then(_decrypted => {
-							if (forFile)
-								_d = _decrypted;
-							else
-								_d.value = _decrypted;
-							return _d;
-						});
-				});
-				return Promise.all(promises)
-					.then(_d => {
-						data[keys[0]] = _d;
-						return data;
-					});
-			} else if (data[keys[0]] && typeof data[keys[0]].value == "string") {
-				return decryptText(data[keys[0]].value, app)
-					.then(_d => {
-						if (forFile)
-							data[keys[0]] = _d;
-						else
-							data[keys[0]].value = _d;
-						return data;
-					});
-			}
-		} else {
-			return Promise.resolve(data);
-		}
-	} else {
-		if (data[keys[0]]) {
-			let ele = keys.shift();
-			let newNestedKey = keys.join(".");
-			if (Array.isArray(data[ele])) {
-				let promises = data[ele].map(_d => decryptData(_d, newNestedKey, app, forFile));
-				return Promise.all(promises)
-					.then(_d => {
-						data[ele] = _d;
-						return data;
-					});
-			}
-			return decryptData(data[ele], newNestedKey, app, forFile).then(() => data);
-		} else {
-			return Promise.resolve(data);
-		}
-	}
-}
+// function decryptData(data, nestedKey, app, forFile) {
+// 	let keys = nestedKey.split(".");
+// 	if (keys.length == 1) {
+// 		if (data[keys[0]]) {
+// 			if (Array.isArray(data[keys[0]])) {
+// 				let promises = data[keys[0]].map(_d => {
+// 					return decryptText(_d.value, app)
+// 						.then(_decrypted => {
+// 							if (forFile)
+// 								_d = _decrypted;
+// 							else
+// 								_d.value = _decrypted;
+// 							return _d;
+// 						});
+// 				});
+// 				return Promise.all(promises)
+// 					.then(_d => {
+// 						data[keys[0]] = _d;
+// 						return data;
+// 					});
+// 			} else if (data[keys[0]] && typeof data[keys[0]].value == "string") {
+// 				return decryptText(data[keys[0]].value, app)
+// 					.then(_d => {
+// 						if (forFile)
+// 							data[keys[0]] = _d;
+// 						else
+// 							data[keys[0]].value = _d;
+// 						return data;
+// 					});
+// 			}
+// 		} else {
+// 			return Promise.resolve(data);
+// 		}
+// 	} else {
+// 		if (data[keys[0]]) {
+// 			let ele = keys.shift();
+// 			let newNestedKey = keys.join(".");
+// 			if (Array.isArray(data[ele])) {
+// 				let promises = data[ele].map(_d => decryptData(_d, newNestedKey, app, forFile));
+// 				return Promise.all(promises)
+// 					.then(_d => {
+// 						data[ele] = _d;
+// 						return data;
+// 					});
+// 			}
+// 			return decryptData(data[ele], newNestedKey, app, forFile).then(() => data);
+// 		} else {
+// 			return Promise.resolve(data);
+// 		}
+// 	}
+// }
 
-function decryptArrData(data, nestedKey, app, forFile) {
-	let promises = data.map(_d => decryptData(_d, nestedKey, app, forFile));
-	return Promise.all(promises);
-}
-
-function getSecuredFields(app, api, req) {
-	let url = null;
-	if (process.env.KUBERNETES_SERVICE_HOST && process.env.KUBERNETES_SERVICE_PORT) {
-		url = "http://" + api.toLowerCase() + "." + config.odpNS + "-" + app.toLowerCase().replace(/ /g, "") + `/${app}/${api}/utils/securedFields`;
-	} else {
-		let host = global.masterServiceRouter[app + "/" + api];
-		if (host) {
-			url = host + `/${app}/${api}/utils/securedFields`;
-		} else {
-			return Promise.reject(new Error("AppCenter host not found"));
-		}
-	}
-	let options = {
-		url: url,
-		method: "GET",
-		headers: {
-			"Content-Type": "application/json",
-			"TxnId": req.get("TxnId") ? req.get("TxnId") : gwUtil.getTxnId(req),
-			"Authorization": req.get("Authorization"),
-			"User": req.get("user")
-		},
-		json: true
-	};
-	return new Promise((resolve, reject) => {
-		request.get(options, function (err, res, body) {
-			if (err) {
-				logger.error(err.message);
-				reject(err);
-			} else if (!res) {
-				logger.error("Service DOWN");
-				reject(new Error("Service DOWN"));
-			}
-			else {
-				if (res.statusCode >= 200 && res.statusCode < 400) {
-					resolve(body);
-				} else {
-					reject(new Error(res.body && res.body.message ? "Request failed:: " + res.body.message : "Request failed"));
-				}
-			}
-		});
-	});
-}
+// function decryptArrData(data, nestedKey, app, forFile) {
+// 	let promises = data.map(_d => decryptData(_d, nestedKey, app, forFile));
+// 	return Promise.all(promises);
+// }
+//
+// function getSecuredFields(app, api, req) {
+// 	let url = null;
+// 	if (process.env.KUBERNETES_SERVICE_HOST && process.env.KUBERNETES_SERVICE_PORT) {
+// 		url = "http://" + api.toLowerCase() + "." + config.odpNS + "-" + app.toLowerCase().replace(/ /g, "") + `/${app}/${api}/utils/securedFields`;
+// 	} else {
+// 		let host = global.masterServiceRouter[app + "/" + api];
+// 		if (host) {
+// 			url = host + `/${app}/${api}/utils/securedFields`;
+// 		} else {
+// 			return Promise.reject(new Error("AppCenter host not found"));
+// 		}
+// 	}
+// 	let options = {
+// 		url: url,
+// 		method: "GET",
+// 		headers: {
+// 			"Content-Type": "application/json",
+// 			"TxnId": req.get("TxnId") ? req.get("TxnId") : gwUtil.getTxnId(req),
+// 			"Authorization": req.get("Authorization"),
+// 			"User": req.get("user")
+// 		},
+// 		json: true
+// 	};
+// 	return new Promise((resolve, reject) => {
+// 		request.get(options, function (err, res, body) {
+// 			if (err) {
+// 				logger.error(err.message);
+// 				reject(err);
+// 			} else if (!res) {
+// 				logger.error("Service DOWN");
+// 				reject(new Error("Service DOWN"));
+// 			}
+// 			else {
+// 				if (res.statusCode >= 200 && res.statusCode < 400) {
+// 					resolve(body);
+// 				} else {
+// 					reject(new Error(res.body && res.body.message ? "Request failed:: " + res.body.message : "Request failed"));
+// 				}
+// 			}
+// 		});
+// 	});
+// }
 
 function SMobjectValidate(req, smObject, allPermArr, msType) {
 	logger.debug({ smObject });
@@ -1087,34 +1087,35 @@ e.getProxyResHandler = (permittedUrls) => {
 						return res.send(body);
 					}
 					let reqPath = req.originalUrl.split("?")[0];
-					let isAppCenter = false;
-					let splitPath = reqPath.split("/");
-					if (splitPath[2] === "c") isAppCenter = true;
+					// let isAppCenter = false;
+					// let splitPath = reqPath.split("/");
+					// if (splitPath[2] === "c") isAppCenter = true;
 					if (hasCUDPerm(req._highestPermission)) {
-						let promise = null;
-						if (isAppCenter) {
-							let app = splitPath[3];
-							if (e.compareUrl("/api/c/{app}/{service}/utils/simulate", reqPath)) {
-								promise = Promise.resolve(body);
-							}
-							else {
-								promise = getSecuredFields(splitPath[3], splitPath[4], req)
-									.then(secureFields => {
-										let forFile = req.query.forFile;
-										return secureFields.reduce((acc, curr) => {
-											return acc.then(_d => Array.isArray(_d) ? decryptArrData(_d, curr, app, forFile) : decryptData(_d, curr, app, forFile));
-										}, Promise.resolve(body));
-									});
-							}
-						} else {
-							promise = Promise.resolve(body);
-						}
-						return promise.then(_d => {
-							res.json(_d);
-						})
-							.catch(err => {
-								res.status(500).json({ message: err.message });
-							});
+						return res.json(body);
+						// let promise = null;
+						// if (isAppCenter) {
+						// 	let app = splitPath[3];
+						// 	if (e.compareUrl("/api/c/{app}/{service}/utils/simulate", reqPath)) {
+						// 		promise = Promise.resolve(body);
+						// 	}
+						// 	else {
+						// 		promise = getSecuredFields(splitPath[3], splitPath[4], req)
+						// 			.then(secureFields => {
+						// 				let forFile = req.query.forFile;
+						// 				return secureFields.reduce((acc, curr) => {
+						// 					return acc.then(_d => Array.isArray(_d) ? decryptArrData(_d, curr, app, forFile) : decryptData(_d, curr, app, forFile));
+						// 				}, Promise.resolve(body));
+						// 			});
+						// 	}
+						// } else {
+						// 	promise = Promise.resolve(body);
+						// }
+						// return promise.then(_d => {
+						// 	res.json(_d);
+						// })
+						// 	.catch(err => {
+						// 		res.status(500).json({ message: err.message });
+						// 	});
 					}
 					let highestPermission = req._highestPermission ? req._highestPermission.find(_hp => _hp.method == "GET") : null;
 					if (highestPermission) {
@@ -1124,31 +1125,31 @@ e.getProxyResHandler = (permittedUrls) => {
 					if (res.statusCode < 200 || res.statusCode >= 400) {
 						return res.send(body);
 					}
-					let promise = null;
-					if (isAppCenter) {
-						let app = splitPath[3];
-						promise = getSecuredFields(splitPath[3], splitPath[4], req)
-							.then(secureFields => {
-								let forFile = req.query.forFile;
-								return secureFields.reduce((acc, curr) => {
-									return acc.then(_d => Array.isArray(_d) ? decryptArrData(_d, curr, app, forFile) : decryptData(_d, curr, app, forFile));
-								}, Promise.resolve(body));
-							});
-					} else {
-						promise = Promise.resolve(body);
+					// let promise = Promise.resolve(body);
+					// if (isAppCenter) {
+					// 	let app = splitPath[3];
+					// 	promise = getSecuredFields(splitPath[3], splitPath[4], req)
+					// 		.then(secureFields => {
+					// 			let forFile = req.query.forFile;
+					// 			return secureFields.reduce((acc, curr) => {
+					// 				return acc.then(_d => Array.isArray(_d) ? decryptArrData(_d, curr, app, forFile) : decryptData(_d, curr, app, forFile));
+					// 			}, Promise.resolve(body));
+					// 		});
+					// } else {
+					// 	promise = Promise.resolve(body);
+					// }
+					// promise.then((_d) => {
+					// 	body = JSON.parse(JSON.stringify(_d));
+					let appcenterPermittedURL = ["/api/c/{app}/{api}/utils/filetransfers", "/api/c/{app}/{service}/utils/experienceHook"];
+					if (req.user.isSuperAdmin || hasCUDPerm(req._highestPermission) || appcenterPermittedURL.some(_u => e.compareUrl(_u, req.path))) {
+						return res.json(body);
 					}
-					promise.then((_d) => {
-						body = JSON.parse(JSON.stringify(_d));
-						let appcenterPermittedURL = ["/api/c/{app}/{api}/utils/filetransfers", "/api/c/{app}/{service}/utils/experienceHook"];
-						if (req.user.isSuperAdmin || hasCUDPerm(req._highestPermission) || appcenterPermittedURL.some(_u => e.compareUrl(_u, req.path))) {
-							return res.json(body);
-						}
-						let output = manipulateBody(body, req);
-						return res.json(output);
-					})
-						.catch(err => {
-							res.status(500).json({ message: err.message });
-						});
+					let output = manipulateBody(body, req);
+					return res.json(output);
+					// })
+					// 	.catch(err => {
+					// 		res.status(500).json({ message: err.message });
+					// 	});
 					/*    
 					if (urlArr[5] && (urlArr[5] == 'audit') || req.path.startsWith('/api/a/sm/audit')) {
 						if (req.user.isSuperAdmin || hasCUDPerm(req._highestPermission)) {
