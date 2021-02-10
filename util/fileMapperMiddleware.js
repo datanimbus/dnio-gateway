@@ -379,11 +379,11 @@ function requestValidation(req, body, fileId, invalidSNo) {
 function getStagedBulkCreateDocCount(app, api, filter, fileId, req) {
 	let url = null;
 	if (process.env.KUBERNETES_SERVICE_HOST && process.env.KUBERNETES_SERVICE_PORT) {
-		url = "http://" + api.toLowerCase() + "." + config.odpNS + "-" + app.toLowerCase().replace(/ /g, "") + `/${app}/${api}/filemapper/${fileId}/count`;
+		url = "http://" + api.toLowerCase() + "." + config.odpNS + "-" + app.toLowerCase().replace(/ /g, "") + `/${app}/${api}/utils/filemapper/${fileId}/count`;
 	} else {
 		let host = global.masterServiceRouter[app + "/" + api];
 		if (host) {
-			url = host + `/${app}/${api}/filemapper/${fileId}/count`;
+			url = host + `/${app}/${api}/utils/filemapper/${fileId}/count`;
 		} else {
 			return Promise.reject(new Error("AppCenter host not found"));
 		}
@@ -405,7 +405,7 @@ function getStagedBulkCreateDocCount(app, api, filter, fileId, req) {
 	return new Promise((resolve, reject) => {
 		request.get(options, function (err, res, body) {
 			if (err) {
-				logger.error(err.message);
+				logger.error(`[${req.get('txnId')}] Error in getStagedBulkCreateDocCount :: `, err);
 				reject(err);
 			} else if (!res) {
 				logger.error("Service DOWN");
@@ -415,6 +415,7 @@ function getStagedBulkCreateDocCount(app, api, filter, fileId, req) {
 				if (res.statusCode >= 200 && res.statusCode < 400) {
 					resolve(body);
 				} else {
+					logger.error(`[${req.get('txnId')}] Error response in getStagedBulkCreateDocCount :: `, body);
 					reject(new Error(res.body && res.body.message ? "Request failed:: " + res.body.message : "Request failed"));
 				}
 			}
@@ -521,11 +522,11 @@ function validateData(_req, _res) {
 		});
 }
 
-function requestBulkCreate(req, body, serviceInfo, filename) {
+function requestBulkCreate(req, body, filename) {
 	let api = req.path.split("/")[3] + "/" + req.path.split("/")[4];
-	// let host = global.masterServiceRouter[api];
-	// let url = host + "/" + api + "/fileMapper/create";
-	let url = config.get("wf") + "/workflow/fileMapper/create";
+	let host = global.masterServiceRouter[api];
+	let url = host + "/" + api + `/utils/fileMapper/${filename}/create`;
+	// let url = config.get("wf") + "/workflow/fileMapper/create";
 	// let sheetData = body.sheetData;
 	delete body.sheetData;
 	let options = {
@@ -537,11 +538,12 @@ function requestBulkCreate(req, body, serviceInfo, filename) {
 			"Authorization": req.get("Authorization"),
 			"User": req.user ? req.user._id : null
 		},
-		qs: {
-			path: "/" + api + `/fileMapper/${filename}/create`,
-			serviceId: serviceInfo.serviceId,
-			app: serviceInfo.app
-		},
+		
+		// qs: {
+		// 	path: "/" + api + `/fileMapper/${filename}/create`,
+		// 	serviceId: serviceInfo.serviceId,
+		// 	app: serviceInfo.app
+		// },
 		body: body,
 		json: true
 	};
@@ -549,12 +551,14 @@ function requestBulkCreate(req, body, serviceInfo, filename) {
 	return new Promise((resolve, reject) => {
 		request.post(options, function (err, res, body) {
 			if (err) {
-				logger.error(err.message);
+				logger.error(`[${req.get('txnid')}] Error in requestBulkCreate :: `, err);
+				reject(err);
 			} else if (!res) logger.error("Service is DOWN");
 			else {
 				if (res.statusCode >= 200 && res.statusCode < 400) {
 					resolve(body);
 				} else {
+					logger.error(`[${req.get('txnid')}] Error response in requestBulkCreate :: `, body);
 					reject(new Error(res.body && res.body.message ? "Request failed:: " + res.body.message : "Request failed bulk create"));
 				}
 			}
@@ -602,9 +606,8 @@ function bulkCreate(_req, _res) {
 				});
 				throw new Error("Not Permitted.");
 			}
-			return getServiceInfo(app, "/" + api);
+			return requestBulkCreate(_req, reqBody, fileId);
 		})
-		.then(_d => requestBulkCreate(_req, reqBody, _d, fileId))
 		.then((_d) => {
 			_res.json(_d);
 			// removeFiles(dir);
@@ -627,38 +630,38 @@ function isFileMapperAllowed(highestPermission) {
 
 let e = {};
 
-function getServiceInfo(app, api) {
-	return new Promise((resolve, reject) => {
-		request(config.get("sm") + "/sm/service", {
-			headers: {
-				"content-type": "application/json"
-			},
-			qs: {
-				"select": "_id,app",
-				"filter": {
-					"app": app,
-					"api": api
-				}
-			},
-			json: true
-		}, (smErr, smRes, body) => {
-			if (smErr) {
-				reject(smErr);
-			}
-			if (smRes.statusCode < 200 && smRes.statusCode > 400) {
-				reject(new Error("SM returned status " + smRes.statusCode));
-			} else {
-				if (!body || body.length === 0) {
-					throw new Error("No service found");
-				}
-				return resolve({
-					"serviceId": body[0]._id,
-					"app": body[0].app
-				});
-			}
-		});
-	});
-}
+// function getServiceInfo(app, api) {
+// 	return new Promise((resolve, reject) => {
+// 		request(config.get("sm") + "/sm/service", {
+// 			headers: {
+// 				"content-type": "application/json"
+// 			},
+// 			qs: {
+// 				"select": "_id,app",
+// 				"filter": {
+// 					"app": app,
+// 					"api": api
+// 				}
+// 			},
+// 			json: true
+// 		}, (smErr, smRes, body) => {
+// 			if (smErr) {
+// 				reject(smErr);
+// 			}
+// 			if (smRes.statusCode < 200 && smRes.statusCode > 400) {
+// 				reject(new Error("SM returned status " + smRes.statusCode));
+// 			} else {
+// 				if (!body || body.length === 0) {
+// 					throw new Error("No service found");
+// 				}
+// 				return resolve({
+// 					"serviceId": body[0]._id,
+// 					"app": body[0].app
+// 				});
+// 			}
+// 		});
+// 	});
+// }
 
 e.fileMapperHandler = (req, res, next) => {
 	let txnId = req.get("TxnId") || req.headers.TxnId;
