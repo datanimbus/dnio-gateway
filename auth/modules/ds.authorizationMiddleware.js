@@ -25,7 +25,7 @@ function dsAuthorizationMw(req, res, next) {
                 logger.trace(`[${txnId}] DS AuthMW :: All permission :: ${JSON.stringify({ allPermission })}`);
                 if (!allPermission) {
                 	logger.error(`[${txnId}] DS AuthMW :: All permission :: Not allowed`);
-                  return commonAuthZMw.sendForbidden(_res);
+                  return commonAuthZMw.sendForbidden(res);
                 }
                 allPermission.fields = (typeof (allPermission.fields) == "object") ? allPermission.fields : JSON.parse(allPermission.fields);
                 let urlArr = req.path.split("/");
@@ -79,17 +79,17 @@ function dsAuthorizationMw(req, res, next) {
                             highestPermission = getObj[0].fields;
                             logger.debug(JSON.stringify({ highestPermission }));
                             if (!highestPermission || _.isEmpty(highestPermission)) {
-                                return commonAuthZMw.sendForbidden(_res);
+                                return commonAuthZMw.sendForbidden(res);
                             }
                             if (!authUtil.hasAnyReadPermission(highestPermission)) {
-                                return commonAuthZMw.sendForbidden(_res);
+                                return commonAuthZMw.sendForbidden(res);
                             }
                             if (!req.user.isSuperAdmin)
                                 return authUtil.checkRecordPermissionForUserCRUD(userPermissionIds, allPermission, req.method, "API", req.body, req).then(() => next());
                             else next();
                         }
                     } else {
-                        return commonAuthZMw.sendForbidden(_res);
+                        return commonAuthZMw.sendForbidden(res);
                     }
                 }
             }

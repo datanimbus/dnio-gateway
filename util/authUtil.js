@@ -520,37 +520,37 @@ function hasApproveViewPerm(highestPermission) {
 	}
 }
 
-function decryptText(_d, app) {
-	if (!_d) return Promise.resolve("");
-	var options = {
-		url: `${config.get("sec")}/sec/enc/${app}/decrypt`,
-		method: "POST",
-		headers: {
-			"Content-Type": "application/json",
-		},
-		body: { data: _d },
-		json: true
-	};
-	return new Promise((resolve, reject) => {
-		request.post(options, function (err, res, body) {
-			if (err) {
-				logger.error("Error requesting Security service");
-				reject(err);
-			} else if (!res) {
-				logger.error("Security service down");
-				reject(new Error("Security service down"));
-			}
-			else {
-				if (res.statusCode === 200) {
-					resolve(body.data);
-				} else {
-					logger.error("Error decrypting text");
-					resolve(_d);
-				}
-			}
-		});
-	});
-}
+// function decryptText(_d, app) {
+// 	if (!_d) return Promise.resolve("");
+// 	var options = {
+// 		url: `${config.get("sec")}/sec/enc/${app}/decrypt`,
+// 		method: "POST",
+// 		headers: {
+// 			"Content-Type": "application/json",
+// 		},
+// 		body: { data: _d },
+// 		json: true
+// 	};
+// 	return new Promise((resolve, reject) => {
+// 		request.post(options, function (err, res, body) {
+// 			if (err) {
+// 				logger.error("Error requesting Security service");
+// 				reject(err);
+// 			} else if (!res) {
+// 				logger.error("Security service down");
+// 				reject(new Error("Security service down"));
+// 			}
+// 			else {
+// 				if (res.statusCode === 200) {
+// 					resolve(body.data);
+// 				} else {
+// 					logger.error("Error decrypting text");
+// 					resolve(_d);
+// 				}
+// 			}
+// 		});
+// 	});
+// }
 
 // function decryptData(data, nestedKey, app, forFile) {
 // 	let keys = nestedKey.split(".");
@@ -1086,7 +1086,7 @@ e.getProxyResHandler = (permittedUrls) => {
 					if (res.statusCode < 200 || res.statusCode >= 400) {
 						return res.send(body);
 					}
-					let reqPath = req.originalUrl.split("?")[0];
+					// let reqPath = req.originalUrl.split("?")[0];
 					// let isAppCenter = false;
 					// let splitPath = reqPath.split("/");
 					// if (splitPath[2] === "c") isAppCenter = true;

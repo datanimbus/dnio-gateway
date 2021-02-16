@@ -29,45 +29,45 @@ function isMonAccessControlValid(req) {
         let permissionApp = req.user.roles.filter(_r => (_r.id === "PVDSASR") && _r.entity == "SM").map(_r => _r.app);
         return appsAdmin.concat(permissionApp).indexOf(req.apiDetails.app) >= 0;
 
-    } else if (authUtil.compareUrl("/api/a/mon/dataService/log", _req.path) || authUtil.compareUrl("/api/a/mon/dataService/log/count", _req.path)) {
-        if (_req.user.isSuperAdmin) return true;
-        let permissionApp = _req.user.roles.filter(_r => (_r.id === "PVISDS") && _r.entity == "INS").map(_r => _r.app);
+    } else if (authUtil.compareUrl("/api/a/mon/dataService/log", req.path) || authUtil.compareUrl("/api/a/mon/dataService/log/count", req.path)) {
+        if (req.user.isSuperAdmin) return true;
+        let permissionApp = req.user.roles.filter(_r => (_r.id === "PVISDS") && _r.entity == "INS").map(_r => _r.app);
         permissionApp = _.uniq(appsAdmin.concat(permissionApp));
         if(!permissionApp.length) return false;
-        modifyMonLogFilter(_req, permissionApp, true);
+        modifyMonLogFilter(req, permissionApp, true);
         return true;
-    } else if (authUtil.compareUrl("/api/a/mon/author/user/log", _req.path) || authUtil.compareUrl("/api/a/mon/author/user/log/count", _req.path)) {
-        if (_req.user.isSuperAdmin) return true;
-        let permissionApp = _req.user.roles.filter(_r => (_r.id === "PVISU") && _r.entity == "INS").map(_r => _r.app);
+    } else if (authUtil.compareUrl("/api/a/mon/author/user/log", req.path) || authUtil.compareUrl("/api/a/mon/author/user/log/count", req.path)) {
+        if (req.user.isSuperAdmin) return true;
+        let permissionApp = req.user.roles.filter(_r => (_r.id === "PVISU") && _r.entity == "INS").map(_r => _r.app);
         permissionApp = _.uniq(appsAdmin.concat(permissionApp));
         if(!permissionApp.length) return false;
-        modifyMonLogFilter(_req, permissionApp, false);
+        modifyMonLogFilter(req, permissionApp, false);
         return true;
 
-    } else if (authUtil.compareUrl("/api/a/mon/author/group/log", _req.path) || authUtil.compareUrl("/api/a/mon/author/group/log/count", _req.path)) {
-        if (_req.user.isSuperAdmin) return true;
-        let permissionApp = _req.user.roles.filter(_r => (_r.id === "PVISG") && _r.entity == "INS").map(_r => _r.app);
+    } else if (authUtil.compareUrl("/api/a/mon/author/group/log", req.path) || authUtil.compareUrl("/api/a/mon/author/group/log/count", req.path)) {
+        if (req.user.isSuperAdmin) return true;
+        let permissionApp = req.user.roles.filter(_r => (_r.id === "PVISG") && _r.entity == "INS").map(_r => _r.app);
         permissionApp = _.uniq(appsAdmin.concat(permissionApp));
         if(!permissionApp.length) return false;
-        modifyMonLogFilter(_req, permissionApp, false);
+        modifyMonLogFilter(req, permissionApp, false);
         return true;
     } else {
         return true;
     }
 }
 
-function modifyMonLogFilter(_req, permissionApp, isDSLogApi) {
+function modifyMonLogFilter(req, permissionApp, isDSLogApi) {
 	let customFilter = { $and: [{}] };
 	if(isDSLogApi)
 		customFilter["$and"][0]["app"] = { $in: permissionApp };
 	else
 		customFilter["$and"][0]["apps"] = { $in: permissionApp };
-	if(_req.query.filter) {
-		if(typeof _req.query.filter == "string")
-			_req.query.filter = JSON.parse(_req.query.filter);
-		customFilter["$and"].push(_req.query.filter);
+	if(req.query.filter) {
+		if(typeof req.query.filter == "string")
+			req.query.filter = JSON.parse(req.query.filter);
+		customFilter["$and"].push(req.query.filter);
 	}
-	_req.query.filter = JSON.stringify(customFilter);
+	req.query.filter = JSON.stringify(customFilter);
 }
 
 function monAuthorizationMw(req, res, next) {
