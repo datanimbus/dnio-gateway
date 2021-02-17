@@ -41,7 +41,7 @@ function sendRequest(txnId, config, res) {
 		let pathSplit = config.path.split("/");
 		let pathArray = ["/b2bgw/downloadfile", "/workflow/file/download/{id}", "/pm/{app}/download/{type}/{id}", "/rbac/usr/bulkCreate/{id}/download", "/pm/ieg/download/{type}", "/pm/{app}/download/appagent/{id}/{type}", "/pm/{app}/download/partneragent/{id}/{type}", "/sec/identity/{appName}/fetch/download", "/sec/identity/{appName}/csr", "/sec/identity/{appName}/certificate/download", "/sec/keys/download/IEG", "/sec/keys/download/CA"];
 		if (pathArray.some((url) => authUtil.compareUrl(url, config.path))) newRes.pipe(res);
-		else if ((pathSplit[3] == "file" && pathSplit[4] == "download") || (pathSplit[4] && pathSplit[4].split("?")[0] == "export")) {
+		else if ((pathSplit[4] == "file" && pathSplit[5] == "download") || (pathSplit[4] && pathSplit[4].split("?")[0] == "export")) {
 			newRes.pipe(res);
 		}
 		if (config.files) {
