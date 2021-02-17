@@ -91,25 +91,28 @@ e.addRequestDetails = async (_req, _res, next) => {
 			}
 
 			_req.apiDetails = await db.findOne(false, "userMgmt.users", { _id: pathSplit[5] }, null)
-			let aggregationResult = await db.getUserApps(pathSplit[5])
+			let aggregationResult = await db.getUserApps(pathSplit[5]);
 			_req.apiDetails.app = aggregationResult ? aggregationResult[0].apps : [];
 			return next()
 		}
 
 		if (gwUtil.compareUrl("/api/a/rbac/bot/botKey/{_id}", _req.path)) {
 			let aggregationResult = await db.getUserApps(pathSplit[6])
+			_req.apiDetails = {};
 			_req.apiDetails.app = aggregationResult[0].apps
 			return next()
 		}
 		
 		if (gwUtil.compareUrl("/api/a/rbac/bot/botKey/session/{_id}", _req.path)) {
-			let aggregationResult = await db.getUserApps(pathSplit[7])
+			let aggregationResult = await db.getUserApps(pathSplit[7]);
+			_req.apiDetails = {};
 			_req.apiDetails.app = aggregationResult[0].apps
 			return next()
 		}
 		
 		if (gwUtil.compareUrl("/api/a/rbac/{userType}/{_id}/status/{userState}", _req.path)) {
-			let aggregationResult = await db.getUserApps(pathSplit[5])
+			let aggregationResult = await db.getUserApps(pathSplit[5]);
+			_req.apiDetails = {};
 			_req.apiDetails.app = aggregationResult ? aggregationResult[0].apps : []
 			return next();
 		}
