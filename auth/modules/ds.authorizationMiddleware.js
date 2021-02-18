@@ -2,6 +2,7 @@ const _ = require("lodash");
 let authUtil = require("./../../util/authUtil");
 let commonAuthZMw = require("./common.authorizationMiddleware");
 
+let logger = global.logger;
 
 function dsAuthorizationMw(req, res, next) {
 		let txnId = req.headers.TxnId
@@ -70,7 +71,9 @@ function dsAuthorizationMw(req, res, next) {
                     else next();
                 } else {
                     let paths = req.path.split("/");
-                    if (req.method == "GET" || (req.method == "POST" && (paths[6] == "simulate" || paths[6] == "experienceHook"))) {
+                    if (req.method == "GET" || (req.method == "POST" 
+                        && (paths[6] == "simulate" || paths[6] == "experienceHook"))
+                        || (req.method == "PUT" && paths[6] == "workflow" && paths[7] == "action")) {
                         if (permissionAllowed.length > 0) {
                             if (!req.user.isSuperAdmin)
                                 return authUtil.checkRecordPermissionForUserCRUD(userPermissionIds, allPermission, req.method, "API", req.body, req).then(() => next());
