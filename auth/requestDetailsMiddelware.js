@@ -92,7 +92,7 @@ e.addRequestDetails = async (_req, _res, next) => {
 
 			_req.apiDetails = await db.findOne(false, "userMgmt.users", { _id: pathSplit[5] }, null)
 			let aggregationResult = await db.getUserApps(pathSplit[5]);
-			_req.apiDetails.app = aggregationResult ? aggregationResult[0].apps : [];
+			_req.apiDetails.app = aggregationResult && aggregationResult[0] ? aggregationResult[0].apps : [];
 			return next()
 		}
 
