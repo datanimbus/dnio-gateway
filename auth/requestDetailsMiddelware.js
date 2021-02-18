@@ -90,7 +90,13 @@ e.addRequestDetails = async (_req, _res, next) => {
 				return next()
 			}
 
+			if(gwUtil.compareUrl("/api/a/rbac/usr/bulkCreate/{fileId}/sheetSelect", _req.path)
+			|| gwUtil.compareUrl("/api/a/rbac/usr/bulkCreate/{fileId}/validate", _req.path)) {
+				return next()
+			}
+
 			_req.apiDetails = await db.findOne(false, "userMgmt.users", { _id: pathSplit[5] }, null)
+			logger.info('_req.apiDetails :: ', _req.apiDetails)
 			let aggregationResult = await db.getUserApps(pathSplit[5]);
 			_req.apiDetails.app = aggregationResult && aggregationResult[0] ? aggregationResult[0].apps : [];
 			return next()
