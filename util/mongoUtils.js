@@ -118,18 +118,18 @@ e.aggregate = async (_isAppCenter, _collection, _aggregationPipeline) => {
 };
 
 e.getUserApps = async (_id) => {
-	logger.trace(`Getting apps for ${_id} using aggregateQuery()`);
-	let aggregateQuery = [
+	logger.trace(`Getting apps for ${_id} using aggregate()`);
+	let aggregate = [
 		{ "$match": { "users": _id } },
 		{ "$project": { "app": 1 } },
 		{ "$group": { "_id": "$app" } },
 		{ "$group": { "_id": null, "apps": { "$addToSet": "$_id" } } }
 	];
-	return await e.aggregate(false, "userMgmt.groups", aggregateQuery);
+	return await e.aggregate(false, "userMgmt.groups", aggregate);
 };
 
 e.getAppCenterDataServicesList = async (_id) => {
-	logger.trace(`Getting list of data service for ${_id} using aggregateQuery()`);
+	logger.trace(`Getting list of data service for ${_id} using aggregate()`);
 	let aggregationPipeline = [
 		{
 			"$match": { "users": _id }
@@ -143,11 +143,11 @@ e.getAppCenterDataServicesList = async (_id) => {
 			"$group": { "_id": null, "entities": { "$addToSet": "$roles.entity" } }
 		}
 	];
-	return await e.aggregateQuery(false, "userMgmt.groups", aggregationPipeline);
+	return await e.aggregate(false, "userMgmt.groups", aggregationPipeline);
 };
 
 e.getAppCenterDataServiceRolesList = async (_serviceIds) => {
-	logger.trace(`Getting list of appcenter roles for dataservices - ${_serviceIds.join(",")} - using aggregateQuery()`);
+	logger.trace(`Getting list of appcenter roles for dataservices - ${_serviceIds.join(",")} - using aggregate()`);
 	let aggregationPipeline = [
 		{
 			"$match": { "_id": { "$in": _serviceIds } }
@@ -161,11 +161,11 @@ e.getAppCenterDataServiceRolesList = async (_serviceIds) => {
 			"$group": { "_id": null,  "roles": { "$addToSet": "$roles.id" } }
 		}
 	];
-	return await e.aggregateQuery(false, "userMgmt.roles", aggregationPipeline);
+	return await e.aggregate(false, "userMgmt.roles", aggregationPipeline);
 };
 
 e.getRolesForAppandEntity = async (_userId, _app, _entity) => {
-	logger.trace(`Getting list of roles for user ${_userId}, for dataservice ${_entity} under app ${_app} using aggregateQuery()`);
+	logger.trace(`Getting list of roles for user ${_userId}, for dataservice ${_entity} under app ${_app} using aggregate()`);
 	let aggregationPipeline = [
 		{
 			"$match": { "users": _userId, "app": _app }
@@ -177,7 +177,7 @@ e.getRolesForAppandEntity = async (_userId, _app, _entity) => {
 			"$match": { "roles.entity": _entity }
 		}
 	];
-	return await e.aggregateQuery(false, "userMgmt.groups", aggregationPipeline);
+	return await e.aggregate(false, "userMgmt.groups", aggregationPipeline);
 };
 
 module.exports = e;

@@ -416,7 +416,8 @@ let manipulateBody = (body, req) => {
 	let forFile = req.query.forFile;
 	if (!req.path.endsWith("/secret/enc") && !req.path.startsWith("/api/a/mon") && !e.compareUrl("/api/a/sec/enc/{appName}/decrypt", req.path) && !req.path.startsWith("/api/a/sm/calendar")) {
 		try {
-			let highestPermission = req._highestPermission.find(_hp => _hp.method == "GET");
+			logger.info("req._highestPermission :: ", req._highestPermission);
+			let highestPermission = req._highestPermission ? req._highestPermission.find(_hp => _hp.method == "GET") : null;
 			if (highestPermission) {
 				highestPermission = highestPermission.fields;
 			}
@@ -428,7 +429,7 @@ let manipulateBody = (body, req) => {
 				newData = body;
 			}
 		} catch (err) {
-			logger.error(`[${req.headers.TxnId}] ${err.message}`);
+			logger.error(`[${req.headers.TxnId}] Error in manipulateBody :: ${err}`);
 			newData = {
 				message: err.message
 			};
@@ -1043,7 +1044,7 @@ e.getProxyResHandler = (permittedUrls) => {
 		if (req.path.startsWith("/api/a/workflow")) {
 			return res.json(body);
 		}
-
+		logger.info("calling user handler");
 		userResHandler(req, body, res)
 			.then(_usrRes => {
 				if (_usrRes) {
@@ -1117,6 +1118,7 @@ e.getProxyResHandler = (permittedUrls) => {
 						// 		res.status(500).json({ message: err.message });
 						// 	});
 					}
+					logger.info("hoghest permission :: ", req._highestPermission);
 					let highestPermission = req._highestPermission ? req._highestPermission.find(_hp => _hp.method == "GET") : null;
 					if (highestPermission) {
 						highestPermission = highestPermission.fields;
@@ -1144,6 +1146,7 @@ e.getProxyResHandler = (permittedUrls) => {
 					if (req.user.isSuperAdmin || hasCUDPerm(req._highestPermission) || appcenterPermittedURL.some(_u => e.compareUrl(_u, req.path))) {
 						return res.json(body);
 					}
+					logger.info("calling manipulate body");
 					let output = manipulateBody(body, req);
 					return res.json(output);
 					// })
@@ -1356,22 +1359,22 @@ e.checkRecordPermissionUtil = function (ruleArr, loggedinUser, type, returnFilte
 	}, Promise.resolve([]));
 };
 
-function modifyFilterForWF(filter, prefix) {
-	let newFilter = {};
-	if (filter.constructor != {}.constructor) return filter;
-	Object.keys(filter).forEach(_k => {
-		let newKey = _k.startsWith("$") ? _k : (prefix + _k);
-		if (filter[_k].constructor == {}.constructor) {
-			newFilter[newKey] = modifyFilterForWF(filter[_k], prefix);
-		} else if (Array.isArray(filter[_k])) {
-			newFilter[newKey] = filter[_k].map(_d => modifyFilterForWF(_d, prefix));
-		}
-		else {
-			newFilter[newKey] = filter[_k];
-		}
-	});
-	return newFilter;
-}
+// function modifyFilterForWF(filter, prefix) {
+// 	let newFilter = {};
+// 	if (filter.constructor != {}.constructor) return filter;
+// 	Object.keys(filter).forEach(_k => {
+// 		let newKey = _k.startsWith("$") ? _k : (prefix + _k);
+// 		if (filter[_k].constructor == {}.constructor) {
+// 			newFilter[newKey] = modifyFilterForWF(filter[_k], prefix);
+// 		} else if (Array.isArray(filter[_k])) {
+// 			newFilter[newKey] = filter[_k].map(_d => modifyFilterForWF(_d, prefix));
+// 		}
+// 		else {
+// 			newFilter[newKey] = filter[_k];
+// 		}
+// 	});
+// 	return newFilter;
+// }
 
 function getdbAndCollection(serviceids) {
 	return global.mongoConnectionAuthor.collection("services").find({ _id: { $in: serviceids } }).toArray()
@@ -1434,149 +1437,228 @@ function modifyAppcenterRequest(req, validIds, creationIds) {
 	}
 }
 
-function getserviceIdListWF(filter) {
-	return global.mongoConnectionAuthor.collection("workflow").distinct("serviceId", filter);
-}
+// function getserviceIdListWF(filter) {
+// 	return global.mongoConnectionAuthor.collection("workflow").distinct("serviceId", filter);
+// }
 
-function getWFIdList(filter, method, returnFilter, req) {
-	return getserviceIdListWF(filter)
-		.then(_serviceIds => {
-			return e.getPermissions(req, _serviceIds, null, null);
-		})
+function checkForWFPermissions(serviceId, method, returnFilter, req) {
+	// return getserviceIdListWF(filter)
+	// 	.then(_serviceIds => {
+	// 		return e.getPermissions(req, _serviceIds, null, null);
+	// 	})
+	return e.getPermissions(req, serviceId, returnFilter, req)
 		.then(_permissions => {
-			let promises = _permissions.map(_perm => {
-				if (req.user.roles && Array.isArray(req.user.roles)) {
-					let userPermissionIds = req.user.roles.filter(_r => _r.app === _perm.app && _r.entity === _perm.entity).map(_o => _o.id);
-					return getPermittedIds(userPermissionIds, _perm, method, returnFilter, req);
-				}
-				else throwError("Something went wrong with user roles", 500);
-			});
-			return Promise.all(promises);
-		})
-		.then(_allowedIdsArr => {
-			logger.debug(JSON.stringify({ _allowedIdsArr }));
-			return [].concat.apply([], _allowedIdsArr);
+			_permissions = _permissions[0];
+			logger.info("permissions  ::: ", _permissions);
+			logger.info("req.user.roles  ::: ", req.user.roles);
+
+			if (req.user.roles && Array.isArray(req.user.roles)) {
+				let userPermissionIds = req.user.roles.filter(_r => _r.app === _permissions.app && _r.entity === _permissions.entity).map(_o => _o.id);
+				logger.info("userPermissionIds ::: ", JSON.stringify(userPermissionIds));
+				return isWFOperationAllowed(userPermissionIds, _permissions, method, returnFilter, req);
+			}
+			else throwError("Something went wrong with user roles", 500);
 		});
+
+	// let promises = _permissions.map(_perm => {
+	// 	if (req.user.roles && Array.isArray(req.user.roles)) {
+	// 		let userPermissionIds = req.user.roles.filter(_r => _r.app === _perm.app && _r.entity === _perm.entity).map(_o => _o.id);
+	// 		logger.info('____perm ::: ', JSON.stringify(_perm))
+	// 		logger.info('userPermissionIds ::: ', JSON.stringify(userPermissionIds))
+	// 		return getPermittedIds(userPermissionIds, _perm, method, returnFilter, req);
+	// 	}
+	// 	else throwError("Something went wrong with user roles", 500);
+	// });
+	// return Promise.all(promises);
+	// })
+	// .then(_allowedIdsArr => {
+	// 	logger.debug(JSON.stringify({ _allowedIdsArr }));
+	// 	return [].concat.apply([], _allowedIdsArr);
+	// });
 }
 
-e.checkRecordPermissionForUserWF = function (req) {
-	if (req.user.isSuperAdmin) return Promise.resolve();
-	let pathSegment = req.path.split("/");
-	let apiList = ["/api/a/workflow/serviceList", "/api/a/workflow", "/api/a/workflow/count", "/api/a/workflow/group/{app}"];
+e.checkRecordPermissionForUserWF = function (req, serviceId) {
+	if (req.user.isSuperAdmin) return Promise.resolve(true);
+	logger.info("calling checkRecordPermissionForUserWF");
+	// let pathSegment = req.path.split("/");
+	let apiList = ["/api/c/{app}/{api}/utils/workflow/serviceList", "/api/c/{app}/{api}/utils/workflow", "/api/c/{app}/{api}/utils/workflow/count", "/api/c/{app}/{api}/utils/workflow/group/{app}"];
 	if (apiList.some(_a => e.compareUrl(_a, req.path)) && req.method == "GET") {
-		let filter = {};
-		if (req.query.filter)
-			filter = typeof req.query.filter == "string" ? JSON.parse(req.query.filter) : req.query.filter;
-		return getWFIdList(filter, "REVIEW_READ", true, req)
-			.then(allowedIds => {
-				if (allowedIds) {
-					if (req.query.filter) {
-						let oldFilter = req.query.filter;
-						let newFilter = { $and: [] };
-						if (allowedIds.length > 0) newFilter["$and"].push({ $or: allowedIds });
-						newFilter["$and"].push(typeof oldFilter === "object" ? oldFilter : JSON.parse(oldFilter));
-						req.query.filter = JSON.stringify(newFilter);
-						// req.query.filter = JSON.stringify({ '$and': [typeof oldFilter === 'object' ? oldFilter : JSON.parse(oldFilter), { _id: { '$in': allowedIds } }] });
-					} else {
-						// req.query.filter = JSON.stringify({ _id: { '$in': allowedIds } });
-						if (allowedIds.length > 0) req.query.filter = JSON.stringify({ $and: allowedIds });
-					}
-				}
-			});
+		// let filter = {};
+		// if (req.query.filter)
+		// 	filter = typeof req.query.filter == "string" ? JSON.parse(req.query.filter) : req.query.filter;
+		return checkForWFPermissions(serviceId, "REVIEW_READ", true, req);
+		// .then(isAllowed => {
+		// 	return Promise.resolve(isAllowed)
+		// 	// if (allowedIds) {
+		// 	if (req.query.filter) {
+		// 		let oldFilter = req.query.filter;
+		// 		let newFilter = { $and: [] };
+		// 		if (allowedIds.length > 0) newFilter["$and"].push({ $or: allowedIds });
+		// 		newFilter["$and"].push(typeof oldFilter === "object" ? oldFilter : JSON.parse(oldFilter));
+		// 		req.query.filter = JSON.stringify(newFilter);
+		// 		// req.query.filter = JSON.stringify({ '$and': [typeof oldFilter === 'object' ? oldFilter : JSON.parse(oldFilter), { _id: { '$in': allowedIds } }] });
+		// 	} else {
+		// 		// req.query.filter = JSON.stringify({ _id: { '$in': allowedIds } });
+		// 		if (allowedIds.length > 0) req.query.filter = JSON.stringify({ $and: allowedIds });
+		// 	}
+		// }
+		// });
 	}
-	if (e.compareUrl("/api/a/workflow/action", req.path)) {
-		if (!req.body.ids || !Array.isArray(req.body.ids)) throwError("request does not contains id list", 500);
-		let filter = { _id: { $in: req.body.ids } };
-		return getWFIdList(filter, "REVIEW", false, req)
-			.then(_allowedIds => {
-				if (req.body.ids && _.difference(req.body.ids, _allowedIds).length > 0) {
-					throwError("Insufficient privileges", 403);
-				}
-			});
+	if (e.compareUrl("/api/c/{app}/{api}/utils/workflow/action", req.path)) {
+		if (!req.body.ids || !Array.isArray(req.body.ids)) throwError("Request does not contains id list", 500);
+		// let filter = { _id: { $in: req.body.ids } };
+		return checkForWFPermissions(serviceId, "REVIEW", false, req);
+		// .then(isAllowed => {
+		// 	return Promise.resolve(isAllowed);
+		// 	// if (req.body.ids && _.difference(req.body.ids, _allowedIds).length > 0) {
+		// 	// 	throwError("Insufficient privileges", 403);
+		// 	// }
+		// });
 	}
-	if (e.compareUrl("/api/a/workflow/{id}", req.path) || e.compareUrl("/api/a/workflow/doc/{id}", req.path)) {
-		let reqId = e.compareUrl("/api/a/workflow/{id}", req.path) ? pathSegment[4] : pathSegment[5];
-		let filter = { _id: reqId };
-		return getWFIdList(filter, (req.method === "GET" ? "REVIEW_READ" : "REVIEW_MANAGE"), false, req)
-			.then(_allowedIds => {
-				if (_allowedIds.indexOf(reqId) == -1) {
-					throwError("Insufficient privileges", 403);
-				}
-			});
+	if (e.compareUrl("/api/c/{app}/{api}/utils/workflow/{id}", req.path) || e.compareUrl("/api/a/workflow/doc/{id}", req.path)) {
+		// let reqId = e.compareUrl("/api/c/{app}/{api}/utils/workflow/{id}", req.path) ? pathSegment[7] : pathSegment[8];
+		// TO check
+		// let filter = { _id: reqId };
+		return checkForWFPermissions(serviceId, (req.method === "GET" ? "REVIEW_READ" : "REVIEW_MANAGE"), false, req);
 	}
+	logger.info("should not call thois");
 	return Promise.resolve();
 };
 
-function getPermittedIds(userPermission, allPermission, method, returnFilter, req) {
-	let ruleSets = [];
-	let involvedServiceIds = [];
-	allPermission.roles.forEach(_role => {
-		let userHasPermissionFlag = userPermission.indexOf(_role.id) > -1;
-		if (!userHasPermissionFlag) return;
-		let opertionFlag = _role.operations.some(_o => {
-			let methodFlag = false;
-			if (method == "REVIEW_READ") methodFlag = ["GET", "PUT", "POST", "DELETE", "REVIEW"].indexOf(_o.method) > -1;
-			else if (method == "REVIEW_MANAGE") methodFlag = ["PUT", "POST", "DELETE", "REVIEW"].indexOf(_o.method) > -1;
-			else _o.method == method;
-			return methodFlag;
+
+function isWFOperationAllowed(userPermissions, dsPermission, method) {
+	// TO DO --> implement rule sets
+	let isAllowed = dsPermission.roles.some(role => {
+		if(!userPermissions.includes(role.id)) return false;
+		return role.operations.some(op => {
+			if (method == "REVIEW_READ")
+				return ["GET", "PUT", "POST", "DELETE", "REVIEW"].includes(op.method);
+			else if (method == "REVIEW_MANAGE")
+				return ["PUT", "POST", "DELETE", "REVIEW"].includes(op.method);
+			else
+				return op.method == method;
 		});
-		if (opertionFlag) {
-			if (Array.isArray(_role.rule) && _role.rule.length > 0) {
-				ruleSets.push(_role.rule);
-				_role.rule.forEach(_r => {
-					if (_r.dataService) involvedServiceIds.push(_r.dataService);
-				});
-			}
-		}
-		// _role.operations.forEach(_o => {
-		//     let methodFlag = false;
-		//     if (method == 'REVIEW_READ') methodFlag = ['GET', 'PUT', 'POST', 'DELETE', 'REVIEW'].indexOf(_o.method) > -1;
-		//     else if (method == 'REVIEW_MANAGE') methodFlag = ['PUT', 'POST', 'DELETE', 'REVIEW'].indexOf(_o.method) > -1;
-		//     else _o.method == method;
-		//     if (methodFlag && Array.isArray(_role.rule) && _role.rule.length > 0) {
-		//         ruleSets.push(_role.rule);
-		//         _role.rule.forEach(_r => {
-		//             if (_r.dataService) involvedServiceIds.push(_r.dataService);
-		//         });
-		//     }
-		// });
 	});
-	logger.debug(JSON.stringify(ruleSets));
-	if (ruleSets.length == 0) {
-		logger.debug("No rule set found");
-		if (returnFilter) return Promise.resolve([{ serviceId: allPermission.entity }]);
-		return global.mongoConnectionAuthor.collection("workflow").find({ serviceId: allPermission.entity }, { _id: 1 }).toArray()
-			.then(_wf => _wf.map(_d => _d._id));
-	}
-	let collectionMapping = null;
-	let allowedIds = [];
-	return getdbAndCollection(involvedServiceIds)
-		.then(_m => {
-			collectionMapping = _m;
-			let modifiedRuleSets = ruleSets.map((_rs) => {
-				return _rs.map((_r, i) => {
-					let newObj = JSON.parse(JSON.stringify(_r));
-					newObj.db = global.appcenterDbo.db(collectionMapping[_r.dataService].db);
-					newObj.collection = collectionMapping[_r.dataService].collection;
-					if (i == _rs.length - 1) {
-						newObj.collection = "workflow";
-						newObj.db = global.mongoConnectionAuthor;
-						let newDataFilter = modifyFilterForWF(JSON.parse(newObj.filter), "data.new.");
-						let oldDataFilter = modifyFilterForWF(JSON.parse(newObj.filter), "data.old.");
-						newObj.filter = JSON.stringify({ $or: [{ "$and": [{ "data.new": { "$ne": null } }, newDataFilter] }, { "$and": [{ "data.old": { "$ne": null } }, oldDataFilter] }] });
-					}
-					return newObj;
-				});
-			});
-			return Promise.all(modifiedRuleSets.map(_rs => e.checkRecordPermissionUtil(_rs, req.user, "API", returnFilter)));
-		})
-		.then(_idsArr => {
-			if (returnFilter) return _idsArr;
-			allowedIds = [].concat.apply([], _idsArr);
-			allowedIds = _.uniq(allowedIds);
-			return allowedIds;
-		});
+	return isAllowed;
 }
+
+// function getPermittedIds(userPermission, allPermission, method, returnFilter, req) {
+// 	let ruleSets = [];
+// 	let involvedServiceIds = [];
+// 	allPermission.roles.forEach(_role => {
+// 		let userHasPermissionFlag = userPermission.indexOf(_role.id) > -1;
+// 		if (!userHasPermissionFlag) return;
+// 		let opertionFlag = _role.operations.some(_o => {
+// 			let methodFlag = false;
+// 			if (method == "REVIEW_READ") methodFlag = ["GET", "PUT", "POST", "DELETE", "REVIEW"].indexOf(_o.method) > -1;
+// 			else if (method == "REVIEW_MANAGE") methodFlag = ["PUT", "POST", "DELETE", "REVIEW"].indexOf(_o.method) > -1;
+// 			else _o.method == method;
+// 			return methodFlag;
+// 		});
+// 		if (opertionFlag) {
+// 			if (Array.isArray(_role.rule) && _role.rule.length > 0) {
+// 				ruleSets.push(_role.rule);
+// 				_role.rule.forEach(_r => {
+// 					if (_r.dataService) involvedServiceIds.push(_r.dataService);
+// 				});
+// 			}
+// 		}
+// 	});
+// 	logger.debug(JSON.stringify(ruleSets));
+// 	if (ruleSets.length == 0) {
+// 		logger.debug("No rule set found");
+// 		if (returnFilter) return Promise.resolve([{ serviceId: allPermission.entity }]);
+// 		return global.mongoConnectionAuthor.collection("workflow").find({ serviceId: allPermission.entity }, { _id: 1 }).toArray()
+// 			.then(_wf => _wf.map(_d => _d._id));
+// 	}
+// 	let collectionMapping = null;
+// 	let allowedIds = [];
+// 	return getdbAndCollection(involvedServiceIds)
+// 		.then(_m => {
+// 			collectionMapping = _m;
+// 			let modifiedRuleSets = ruleSets.map((_rs) => {
+// 				return _rs.map((_r, i) => {
+// 					let newObj = JSON.parse(JSON.stringify(_r));
+// 					newObj.db = global.appcenterDbo.db(collectionMapping[_r.dataService].db);
+// 					newObj.collection = collectionMapping[_r.dataService].collection;
+// 					if (i == _rs.length - 1) {
+// 						newObj.collection = "workflow";
+// 						newObj.db = global.mongoConnectionAuthor;
+// 						let newDataFilter = modifyFilterForWF(JSON.parse(newObj.filter), "data.new.");
+// 						let oldDataFilter = modifyFilterForWF(JSON.parse(newObj.filter), "data.old.");
+// 						newObj.filter = JSON.stringify({ $or: [{ "$and": [{ "data.new": { "$ne": null } }, newDataFilter] }, { "$and": [{ "data.old": { "$ne": null } }, oldDataFilter] }] });
+// 					}
+// 					return newObj;
+// 				});
+// 			});
+// 			return Promise.all(modifiedRuleSets.map(_rs => e.checkRecordPermissionUtil(_rs, req.user, "API", returnFilter)));
+// 		})
+// 		.then(_idsArr => {
+// 			if (returnFilter) return _idsArr;
+// 			allowedIds = [].concat.apply([], _idsArr);
+// 			allowedIds = _.uniq(allowedIds);
+// 			return allowedIds;
+// 		});
+// }
+
+// function getPermittedIds(userPermission, allPermission, method, returnFilter, req) {
+// 	let ruleSets = [];
+// 	let involvedServiceIds = [];
+// 	allPermission.roles.forEach(_role => {
+// 		let userHasPermissionFlag = userPermission.indexOf(_role.id) > -1;
+// 		if (!userHasPermissionFlag) return;
+// 		let opertionFlag = _role.operations.some(_o => {
+// 			let methodFlag = false;
+// 			if (method == "REVIEW_READ") methodFlag = ["GET", "PUT", "POST", "DELETE", "REVIEW"].indexOf(_o.method) > -1;
+// 			else if (method == "REVIEW_MANAGE") methodFlag = ["PUT", "POST", "DELETE", "REVIEW"].indexOf(_o.method) > -1;
+// 			else _o.method == method;
+// 			return methodFlag;
+// 		});
+// 		if (opertionFlag) {
+// 			if (Array.isArray(_role.rule) && _role.rule.length > 0) {
+// 				ruleSets.push(_role.rule);
+// 				_role.rule.forEach(_r => {
+// 					if (_r.dataService) involvedServiceIds.push(_r.dataService);
+// 				});
+// 			}
+// 		}
+// 	});
+// 	logger.debug(JSON.stringify(ruleSets));
+// 	if (ruleSets.length == 0) {
+// 		logger.debug("No rule set found");
+// 		if (returnFilter) return Promise.resolve([{ serviceId: allPermission.entity }]);
+// 		return global.mongoConnectionAuthor.collection("workflow").find({ serviceId: allPermission.entity }, { _id: 1 }).toArray()
+// 			.then(_wf => _wf.map(_d => _d._id));
+// 	}
+// 	let collectionMapping = null;
+// 	let allowedIds = [];
+// 	return getdbAndCollection(involvedServiceIds)
+// 		.then(_m => {
+// 			collectionMapping = _m;
+// 			let modifiedRuleSets = ruleSets.map((_rs) => {
+// 				return _rs.map((_r, i) => {
+// 					let newObj = JSON.parse(JSON.stringify(_r));
+// 					newObj.db = global.appcenterDbo.db(collectionMapping[_r.dataService].db);
+// 					newObj.collection = collectionMapping[_r.dataService].collection;
+// 					if (i == _rs.length - 1) {
+// 						newObj.collection = "workflow";
+// 						newObj.db = global.mongoConnectionAuthor;
+// 						let newDataFilter = modifyFilterForWF(JSON.parse(newObj.filter), "data.new.");
+// 						let oldDataFilter = modifyFilterForWF(JSON.parse(newObj.filter), "data.old.");
+// 						newObj.filter = JSON.stringify({ $or: [{ "$and": [{ "data.new": { "$ne": null } }, newDataFilter] }, { "$and": [{ "data.old": { "$ne": null } }, oldDataFilter] }] });
+// 					}
+// 					return newObj;
+// 				});
+// 			});
+// 			return Promise.all(modifiedRuleSets.map(_rs => e.checkRecordPermissionUtil(_rs, req.user, "API", returnFilter)));
+// 		})
+// 		.then(_idsArr => {
+// 			if (returnFilter) return _idsArr;
+// 			allowedIds = [].concat.apply([], _idsArr);
+// 			allowedIds = _.uniq(allowedIds);
+// 			return allowedIds;
+// 		});
+// }
 
 e.checkRecordPermissionForUserCRUD = function (userPermission, allPermission, method, type, data, req) {
 	let ruleSets = [];
@@ -1951,6 +2033,20 @@ e.workflowServiceList = async (req, res) => {
 	try {
 		const app = req.params.app;
 		const filter = req.query.filter;
+		let smFilter;
+		if(req.user.isSuperAdmin) {
+			smFilter = { app };
+		} else {
+			let serviceIds = req.user.roles.filter(_r => _r.type == "appcenter" && !(_r.entity.startsWith("INTR") || _r.entity.startsWith("BM_"))).map(_r => _r.entity);
+			// if (req.query.filter) {
+			// 	let oldFilter = req.query.filter;
+			// 	req.query.filter = JSON.stringify({ "$and": [typeof oldFilter === "object" ? oldFilter : JSON.parse(oldFilter), { _id: { "$in": serviceList } }] });
+			// } else {
+			// 	req.query.filter = JSON.stringify({ _id: { "$in": serviceList } });
+			// }
+			logger.info("service ids ::: ", serviceIds);
+			smFilter = { _id: { "$in": serviceIds }, app };
+		}
 		let services = [];
 		services = await httpRequest({
 			url: config.get("sm") + "/sm/service",
@@ -1960,15 +2056,22 @@ e.workflowServiceList = async (req, res) => {
 				"TxnId": req.get("TxnId"),
 			},
 			qs: {
-				select: "name,api,app",
-				filter: JSON.stringify({ app }),
+				select: "name,api,app,port",
+				filter: JSON.stringify(smFilter),
 				count: -1
 			},
 			json: true
 		});
+		logger.info("services ::: ", services);
 		const docsPromise = services.map((e) => {
 			return new Promise((resolve) => {
-				const url = "http://" + e.api.split("/")[1] + "." + config.odpNS + "-" + e.app.toLowerCase().replace(/ /g, "") + "/" + e.app + e.api + "/utils/workflow/serviceList";
+				let url;
+				if(config.isK8sEnv()) {
+					url = `http://${e.api.split("/")[1]}. ${config.odpNS}-${e.app.toLowerCase().replace(/ /g, "")}/${e.app + e.api}/utils/workflow/serviceList`;
+				} else {
+					url = `http://localhost:${e.port}/${e.app + e.api}/utils/workflow/serviceList`;
+				}
+				
 				httpRequest({
 					url,
 					method: "GET",
@@ -1989,13 +2092,14 @@ e.workflowServiceList = async (req, res) => {
 				});
 			});
 		});
+		logger.info("services ::: ", services);
 		services = await Promise.all(docsPromise);
 		services = Object.assign.apply({}, services);
-		res.status(200).json(services);
+		return res.status(200).json(services);
 	} catch (err) {
 		logger.error(`[${req.get("TxnId")}] Error from Service Manager`);
 		logger.error(err);
-		res.status(500).json({ message: err.message });
+		return res.status(500).json({ message: err.message });
 	}
 };
 

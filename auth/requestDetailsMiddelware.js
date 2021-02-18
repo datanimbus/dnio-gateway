@@ -9,7 +9,7 @@ let e = {};
 async function getManageRoleServiceList(_req) {
 	logger.debug(`[${_req.headers.TxnId}] _req.user.roles - ${JSON.stringify(_req.user.roles)}`)
 	let serviceList = await db.getAppCenterDataServicesList(_req.user._id)
-	serviceList = serviceList.entities
+	serviceList = serviceList[0].entities
 	logger.debug(`[${_req.headers.TxnId}] serviceList - ${serviceList}`)
 	let manageServiceList = []
 	logger.debug(`[${_req.headers.TxnId}] ${JSON.stringify({ serviceList })}`)
@@ -190,10 +190,18 @@ e.addRequestDetails = async (_req, _res, next) => {
 			return next(new Error(`Agent ${pathSplit[5]} not found in registry`))
 		}
 		
+		if (gwUtil.compareUrl("/api/c/{app}/{api}/utils/workflow/action", _req.path)) {
+			// const wfIds = _req.body.ids
+			// _req.apiDetails = await db.find(false, "workflow", { _id: { $in: wfIds } }, { projection: { serviceId: 1, app: 1 }})
+			_req.apiDetails = {};
+			_req.apiDetails.manageServiceList = await getManageRoleServiceList(_req)
+			return next()
+		}
+
 		if (gwUtil.compareUrl("/api/a/workflow/action", _req.path)) {
 			const wfIds = _req.body.ids
 			_req.apiDetails = await db.find(false, "workflow", { _id: { $in: wfIds } }, { projection: { serviceId: 1, app: 1 }})
-			_req.apiDetails.manageServiceList = getManageRoleServiceList(_req)
+			_req.apiDetails.manageServiceList = await getManageRoleServiceList(_req)
 			return next()
 		}
 		

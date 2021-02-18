@@ -151,7 +151,7 @@ e.getRouterMiddleware = (config) => {
 				}
 			})
 			.catch(err => {
-				logger.error(`[${txnId}] Routing MW :: ${err.message}`);
+				logger.error(`[${txnId}] Routing MW :: ${err}`);
 				if (!res.headersSent) res.status(500).json({ "message": err.message });
 			});
 	};

@@ -1,12 +1,49 @@
 const _ = require("lodash");
 let authUtil = require("./../../util/authUtil");
 let commonAuthZMw = require("./common.authorizationMiddleware");
+let logger = global.logger;
 
+
+function isWorkflowApiAccessInvalid(req, serviceId) {
+	if (req.user.isSuperAdmin) return false;
+	let pathSegment = req.path.split("/");
+	req.user.roles = req.user.roles.filter(r => r.entity);
+
+	if (authUtil.compareUrl("/api/c/{app}/{api}/utils/workflow", req.path) || authUtil.compareUrl("/api/c/{app}/{api}/utils/workflow/count", req.path)) {
+		if (req.method === "GET") {
+			let serviceList = req.user.roles.filter(_r => _r.type == "appcenter" && !(_r.entity.startsWith("INTR") || _r.entity.startsWith("BM_"))).map(_r => _r.entity);
+            logger.info('serviceID :: ', serviceId)
+            logger.info('serviceIDssss :: ', serviceList)
+			return !serviceList.includes(serviceId);
+		}
+		if (req.method === "POST") {
+			return true;
+		}
+	}
+	if (authUtil.compareUrl("/api/c/{app}/{api}/utils/workflow/action", req.path)) {
+		let serviceList = req.apiDetails.manageServiceList;
+        return !serviceList.includes(serviceId);
+	}
+	if (authUtil.compareUrl("/api/c/{app}/{api}/utils/workflow/{id}", req.path) || authUtil.compareUrl("/api/c/{app}/{api}/utils/workflow/doc/{id}", req.path)) {
+		let serviceList = [];
+		if (req.method === "GET")
+			serviceList = req.user.roles.filter(_r => _r.type == "appcenter" && _r.entity.startsWith("SRVC")).map(_r => _r.entity);
+		else {
+			serviceList = req.apiDetails.manageServiceList;
+		}
+		return !serviceList.includes(serviceId);
+	}
+	if (authUtil.compareUrl("/api/c/{app}/{api}/utils/workflow/group/{app}", req.path)) {
+		let appList = req.user.roles.filter(_r => _r.type == "appcenter" && _r.entity.startsWith("SRVC")).map(_r => _r.app);
+		return appList.indexOf(pathSegment[8]) === -1;
+	}
+}
 
 function dsAuthorizationMw(req, res, next) {
-		let txnId = req.headers.TxnId
+    let txnId = req.headers.TxnId
     const allowedApiEndPoint = ["file", "hook"];
-    if (req.path.startsWith("/api/c") && allowedApiEndPoint.indexOf(req.path.split("/")[5]) > -1) {
+    let reqPath = req.path.split("/");
+    if (req.path.startsWith("/api/c") && allowedApiEndPoint.includes(reqPath[5])) {
         return next();
     }
     commonAuthZMw.getAdditionalData(req, res, next)
@@ -18,14 +55,14 @@ function dsAuthorizationMw(req, res, next) {
                 let userPermissionIds = [];
                 // To fetch all the permission id the user has for a app and entity.
                 if (req.user.roles && Array.isArray(req.user.roles)) {
-                  userPermissionIds = req.user.roles.filter(_r => (reqApp ? _r.app === reqApp : true) && (Array.isArray(reqEntity) ? reqEntity.indexOf(_r.entity) > -1 : _r.entity === reqEntity)).map(_o => _o.id);
-                  logger.debug(`[${txnId}] DS AuthMW :: Permission Ids :: ${userPermissionIds.join(", ")}`);
+                    userPermissionIds = req.user.roles.filter(_r => (reqApp ? _r.app === reqApp : true) && (Array.isArray(reqEntity) ? reqEntity.indexOf(_r.entity) > -1 : _r.entity === reqEntity)).map(_o => _o.id);
+                    logger.debug(`[${txnId}] DS AuthMW :: Permission Ids :: ${userPermissionIds.join(", ")}`);
                 }
                 let allPermission = permissions[0];
                 logger.trace(`[${txnId}] DS AuthMW :: All permission :: ${JSON.stringify({ allPermission })}`);
                 if (!allPermission) {
-                	logger.error(`[${txnId}] DS AuthMW :: All permission :: Not allowed`);
-                  return commonAuthZMw.sendForbidden(res);
+                    logger.error(`[${txnId}] DS AuthMW :: All permission :: Not allowed`);
+                    return commonAuthZMw.sendForbidden(res);
                 }
                 allPermission.fields = (typeof (allPermission.fields) == "object") ? allPermission.fields : JSON.parse(allPermission.fields);
                 let urlArr = req.path.split("/");
@@ -63,6 +100,25 @@ function dsAuthorizationMw(req, res, next) {
                             return next();
                     }
 
+                }
+                if (urlArr[5] == 'utils' && urlArr[6] == 'workflow') {
+                    logger.info('checking for wf api :: ')
+                    if (isWorkflowApiAccessInvalid(req, reqEntity)) {
+                        res.status(403).json({ message: "Access denied" });
+                        return next(new Error("Access denied"));
+                    }
+                    return authUtil.checkRecordPermissionForUserWF(req, reqEntity)
+                        .then((isAllowed) => {
+                            logger.trace(`[${txnId}] checkRecordPermissionForUserWF :: isAllowed :: ${isAllowed}`);
+                            if(isAllowed)
+                                return next();
+                            else
+                                return commonAuthZMw.sendForbidden(res);
+                        })
+                        .catch(err => {
+                            logger.error('Error in wfAuthorizationMw :: ', err);
+                            next(err);
+                        });
                 }
                 if (permissionAllowed.indexOf(req.method) > -1) {
                     if (!req.user.isSuperAdmin)

@@ -17,6 +17,7 @@ const loggerName = (process.env.KUBERNETES_SERVICE_HOST && process.env.KUBERNETE
 
 const logger = log4js.getLogger(loggerName);
 let timeOut = process.env.API_REQUEST_TIMEOUT || 120;
+logger.level = "trace";
 global.logger = logger;
 
 const config = require("./config/config.js");
