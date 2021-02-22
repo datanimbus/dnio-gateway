@@ -1040,9 +1040,14 @@ e.getProxyResHandler = (permittedUrls) => {
 		if (req.path.startsWith("/api/a/pm") && splitUrl[4] !== "partner" && splitUrl[4] !== "nanoService") {
 			return res.json(body);
 		}
-		if (req.path.startsWith("/api/a/workflow")) {
+		if (req.path.startsWith("/api/c/") && splitUrl[5] && splitUrl[5] == "utils" 
+			&& splitUrl[6] && splitUrl[6] == "workflow") {
 			return res.json(body);
 		}
+		// ODP code
+		// if (req.path.startsWith("/api/a/workflow")) {
+		// 	return res.json(body);
+		// }
 
 		userResHandler(req, body, res)
 			.then(_usrRes => {
