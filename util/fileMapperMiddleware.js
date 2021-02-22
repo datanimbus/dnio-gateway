@@ -578,6 +578,7 @@ function isOperationAllowed(highestPermission, createCount, updateCount) {
 }
 
 function bulkCreate(_req, _res) {
+	let txnId = _req.get('txnId');
 	let data = _req.body;
 	let flag = isFileMapperAllowed(_req._highestPermission);
 	// let flag = checkPermission(authUtil.flattenPermission(_req._highestPermission, "", ["W"]), data.headerMapping);
@@ -587,7 +588,7 @@ function bulkCreate(_req, _res) {
 		});
 		return;
 	}
-	let fileId = _req.path.split("/")[6];
+	let fileId = _req.path.split("/")[7];
 	let reqBody = {
 		update: data.update,
 		fileId: data.fileId,
@@ -613,9 +614,12 @@ function bulkCreate(_req, _res) {
 			// removeFiles(dir);
 		})
 		.catch(err => {
-			_res.status(500).json({
-				message: err.message
-			});
+			logger.error(`[${txnId} :: Error in bulkCreate :: `, err);
+			if(!_res.headersSent) {
+				_res.status(500).json({
+					message: err.message
+				});
+			}
 		});
 }
 
