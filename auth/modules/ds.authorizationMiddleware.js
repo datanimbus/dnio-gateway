@@ -34,7 +34,7 @@ function dsAuthorizationMw(req, res, next) {
                 let highestPermissionObject = authUtil.computeMethodAllowed(userPermissionIds, allPermission, isAdminUser);
                 let getObj = _.remove(highestPermissionObject, _d => _d.method === "GET");
                 req._highestPermission = highestPermissionObject.concat(getObj);
-                if (urlArr[5] && urlArr[5] === "fileMapper") {
+                if (urlArr[6] && urlArr[6] === "fileMapper") {
                     req.entityPermission = permissions[0];
                     req.userPermissionIds = userPermissionIds;
                     return next();
