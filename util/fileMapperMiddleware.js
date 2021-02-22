@@ -578,7 +578,7 @@ function isOperationAllowed(highestPermission, createCount, updateCount) {
 }
 
 function bulkCreate(_req, _res) {
-	let txnId = _req.get('txnId');
+	let txnId = _req.get("txnId");
 	let data = _req.body;
 	let flag = isFileMapperAllowed(_req._highestPermission);
 	// let flag = checkPermission(authUtil.flattenPermission(_req._highestPermission, "", ["W"]), data.headerMapping);
