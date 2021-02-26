@@ -1,5 +1,6 @@
 let authUtil = require("./../../util/authUtil");
 let commonAuthZMw = require("./common.authorizationMiddleware");
+let _ = require('lodash');
 
 let logger = global.logger;
 

@@ -1,7 +1,7 @@
 let authUtil = require("./../../util/authUtil");
 let gwUtil = require("./../../util/gwUtil");
 let commonAuthzMw = require("./common.authorizationMiddleware");
-let _ = require('lodash')
+let _ = require('lodash');
 
 let logger = global.logger;
 const NO_ACCESS_API = ["/api/a/rbac/role"]
