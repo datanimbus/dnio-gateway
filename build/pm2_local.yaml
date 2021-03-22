@@ -3,8 +3,8 @@ apps:
   script: ./app.js
   max_restarts: 5
   env:
-    MONGO_AUTHOR_DBNAME: odpConfig
-    MONGO_LOGS_DBNAME: odpLogs
+    MONGO_AUTHOR_DBNAME: datastackConfig
+    MONGO_LOGS_DBNAME: datastackLogs
     MONGO_RECONN_TRIES: 1000
     MONGO_RECONN_TIME_MILLI: 21600
     MODE: dev

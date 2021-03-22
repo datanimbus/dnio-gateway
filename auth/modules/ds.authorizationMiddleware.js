@@ -72,7 +72,7 @@ function dsAuthorizationMw(req, res, next) {
                 } else {
                     let paths = req.path.split("/");
                     if (req.method == "GET" || (req.method == "POST" 
-                        && (paths[6] == "simulate" || paths[6] == "experienceHook"))
+                        && (paths[6] == "simulate" || paths[6] == "experienceHook" || paths[7] == "upload"))
                         || (req.method == "PUT" && paths[6] == "workflow" && paths[7] == "action")) {
                         if (permissionAllowed.length > 0) {
                             if (!req.user.isSuperAdmin)
