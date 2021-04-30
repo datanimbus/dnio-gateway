@@ -26,7 +26,7 @@ e.createServiceList = async () => {
 	let options = {
 		url: `${config.get("sm")}/sm/service`,
 		qs: {
-			select: "port,api,app,name",
+			select: "_id,port,api,app,name",
 			count: -1,
 		},
 		headers: {
@@ -36,12 +36,15 @@ e.createServiceList = async () => {
 	};
 	try {
 		let serviceRoutingMap = {};
+		let serviceIdMap = {};
 		let services = await request(options);
 		services.forEach(_service => {
 			let hashMapValues = getHashMapValues(_service);
 			serviceRoutingMap[hashMapValues[0]] = hashMapValues[1];
+			serviceIdMap[hashMapValues[0]] = _service._id;
 		});
 		global.masterServiceRouter = serviceRoutingMap;
+		global.serviceIdMap = serviceIdMap;
 	} catch (_e) {
 		logger.error("Unable to create routing map!");
 		logger.error(_e);
@@ -51,12 +54,16 @@ e.createServiceList = async () => {
 e.updateServiceList = _data => {
 	logger.info("Updating routing map");
 	let hashMapValues =  getHashMapValues(_data);
-	if(hashMapValues) global.masterServiceRouter[hashMapValues[0]] = hashMapValues[1];
+	if(hashMapValues) {
+		global.masterServiceRouter[hashMapValues[0]] = hashMapValues[1];
+		global.serviceIdMap[hashMapValues[0]] = _data._id;
+	}
 };
 
 e.deleteServiceList = _data => {
 	logger.debug(`Deleting routing map entry :: ${_data.app}${_data.api}`);
 	delete global.masterServiceRouter[`${_data.app}${_data.api}`];
+	delete global.serviceIdMap[`${_data.app}${_data.api}`];
 };
 
 module.exports = e;

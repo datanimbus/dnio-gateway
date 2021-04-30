@@ -195,7 +195,7 @@ function getDSApi(req, api) {
 				},
 				qs: {
 					filter: JSON.stringify(filter),
-					select: "app,api,port"
+					select: "_id,app,api,port"
 				}
 			}, (err, res, body) => {
 				if (err) {
