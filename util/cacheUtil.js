@@ -119,4 +119,20 @@ e.deleteCachedRoleAppcenter = (entity) => {
 		});
 };
 
+e.setCacheForDedupe = async (data) => {
+	let key = 'DEDUPE_' + data.serviceId;
+	if(data.status == 'PREVIEW' || data.status == 'PROCESSING') {
+		return await setCache(key, data.status);
+	} else if(data.status == 'COMPLETED') {
+		return await deleteCache(key)
+	} else {
+		logger.error('Unknow dedupe status for cache :: ', data);
+	}
+}
+
+e.getCacheForDedupe = async (serviceId) => {
+	let key = 'DEDUPE_' + serviceId;
+	return await getCache(key);
+}
+
 module.exports = e;

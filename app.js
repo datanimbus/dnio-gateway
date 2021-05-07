@@ -115,6 +115,8 @@ app.use(utilMiddleware.checkTokenMiddleware);
 
 app.use(utilMiddleware.corsMiddleware);
 
+app.use(utilMiddleware.dsDedupeStatusHandler);
+
 // START OF SOME REAL SHIT
 
 
