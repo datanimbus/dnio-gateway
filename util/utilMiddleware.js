@@ -85,20 +85,20 @@ e.corsMiddleware = (_req, _res, _next) => {
  */
 e.dsDedupeStatusHandler = async (req, res, next) => {
 	// Need to look for better conddition
-	if (req.path.includes('/dedupe/status')) {
-		logger.debug('Dedupe req path :: ', req.path);
+	if (req.path.includes("/dedupe/status")) {
+		logger.debug("Dedupe req path :: ", req.path);
 		let txnId = req.headers["TxnId"];
 		let payload = req.body;
 		logger.debug(`[${txnId}] Received Dedupe Status :: ${JSON.stringify(payload)}`);
-		if(payload.status == 'READY_TO_PROCESS') {
+		if(payload.status == "READY_TO_PROCESS") {
 			// Inform user on UI through socket
 		} else {
 			await cacheUtil.setCacheForDedupe(payload);
 		}
-		res.json({ message: `Ok, thanks!` });
+		res.json({ message: "Ok, thanks!" });
 	} else {
 		next();
 	}
-}
+};
 
 module.exports = e;
