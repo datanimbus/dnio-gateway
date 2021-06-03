@@ -158,7 +158,8 @@ app.use(router.getRouterMiddleware({
 		if (selectedKey) return Promise.resolve(fixRoutes[selectedKey]);
 		let api = req.path.split("/")[3] + "/" + req.path.split("/")[4];
 		logger.info(`[${req.headers.TxnId}] Master service router API :: ${api}`);
-		return getDSApi(req, api);
+		
+		return [...getDSApi(req, api), ...getFaasApi(req, api)];
 		// if (req.method === "GET") {
 		// 	return getDSApi(req, api);
 		// } else {
@@ -224,6 +225,53 @@ function getDSApi(req, api) {
 
 	});
 }
+
+
+function getFaasApi(req, api) {
+	return new Promise((resolve, reject) => {
+		if (global.masterFaasRouter[api]) {
+			logger.debug(`[${req.headers.TxnId}] Routing to :: ${global.masterFaasRouter[api]}`);
+			resolve(global.masterFaasRouter[api]);
+		} else {
+			let apiSplit = api.split("/");
+			let filter = { app: apiSplit[0], api: "/" + apiSplit[1] };
+			logger.debug(`${req.headers.TxnId} Calling getFaasApi`);
+			request(config.get("pm") + "/pm/faas", {
+				headers: {
+					"content-type": "application/json"
+				},
+				qs: {
+					filter: JSON.stringify(filter),
+					select: "_id,app,api,port"
+				}
+			}, (err, res, body) => {
+				if (err) {
+					logger.error(`[${req.headers.TxnId}] Error in getFaasApi: ${err}`);
+					reject(err);
+				} else if (res.statusCode != 200) {
+					logger.debug(`[${req.headers.TxnId}] res.status code in getFaasApi :: ${res.statusCode}`);
+					logger.debug(`[${req.headers.TxnId}] Error in getFaasApi: ${body}`);
+					reject(body);
+				} else {
+					let parsed = JSON.parse(body);
+					if (!parsed.length) {
+						logger.error(`[${req.headers.TxnId}] Response length in getFaasApi : ${parsed.length}`);
+						return reject(new Error(`Faas with ${api} api doesn't exist.`));
+					}
+					let faasDetails = parsed[0];
+					let URL = "http://localhost:" + faasDetails.port;
+					if (process.env.GW_ENV == "K8s") {
+						URL = "http://" + faasDetails.api.split("/")[1] + "." + config.odpNS + "-" + faasDetails.app.toLowerCase().replace(/ /g, ""); // + faasDetails.port
+					}
+					global.masterFaasRouter[escape(faasDetails.app) + faasDetails.api] = URL;
+					resolve(global.masterFaasRouter[api]);
+				}
+			});
+		}
+
+	});
+}
+
 
 app.use(function (error, req, res, next) {
 	if (error) {

@@ -86,6 +86,27 @@ function __pmSocketHander(){
 			socketClients[key].emit("interactionUpdated", data)
 		})
 	})
+
+	socketClientPM.on("faasStatus", (data) => {
+		logger.info("WS :: PM :: Faas status from Partner Manager :", JSON.stringify(data))
+		Object.keys(socketClients).forEach(key => {
+			socketClients[key].emit("faasStatus", data)
+		})
+	})
+
+	socketClientPM.on("faasCreated", (data) => {
+		logger.info("WS :: PM :: Faas created from Partner Manager :", JSON.stringify(data))
+		Object.keys(socketClients).forEach(key => {
+			socketClients[key].emit("faasCreated", data)
+		})
+	})
+
+	socketClientPM.on("faasDeleted", (data) => {
+		logger.info("WS :: PM :: Faas deleted from Partner Manager :", JSON.stringify(data))
+		Object.keys(socketClients).forEach(key => {
+			socketClients[key].emit("faasDeleted", data)
+		})
+	})
 }
 
 module.exports = (_server) => {
