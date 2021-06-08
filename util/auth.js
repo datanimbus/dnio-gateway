@@ -235,17 +235,17 @@ module.exports = [{
 		// }), '_id', req)
 		// TBD -> to make it map of id to avoid db query
 		if(global.serviceIdMap[`${app}${api}`]) {
-			return Promise.resolve(global.serviceIdMap[`${app}${api}`])
+			return Promise.resolve(global.serviceIdMap[`${app}${api}`]);
 		} else {
 			return global.mongoConnectionAuthor.collection("services").findOne({ "api": api, "app": app }, { _id: 1})
-			.then(srvcInfo => {
-				if (srvcInfo) {
-					global.serviceIdMap[`${app}${api}`] = srvcInfo._id;
-					return Promise.resolve(srvcInfo._id);
-				} else {
-					return Promise.resolve(null);
-				}
-			});
+				.then(srvcInfo => {
+					if (srvcInfo) {
+						global.serviceIdMap[`${app}${api}`] = srvcInfo._id;
+						return Promise.resolve(srvcInfo._id);
+					} else {
+						return Promise.resolve(null);
+					}
+				});
 		}
 	},
 	getApp: () => {
