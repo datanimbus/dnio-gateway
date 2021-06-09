@@ -47,7 +47,10 @@ function __smSocketHandler(){
 function __pmSocketHander(){
 	let socketClientPM = ioClient.connect(config.get("pm"))
 
-	socketClientPM.on("connect", () => logger.info("WS :: PM :: Connected to PM"))
+	socketClientPM.on("connect", () => {
+		logger.info("WS :: PM :: Connected to PM");
+		routingMap.createFaasList();
+	});
 	socketClientPM.on("reconnect", (n) => logger.info("WS :: PM :: Reconnecting to PM " + n))
 	socketClientPM.on("reconnect_failed", (n) => logger.error("WS :: PM :: Reconnecting to PM failed " + n))
 	socketClientPM.on("connect_error", (err) => logger.error("WS :: PM :: Connection error in PM:: " + err.message))
@@ -85,6 +88,29 @@ function __pmSocketHander(){
 		Object.keys(socketClients).forEach(key => {
 			socketClients[key].emit("interactionUpdated", data)
 		})
+	})
+
+	socketClientPM.on("faasStatus", (data) => {
+		logger.info("WS :: PM :: Faas status from Partner Manager :", JSON.stringify(data))
+		Object.keys(socketClients).forEach(key => {
+			socketClients[key].emit("faasStatus", data)
+		});
+		routingMap.updateFaasList(data);
+	})
+
+	socketClientPM.on("faasCreated", (data) => {
+		logger.info("WS :: PM :: Faas created from Partner Manager :", JSON.stringify(data))
+		Object.keys(socketClients).forEach(key => {
+			socketClients[key].emit("faasCreated", data)
+		})
+	})
+
+	socketClientPM.on("faasDeleted", (data) => {
+		logger.info("WS :: PM :: Faas deleted from Partner Manager :", JSON.stringify(data))
+		Object.keys(socketClients).forEach(key => {
+			socketClients[key].emit("faasDeleted", data)
+		});
+		routingMap.deleteFaasList(data);
 	})
 }
 

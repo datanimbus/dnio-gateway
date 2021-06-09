@@ -157,8 +157,15 @@ app.use(router.getRouterMiddleware({
 		let selectedKey = Object.keys(fixRoutes).find(key => req.path.startsWith(key));
 		if (selectedKey) return Promise.resolve(fixRoutes[selectedKey]);
 		let api = req.path.split("/")[3] + "/" + req.path.split("/")[4];
+		let faasApi = req.path.split("/")[3] + "/" + req.path.split("/")[4] + "/" + req.path.split("/")[5];
 		logger.info(`[${req.headers.TxnId}] Master service router API :: ${api}`);
-		return getDSApi(req, api);
+		
+		if (req.path.startsWith('/api/a/faas')) {
+			return getFaasApi(req, faasApi);
+		} else {
+			return getDSApi(req, api);
+		}
+		
 		// if (req.method === "GET") {
 		// 	return getDSApi(req, api);
 		// } else {
@@ -173,6 +180,7 @@ app.use(router.getRouterMiddleware({
 		// }
 	},
 	pathRewrite: {
+		"/api/a/faas": "/api",
 		"/api/a": "",
 		"/api/c": ""
 	},
@@ -224,6 +232,54 @@ function getDSApi(req, api) {
 
 	});
 }
+
+
+function getFaasApi(req, api) {
+	return new Promise((resolve, reject) => {
+		let apiPath = `/api/a/${api}`;
+		if (global.masterFaasRouter[apiPath]) {
+			logger.debug(`[${req.headers.TxnId}] Routing to :: ${global.masterFaasRouter[apiPath]}`);
+			resolve(global.masterFaasRouter[apiPath]);
+		} else {
+			let apiSplit = api.split("/");
+			let filter = { app: apiSplit[1], url: apiPath };
+			logger.debug(`${req.headers.TxnId} Calling getFaasApi`);
+			request(config.get("pm") + "/pm/faas", {
+				headers: {
+					"content-type": "application/json"
+				},
+				qs: {
+					filter: JSON.stringify(filter),
+					select: "_id,app,url,port,deploymentName"
+				}
+			}, (err, res, body) => {
+				if (err) {
+					logger.error(`[${req.headers.TxnId}] Error in getFaasApi: ${err}`);
+					reject(err);
+				} else if (res.statusCode != 200) {
+					logger.debug(`[${req.headers.TxnId}] res.status code in getFaasApi :: ${res.statusCode}`);
+					logger.debug(`[${req.headers.TxnId}] Error in getFaasApi: ${body}`);
+					reject(body);
+				} else {
+					let parsed = JSON.parse(body);
+					if (!parsed.length) {
+						logger.error(`[${req.headers.TxnId}] Response length in getFaasApi : ${parsed.length}`);
+						return reject(new Error(`Faas with ${api} api doesn't exist.`));
+					}
+					let faasDetails = parsed[0];
+					let URL = "http://localhost:" + faasDetails.port;
+					if (process.env.GW_ENV == "K8s") {
+						URL = "http://" + faasDetails.deploymentName + "." + config.odpNS + "-" + faasDetails.app.toLowerCase().replace(/ /g, ""); // + faasDetails.port
+					}
+					global.masterFaasRouter[apiPath] = URL;
+					resolve(global.masterFaasRouter[apiPath]);
+				}
+			});
+		}
+
+	});
+}
+
 
 app.use(function (error, req, res, next) {
 	if (error) {
