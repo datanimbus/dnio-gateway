@@ -23,6 +23,8 @@ module.exports = (req, res, next) => {
 		return authorizationModules.pmAuthorizationMw(req, res, next);
 	} else if(req.path.startsWith("/api/c/")) {
 		return authorizationModules.dsAuthorizationMw(req, res, next);
+	} else if(req.path.startsWith("/api/a/faas")) {
+		return next();
 	} else {
 		logger.error(`[${txnId}] Url not registered.`);
 		res.status(404).json({ message: "Url not registered." });

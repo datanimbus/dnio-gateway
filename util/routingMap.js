@@ -22,13 +22,13 @@ function getDSHashMapValues(_data){
 }
 
 function getFaasHashMapValues(_data){
-	if (_data.app && _data.port && _data.api) {
+	if (_data.app && _data.port && _data.url) {
 		let URL = "http://localhost:" + _data.port;
 		if (process.env.GW_ENV == "K8s") {
-			URL = "http://" + _data.api.split("/")[1] + "." + config.odpNS + "-" + _data.app.toLowerCase().replace(/ /g, ""); // + data.port
+			URL = "http://" + _data.url.split("/")[1] + "." + config.odpNS + "-" + _data.app.toLowerCase().replace(/ /g, ""); // + data.port
 		}
-		logger.trace(`Routing map :: ${_data.app}${_data.api} : ${URL}`);
-		return [`${_data.app}${_data.api}`, `${URL}`];
+		logger.debug(`Routing map :: ${_data.app}${_data.url} : ${URL}`);
+		return [`${_data.url}`, `${URL}`];
 	}
 	return null;
 }
@@ -83,7 +83,7 @@ e.createFaasList = async () => {
 	let options = {
 		url: `${config.get("pm")}/pm/faas`,
 		qs: {
-			select: "_id,port,api,app,name",
+			select: "_id,port,url,app,name",
 			count: -1,
 		},
 		headers: {
@@ -94,11 +94,11 @@ e.createFaasList = async () => {
 	try {
 		let faasRoutingMap = {};
 		let faasIdMap = {};
-		let services = await request(options);
-		services.forEach(_service => {
-			let hashMapValues = getFaasHashMapValues(_service);
+		let functions = await request(options);
+		functions.forEach(_function => {
+			let hashMapValues = getFaasHashMapValues(_function);
 			faasRoutingMap[hashMapValues[0]] = hashMapValues[1];
-			faasIdMap[hashMapValues[0]] = _service._id;
+			faasIdMap[hashMapValues[0]] = _function._id;
 		});
 		global.masterFaasRouter = faasRoutingMap;
 		global.serviceIdMap = faasIdMap;
