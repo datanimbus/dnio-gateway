@@ -160,7 +160,7 @@ app.use(router.getRouterMiddleware({
 		let faasApi = req.path.split("/")[3] + "/" + req.path.split("/")[4] + "/" + req.path.split("/")[5];
 		logger.info(`[${req.headers.TxnId}] Master service router API :: ${api}`);
 		
-		if (req.path.startsWith('/api/a/faas')) {
+		if (req.path.startsWith("/api/a/faas")) {
 			return getFaasApi(req, faasApi);
 		} else {
 			return getDSApi(req, api);
