@@ -25,9 +25,9 @@ function getFaasHashMapValues(_data){
 	if (_data.app && _data.port && _data.url) {
 		let URL = "http://localhost:" + _data.port;
 		if (process.env.GW_ENV == "K8s") {
-			URL = "http://" + _data.url.split("/")[1] + "." + config.odpNS + "-" + _data.app.toLowerCase().replace(/ /g, ""); // + data.port
+			URL = "http://" + _data.deploymentName + "." + _data.namespace; // + data.port
 		}
-		logger.debug(`Routing map :: ${_data.app}${_data.url} : ${URL}`);
+		logger.debug(`Routing map :: ${_data.url} : ${URL}`);
 		return [`${_data.url}`, `${URL}`];
 	}
 	return null;
