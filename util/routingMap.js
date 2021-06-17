@@ -83,7 +83,7 @@ e.createFaasList = async () => {
 	let options = {
 		url: `${config.get("pm")}/pm/faas`,
 		qs: {
-			select: "_id,port,url,app,name",
+			select: "_id,port,url,app,name,deploymentName,namespace",
 			count: -1,
 		},
 		headers: {
