@@ -9,7 +9,7 @@ let logger = global.logger;
 
 let e = {};
 
-function getDSHashMapValues(_data){
+function getDSHashMapValues(_data) {
 	if (_data.app && _data.port && _data.api) {
 		let URL = "http://localhost:" + _data.port;
 		if (process.env.GW_ENV == "K8s") {
@@ -21,7 +21,7 @@ function getDSHashMapValues(_data){
 	return null;
 }
 
-function getFaasHashMapValues(_data){
+function getFaasHashMapValues(_data) {
 	if (_data.app && _data.port && _data.url) {
 		let URL = "http://localhost:" + _data.port;
 		if (process.env.GW_ENV == "K8s") {
@@ -65,8 +65,8 @@ e.createServiceList = async () => {
 
 e.updateServiceList = _data => {
 	logger.info("Updating DS routing map");
-	let hashMapValues =  getDSHashMapValues(_data);
-	if(hashMapValues) {
+	let hashMapValues = getDSHashMapValues(_data);
+	if (hashMapValues) {
 		global.masterServiceRouter[hashMapValues[0]] = hashMapValues[1];
 		global.serviceIdMap[hashMapValues[0]] = _data._id;
 	}
@@ -110,17 +110,21 @@ e.createFaasList = async () => {
 
 e.updateFaasList = _data => {
 	logger.info("Updating Faas routing map");
-	let hashMapValues =  getFaasHashMapValues(_data);
-	if(hashMapValues) {
+	let hashMapValues = getFaasHashMapValues(_data);
+	if (hashMapValues) {
 		global.masterFaasRouter[hashMapValues[0]] = hashMapValues[1];
 		global.faasIdMap[hashMapValues[0]] = _data._id;
 	}
 };
 
 e.deleteFaasList = _data => {
-	logger.debug(`Deleting Faas routing map entry :: ${_data.app}${_data.api}`);
-	delete global.masterFaasRouter[`${_data.app}${_data.api}`];
-	delete global.faasIdMap[`${_data.app}${_data.api}`];
+	logger.debug(`Deleting Faas routing map entry :: ${_data.app}${_data.url}`);
+	if (global.masterFaasRouter[`${_data.app}${_data.url}`]) {
+		delete global.masterFaasRouter[`${_data.app}${_data.url}`];
+	}
+	if (global.faasIdMap[`${_data.app}${_data.url}`]) {
+		delete global.faasIdMap[`${_data.app}${_data.url}`];
+	}
 };
 
 module.exports = e;
