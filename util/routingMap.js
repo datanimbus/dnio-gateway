@@ -101,7 +101,7 @@ e.createFaasList = async () => {
 			faasIdMap[hashMapValues[0]] = _function._id;
 		});
 		global.masterFaasRouter = faasRoutingMap;
-		global.serviceIdMap = faasIdMap;
+		global.faasIdMap = faasIdMap;
 	} catch (_e) {
 		logger.error("Unable to create faas routing map!");
 		logger.error(_e);
