@@ -72,7 +72,7 @@ e.addRequestDetails = async (_req, _res, next) => {
 			  }
 			]
 			let app = await db.aggregate(false, "userMgmt.groups", aggregateQuery)
-			_req.apiDetails = { app : [app._id] }
+			_req.apiDetails = { app : [app[0]._id] }
 			let user = await db.findOne(false, "userMgmt.users", { _id: pathSplit[5] }, {projection : {bot :1 }})
 			_req.apiDetails.bot = user.bot
 			return next()
