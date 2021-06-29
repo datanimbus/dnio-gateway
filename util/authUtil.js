@@ -416,7 +416,7 @@ let manipulateBody = (body, req) => {
 	let forFile = req.query.forFile;
 	if (!req.path.endsWith("/secret/enc") && !req.path.startsWith("/api/a/mon") && !e.compareUrl("/api/a/sec/enc/{appName}/decrypt", req.path) && !req.path.startsWith("/api/a/sm/calendar")) {
 		try {
-			let highestPermission = req._highestPermission.find(_hp => _hp.method == "GET");
+			let highestPermission = req._highestPermission ? req._highestPermission.find(_hp => _hp.method == "GET") : null;
 			if (highestPermission) {
 				highestPermission = highestPermission.fields;
 			}
@@ -1042,6 +1042,9 @@ e.getProxyResHandler = (permittedUrls) => {
 		}
 		if (req.path.startsWith("/api/c/") && splitUrl[5] && splitUrl[5] == "utils" 
 			&& splitUrl[6] && splitUrl[6] == "workflow") {
+			return res.json(body);
+		}
+		if (req.path.startsWith("/api/a/faas/")) {
 			return res.json(body);
 		}
 		// ODP code
