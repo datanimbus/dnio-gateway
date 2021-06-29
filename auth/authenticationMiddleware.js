@@ -43,7 +43,7 @@ async function validateJWT(_req) {
 	return userManagementCache.isBlacklistedToken(_req.tokenHash)
 	.then(_flag => _flag ? Promise.reject(new Error("Token Blacklisted")) : userManagementCache.isValidToken(_req.tokenHash))
 	.then(_flag => _flag ? _flag : Promise.reject("Invalid Token"))
-	.then(() => mongo.findOne(false, "userMgmt.users", { '_id': _req.user._id, 'isActive': true }, null))
+	.then(() => mongo.findOne(false, "userMgmt.users", { '_id': _req.user._id }, null))
 	.then(_user =>{
 		if(_user){
 			_req.user = _user;
