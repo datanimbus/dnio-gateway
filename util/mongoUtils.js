@@ -5,7 +5,7 @@ const config = require("../config/config");
 
 let logger = global.logger;
 
-let authorDB = process.env.MONGO_AUTHOR_DBNAME || "odpConfig";
+let authorDB = process.env.MONGO_AUTHOR_DBNAME || "datastackConfig";
 logger.debug(`AuthorDB :: ${authorDB}`);
 
 let e = {};
