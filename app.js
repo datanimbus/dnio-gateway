@@ -144,6 +144,7 @@ app.use(router.getRouterMiddleware({
 	target: config.get("gw"),
 	router: function (req) {
 		let fixRoutes = {
+			"/api/common": config.get("common"),
 			"/api/a/rbac": config.get("user"),
 			"/api/a/sm": config.get("sm"),
 			"/api/a/pm": config.get("pm"),

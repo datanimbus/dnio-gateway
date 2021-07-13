@@ -11,9 +11,9 @@ e.odpNS = process.env.DATA_STACK_NAMESPACE || "appveen";
 process.env.MODE = process.env.MODE ? process.env.MODE : "PROD";
 
 e.debugDB = false;
-if (process.env.LOG_LEVEL == "DB_DEBUG") { 
+if (process.env.LOG_LEVEL == "DB_DEBUG") {
 	process.env.LOG_LEVEL = "debug";
-	e.debugDB = true; 
+	e.debugDB = true;
 	let Logger = require("mongodb").Logger;
 	Logger.setLevel("debug");
 }
@@ -45,6 +45,7 @@ e.get = (_service) => {
 		if (_service == "sec") return `http://sec.${e.odpNS}`;
 		if (_service == "b2bgw") return `http://b2bgw-internal.${e.odpNS}`;
 		if (_service == "de") return `http://de.${e.odpNS}`;
+		if (_service == "common") return `http://common.${e.odpNS}`;
 	} else {
 		if (_service == "ne") return "http://localhost:10010";
 		if (_service == "sm") return "http://localhost:10003";
@@ -57,6 +58,7 @@ e.get = (_service) => {
 		if (_service == "sec") return "http://localhost:10007";
 		if (_service == "b2bgw") return "http://localhost:20000";
 		if (_service == "de") return "http://localhost:10012";
+		if (_service == "common") return "http://localhost:3000";
 	}
 };
 
