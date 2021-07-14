@@ -182,8 +182,8 @@ app.use(router.getRouterMiddleware({
 	},
 	pathRewrite: {
 		"/api/a/faas": "/api",
-		"/api/a": "",
-		"/api/c": ""
+		"/api/a/": "/",
+		"/api/c/": "/"
 	},
 	onRes: authUtil.getProxyResHandler(["/api/a/rbac", "/api/a/workflow"])
 }));
