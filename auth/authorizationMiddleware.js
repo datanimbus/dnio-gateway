@@ -5,25 +5,27 @@ let logger = global.logger;
 
 module.exports = (req, res, next) => {
 	let txnId = req.headers.TxnId
-	
-	if(gwUtil.isPermittedAuthZUrl(req)) return next()
+
+	if (gwUtil.isPermittedAuthZUrl(req)) return next()
 	logger.debug(`[${txnId}] Authorization check : Started!`)
 
-	if(req.path.startsWith("/api/a/rbac")) {
+	if (req.path.startsWith("/api/a/rbac")) {
 		return authorizationModules.userAuthorizationMw(req, res, next);
-	} else if(req.path.startsWith("/api/a/sm")) {
+	} else if (req.path.startsWith("/api/a/sm")) {
 		return authorizationModules.smAuthorizationMw(req, res, next);
-	} else if((req.path.startsWith("/api/a/mon"))) {
+	} else if ((req.path.startsWith("/api/a/mon"))) {
 		return authorizationModules.monAuthorizationMw(req, res, next);
-	} else if((req.path.startsWith("/api/a/workflow"))) {
+	} else if ((req.path.startsWith("/api/a/workflow"))) {
 		return authorizationModules.wfAuthorizationMw(req, res, next);
-	} else if((req.path.startsWith("/api/a/sec"))) {
+	} else if ((req.path.startsWith("/api/a/sec"))) {
 		return authorizationModules.secAuthorizationMw(req, res, next);
-	} else if((req.path.startsWith("/api/a/pm"))) {
+	} else if ((req.path.startsWith("/api/a/pm"))) {
 		return authorizationModules.pmAuthorizationMw(req, res, next);
-	} else if(req.path.startsWith("/api/c/")) {
+	} else if (req.path.startsWith("/api/c/")) {
 		return authorizationModules.dsAuthorizationMw(req, res, next);
-	} else if(req.path.startsWith("/api/a/faas")) {
+	} else if (req.path.startsWith("/api/a/faas")) {
+		return next();
+	} else if (req.path.startsWith("/api/common")) {
 		return next();
 	} else {
 		logger.error(`[${txnId}] Url not registered.`);
