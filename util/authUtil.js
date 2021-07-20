@@ -32,7 +32,7 @@ function throwError(msg, statusCode) {
 	throw err;
 }
 
-e.groupRolesPermArr = ["PMGADS", "PVGADS", "PNGADS", "PMGAL", "PVGAL", "PNGAL", "PMGADF", "PVGADF", "PNGADF", "PMGAP", "PVGAP", "PNGAP", "PMGANS", "PVGANS", "PNGANS", "PMGAA", "PVGAA", "PNGAA", "PMGAU", "PVGAU", "PNGAU", "PMGAB", "PVGAB", "PNGAB", "PMGABM", "PVGABM", "PNGABM", "PMGAG", "PVGAG", "PNGAG", "PMGCDS", "PVGCDS", "PNGCDS", "PMGCI", "PVGCI", "PNGCI", "PMGCBM", "PVGCBM", "PNGCBM", "PNGAIS", "PVGAIS", "PMGAIS"];
+e.groupRolesPermArr = ["PMGADS", "PVGADS", "PNGADS", "PMGAL", "PVGAL", "PNGAL", "PMGAF", "PVGAF", "PNGAF", "PMGADF", "PVGADF", "PNGADF", "PMGAP", "PVGAP", "PNGAP", "PMGANS", "PVGANS", "PNGANS", "PMGAA", "PVGAA", "PNGAA", "PMGAU", "PVGAU", "PNGAU", "PMGAB", "PVGAB", "PNGAB", "PMGABM", "PVGABM", "PNGABM", "PMGAG", "PVGAG", "PNGAG", "PMGCDS", "PVGCDS", "PNGCDS", "PMGCI", "PVGCI", "PNGCI", "PMGCBM", "PVGCBM", "PNGCBM", "PNGAIS", "PVGAIS", "PMGAIS"];
 
 e.groupBasicPermArr = ["PNGB", "PVGB", "PMGBC", "PMGBU", "PMGBD"];
 
@@ -45,6 +45,7 @@ groupAllPermArr = [].concat.call(groupAllPermArr, e.groupRolesPermArr, e.groupBa
 let roleIdMappingGroup = {
 	"ADS": ["PMDSD", "PNDSD", "PVDSD", "PMDSE", "PNDSE", "PVDSE", "PMDSR", "PNDSR", "PVDSR", "PNDSB", "PVDSB", "PMDSBC", "PMDSBU", "PMDSBD", "PMDSPD", "PMDSPS", "PNDSPD", "PNDSPS", "PVDSIDPR", "PMDSIDPR", "PNDSIDPR", "PVDSIDPO", "PMDSIDPO", "PNDSIDPO", "PVDSIRSU", "PMDSIRSU", "PNDSIRSU", "PVDSIRAP", "PMDSIRAP", "PNDSIRAP", "PVDSIRRJ", "PMDSIRRJ", "PNDSIRRJ", "PVDSIRDI", "PMDSIRDI", "PNDSIRDI", "PVDSIRRW", "PMDSIRRW", "PNDSIRRW", "PVDSSDH", "PMDSSDH", "PNDSSDH", "PMDSSRE", "PVDSSRE", "PNDSSRE", "PVDSSEP", "PMDSSEP", "PNDSSEP", "PVDSSFS", "PMDSSFS", "PNDSSFS", "PVDSSPR", "PMDSSPR", "PNDSSPR", "PVDSAAP", "PNDSAAP", "PVDSASR", "PNDSASR", "PVDSAPO", "PNDSAPO", "PVDSAPR", "PNDSAPR", "PMDSSPD", "PNDSSPD", "PVDSSPD"],
 	"AL": ["PML", "PVL", "PNL"],
+	"AF": ["PMF", "PVF", "PNF"],
 	"ADF": ["PMDF", "PVDF", "PNDF"],
 	"AP": ["PNPP", "PVPP", "PMPH", "PNPH", "PVPH", "PVPB", "PNPB", "PMPBC", "PMPBU", "PMPBD", "PNPFMB", "PVPFMB", "PMPFMBC", "PMPFMBD", "PMPFMBU", "PNPFPD", "PNPFPS", "PMPFPD", "PMPFPS", "PMPPC", "PMPPD", "PVPS", "PMPS", "PMPM", "PNPM"],
 	"ANS": ["PMNSBC", "PMNSBU", "PMNSBD", "PVNSB", "PNNSB", "PMNSIO", "PVNSIO", "PNNSIO", "PVNSURL", "PMNSURL", "PNNSURL", "PVNSH", "PMNSH", "PNNSH"],
@@ -465,6 +466,7 @@ e.isUrlPermitted = (permittedUrls, req) => {
 	else if (req.path.startsWith("/api/a/mon")) {
 		if (req.path.startsWith("/api/a/mon/dataService/log")
 			|| req.path.startsWith("/api/a/mon/author/user/log")
+			|| req.path.startsWith("/api/a/mon/author/bot/log")
 			|| req.path.startsWith("/api/a/mon/author/group/log"))
 			return false;
 		else
