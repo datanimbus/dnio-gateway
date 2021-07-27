@@ -1047,6 +1047,9 @@ e.getProxyResHandler = (permittedUrls) => {
 		if (req.path.startsWith("/api/a/faas/")) {
 			return res.json(body);
 		}
+		if (req.path.startsWith("/api/common")) {
+			return res.json(body);
+		}
 		// ODP code
 		// if (req.path.startsWith("/api/a/workflow")) {
 		// 	return res.json(body);
