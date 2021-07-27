@@ -185,7 +185,7 @@ app.use(router.getRouterMiddleware({
 		"/api/a/": "/",
 		"/api/c/": "/"
 	},
-	onRes: authUtil.getProxyResHandler(["/api/a/rbac", "/api/a/workflow"])
+	onRes: authUtil.getProxyResHandler(["/api/a/rbac", "/api/a/workflow", "/api/common"])
 }));
 
 
