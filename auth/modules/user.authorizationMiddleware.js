@@ -125,7 +125,7 @@ function isUserAccessControlInvalid(_req) {
 	if (_req.path.startsWith("/api/a/rbac/role") && (_req.method === "PUT" || _req.method === "POST" || _req.method === "DELETE")) {
 		return true
 	}
-	if (authUtil.compareUrl("/api/a/rbac/usr", _req.path) && _req.path === "POST") {
+	if (authUtil.compareUrl("/api/a/rbac/usr", _req.path) && (_req.method === "PUT" || _req.method === "POST" || _req.method === "DELETE")) {
 		return !_req.user.isSuperAdmin
 	}
 	if (authUtil.compareUrl("/api/a/rbac/app/{app}/removeUsers", _req.path)) {
