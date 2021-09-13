@@ -10,23 +10,24 @@ module.exports = [{
 	getEntity: (req) => {
 		let splitUrl = req.path.split("/");
 
-		if (authUtil.compareUrl("/api/a/sm/{app}/service/start", req.path) || authUtil.compareUrl("/api/a/sm/{app}/service/stop", req.path)) {
-			return Promise.resolve("SM");
-		}
-		else if (splitUrl[4] && splitUrl[4] == "globalSchema") {
-			if (req.method === "PUT") {
-				return Promise.resolve(["GS", "GS_" + splitUrl[5]]);
-			}
+		// if (authUtil.compareUrl("/api/a/sm/{app}/service/start", req.path) || authUtil.compareUrl("/api/a/sm/{app}/service/stop", req.path)) {
+		// 	return Promise.resolve("SM");
+		// }
+		if (splitUrl[4] && splitUrl[4] == "globalSchema") {
+			// if (req.method === "PUT") {
+			// 	return Promise.resolve(["GS", "GS_" + splitUrl[5]]);
+			// }
 			return Promise.resolve("GS");
-		} else if (req.method === "PUT") {
-			if (splitUrl[5] && (["start", "stop", "deploy", "repair"].indexOf(splitUrl[5]) > -1)) {
-				return Promise.resolve(["SM", "SM_" + splitUrl[4]]);
-			}
-			else if (splitUrl[4] && splitUrl[4] == "service" && splitUrl[5]) return Promise.resolve(["SM", "SM_" + splitUrl[5]]);
-		}
-		else if (req.method === "DELETE" && (req.path.endsWith("purge/all") || req.path.endsWith("purge/log") || req.path.endsWith("purge/audit") || req.path.endsWith("draftDelete"))) {
-			return Promise.resolve(["SM", "SM_" + splitUrl[4]]);
-		}
+		} 
+		// else if (req.method === "PUT") {
+		// 	if (splitUrl[5] && (["start", "stop", "deploy", "repair"].indexOf(splitUrl[5]) > -1)) {
+		// 		return Promise.resolve(["SM", "SM_" + splitUrl[4]]);
+		// 	}
+		// 	else if (splitUrl[4] && splitUrl[4] == "service" && splitUrl[5]) return Promise.resolve(["SM", "SM_" + splitUrl[5]]);
+		// }
+		// else if (req.method === "DELETE" && (req.path.endsWith("purge/all") || req.path.endsWith("purge/log") || req.path.endsWith("purge/audit") || req.path.endsWith("draftDelete"))) {
+		// 	return Promise.resolve(["SM", "SM_" + splitUrl[4]]);
+		// }
 		return Promise.resolve("SM");
 	},
 	getApp: (req) => {
@@ -93,11 +94,11 @@ module.exports = [{
 },
 {
 	url: "/api/a/pm/partner",
-	getEntity: (req) => {
-		let splitUrl = req.path.split("/");
-		if (authUtil.compareUrl("/api/a/pm/partner/{id}", req.path)) {
-			return Promise.resolve(["PM", `PM_${splitUrl[5]}`]);
-		}
+	getEntity: () => {
+		// let splitUrl = req.path.split("/");
+		// if (authUtil.compareUrl("/api/a/pm/partner/{id}", req.path)) {
+		// 	return Promise.resolve(["PM", `PM_${splitUrl[5]}`]);
+		// }
 		return Promise.resolve("PM");
 	},
 	getApp: (req) => {
@@ -122,11 +123,11 @@ module.exports = [{
 },
 {
 	url: "/api/a/pm/nanoService",
-	getEntity: (req) => {
-		let splitUrl = req.path.split("/");
-		if (authUtil.compareUrl("/api/a/pm/nanoService/{id}", req.path)) {
-			return Promise.resolve(["NS", `NS_${splitUrl[5]}`]);
-		}
+	getEntity: () => {
+		// let splitUrl = req.path.split("/");
+		// if (authUtil.compareUrl("/api/a/pm/nanoService/{id}", req.path)) {
+		// 	return Promise.resolve(["NS", `NS_${splitUrl[5]}`]);
+		// }
 		return Promise.resolve("NS");
 	},
 	getApp: (req) => {
