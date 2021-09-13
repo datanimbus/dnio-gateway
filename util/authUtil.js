@@ -254,6 +254,10 @@ e.checkPermission = (permission, permissionAllowed, reqBody) => {
 	if (mathOp) return isAllowed;
 	if (e.isNotNullObject(permission)) {
 		Object.keys(reqBody).forEach(key => {
+			if (key == "stateModel") {
+				isAllowed = true;
+				return;
+			}
 			if (permission && e.isExisting(permission[key])) {
 				if (e.isNotNullObject(permission[key])) {
 					if (permission[key]["_p"]) {
@@ -395,6 +399,7 @@ e.getHighestPermission = (allPermission, allowedPermission, isAdminUser) => {
 			if (allPermission[key]["_p"] && e.isNotNullObject(allPermission[key]["_p"])) {
 				let permission = [];
 				Object.keys(allPermission[key]["_p"]).forEach(permKey => {
+					// let perm = allowedPermission.findIndex(pe => permKey.startsWith(pe))
 					if (isAdminUser || allowedPermission.indexOf(permKey) > -1) {
 						permission.push({ "_p": allPermission[key]["_p"][permKey], "_r": allPermission[key]["_r"] ? allPermission[key]["_r"][permKey] : null });
 					}
@@ -1705,7 +1710,7 @@ e.checkRecordPermissionForUserCRUD = function (userPermission, allPermission, me
 
 e.computeMethodAllowed = function (allowedPermission, allPermission, isAdminUser) {
 	if (!allPermission.roles) throw new Error("Roles are not configured for the data service");
-	let filteredRoles = allPermission.roles.filter(_r => allowedPermission.indexOf(_r.id) > -1);
+	let filteredRoles = allPermission.roles.filter(_r => allowedPermission.findIndex(pe => _r.id.startsWith(pe)) > -1);
 	let skipRole = filteredRoles.find(_e => _e.operations.find(_o => _o.method === "SKIP_REVIEW"));
 	let roles = isAdminUser || skipRole ? allPermission.roles : filteredRoles;
 	let operationsObj = [];
