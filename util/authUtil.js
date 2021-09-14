@@ -399,7 +399,7 @@ e.getHighestPermission = (allPermission, allowedPermission, isAdminUser) => {
 			if (allPermission[key]["_p"] && e.isNotNullObject(allPermission[key]["_p"])) {
 				let permission = [];
 				Object.keys(allPermission[key]["_p"]).forEach(permKey => {
-					let perm = allowedPermission.findIndex(pe => permKey.startsWith(pe))
+					let perm = allowedPermission.findIndex(pe => permKey.startsWith(pe));
 					if (isAdminUser || allowedPermission.indexOf(permKey) > -1 || perm > -1) {
 						permission.push({ "_p": allPermission[key]["_p"][permKey], "_r": allPermission[key]["_r"] ? allPermission[key]["_r"][permKey] : null });
 					}
@@ -705,7 +705,7 @@ function SMobjectValidate(req, smObject, allPermArr, msType) {
 			getHPerm = getHPerm ? e.maxPriorityFieldCalculater(getHPerm, getFields) : getFields;
 		}
 	});
-	logger.debug('HPermission', JSON.stringify(getHPerm));
+	logger.debug("HPermission", JSON.stringify(getHPerm));
 	if (getHPerm) {
 		let returnObj = e.filterBody(getHPerm, ["W", "R"], smObject);
 		let isGroupRole = req.user.roles.find(_r => _r.entity === "GROUP" && (["PMGADS", "PVGADS", "PMGCDS", "PVGCDS"].indexOf(_r.id) > -1) && _r.app === smObject.app);
