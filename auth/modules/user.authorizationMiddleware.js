@@ -429,9 +429,9 @@ function isUserAccessControlInvalid(_req) {
 		let basicField = ["attributes", "basicDetails", "description"]
 		let selfField = ["basicDetails", "description"]
 		let accessField = ["isActive"]
-		let basicChange = basicField.some(_k => fieldChanged(_k, _req))
-		let accessChange = accessField.some(_k => fieldChanged(_k, _req))
-		let selfChange = selfField.some(_k => fieldChanged(_k, _req))
+		// let basicChange = basicField.some(_k => fieldChanged(_k, _req))
+		// let accessChange = accessField.some(_k => fieldChanged(_k, _req))
+		// let selfChange = selfField.some(_k => fieldChanged(_k, _req))
 		let basicUserFlag = _req.user.roles.find(_r => (_req.apiDetails.bot ? _r.id === "PMBBU" : _r.id === "PMUBU") && _r.entity === "USER" && _req.apiDetails.app.indexOf(_r.app) > -1)
 		let accessUserFlag = _req.user.roles.find(_r => (_req.apiDetails.bot ? _r.id === "PMBBU" : _r.id === "PMUBU") && _r.entity === "USER" && _req.apiDetails.app.indexOf(_r.app) > -1)
 		let selfFlag = pathSegment[5] === _req.user._id
