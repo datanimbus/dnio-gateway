@@ -75,7 +75,7 @@ e.validateRolesArray = function (roles, userRoles, type) {
 			return userRoles.find(_ur => (arr.indexOf(_ur.id) > -1) && _ur.app === _r.app && _ur.entity === "GROUP");
 		} else {
 			let key = Object.keys(roleIdMappingGroup).find(_f => {
-				return roleIdMappingGroup[_f].find(_i => _r.id === _i);
+				return roleIdMappingGroup[_f].find(_i => _i.startsWith(_r.id));
 			});
 			logger.debug({ key });
 			if (key) {
