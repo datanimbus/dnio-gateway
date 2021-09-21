@@ -212,7 +212,7 @@ e.validateSelectQuery = (permission, selectQuery) => {
 
 e.filterBody = (permission, permissionAllowed, reqBody, forFile) => {
 	let newReqBody = {};
-	newReqBody['stateModel'] = reqBody['stateModel'];
+	newReqBody["stateModel"] = reqBody["stateModel"];
 	if (e.isNotNullObject(permission)) {
 		Object.keys(permission).forEach(key => {
 			if (reqBody && e.isExisting(reqBody[key])) {
