@@ -212,6 +212,7 @@ e.validateSelectQuery = (permission, selectQuery) => {
 
 e.filterBody = (permission, permissionAllowed, reqBody, forFile) => {
 	let newReqBody = {};
+	newReqBody['stateModel'] = reqBody['stateModel'];
 	if (e.isNotNullObject(permission)) {
 		Object.keys(permission).forEach(key => {
 			if (reqBody && e.isExisting(reqBody[key])) {
@@ -1045,7 +1046,7 @@ e.getProxyResHandler = (permittedUrls) => {
 		if (req.path.startsWith("/api/a/pm") && splitUrl[4] !== "partner" && splitUrl[4] !== "nanoService") {
 			return res.json(body);
 		}
-		if (req.path.startsWith("/api/c/") && splitUrl[5] && splitUrl[5] == "utils" 
+		if (req.path.startsWith("/api/c/") && splitUrl[5] && splitUrl[5] == "utils"
 			&& splitUrl[6] && splitUrl[6] == "workflow") {
 			return res.json(body);
 		}
