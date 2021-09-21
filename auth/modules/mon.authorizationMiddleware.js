@@ -27,7 +27,7 @@ function isMonAccessControlValid(req) {
         return appsAdmin.concat(permissionApp).indexOf(req.apiDetails.app) >= 0;
 
     } else if (authUtil.compareUrl("/api/a/mon/author/sm/audit", req.path) || authUtil.compareUrl("/api/a/mon/author/sm/audit/count", req.path)) {
-        let permissionApp = req.user.roles.filter(_r => (_r.id === "PVDSASR") && _r.entity == "SM").map(_r => _r.app);
+        let permissionApp = req.user.roles.filter(_r => (_r.id === "PVDSASR" || _r.id === "PVDSA") && _r.entity == "SM").map(_r => _r.app);
         return appsAdmin.concat(permissionApp).indexOf(req.apiDetails.app) >= 0;
 
     } else if (authUtil.compareUrl("/api/a/mon/dataService/log", req.path) || authUtil.compareUrl("/api/a/mon/dataService/log/count", req.path)) {
