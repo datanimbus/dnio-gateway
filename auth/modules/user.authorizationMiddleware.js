@@ -435,7 +435,8 @@ function isUserAccessControlInvalid(_req) {
 		let basicUserFlag = _req.user.roles.find(_r => (_req.apiDetails.bot ? _r.id === "PMBBU" : _r.id === "PMUBU") && _r.entity === "USER" && _req.apiDetails.app.indexOf(_r.app) > -1)
 		let accessUserFlag = _req.user.roles.find(_r => (_req.apiDetails.bot ? _r.id === "PMBBU" : _r.id === "PMUBU") && _r.entity === "USER" && _req.apiDetails.app.indexOf(_r.app) > -1)
 		let selfFlag = pathSegment[5] === _req.user._id
-		let flag = (appAdminFlag || (!basicChange && !accessChange && selfChange && selfFlag))
+		// let flag = (appAdminFlag || (!basicChange && !accessChange && selfChange && selfFlag))
+		let flag = (appAdminFlag || selfFlag);
 		if (flag) return false
 		if (basicChange) {
 			if (!basicUserFlag) return true
