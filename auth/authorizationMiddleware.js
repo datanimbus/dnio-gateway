@@ -22,7 +22,8 @@ module.exports = (req, res, next) => {
 	} else if ((req.path.startsWith("/api/a/pm"))) {
 		return authorizationModules.pmAuthorizationMw(req, res, next);
 	} else if (req.path.startsWith("/api/c/")) {
-		return authorizationModules.dsAuthorizationMw(req, res, next);
+		// return authorizationModules.dsAuthorizationMw(req, res, next);
+		next(); // The Authorization code is moved to Data Service Itself.
 	} else if (req.path.startsWith("/api/a/faas")) {
 		return next();
 	} else if (req.path.startsWith("/api/common")) {
