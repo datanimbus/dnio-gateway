@@ -417,35 +417,35 @@ e.getHighestPermission = (allPermission, allowedPermission, isAdminUser) => {
 	return highestPermission;
 };
 
-let manipulateBody = (body, req) => {
-	let newData = null;
-	let forFile = req.query.forFile;
-	if (!req.path.endsWith("/secret/enc") && !req.path.startsWith("/api/a/mon") && !e.compareUrl("/api/a/sec/enc/{appName}/decrypt", req.path) && !req.path.startsWith("/api/a/sm/calendar")) {
-		try {
-			let highestPermission = req._highestPermission ? req._highestPermission.find(_hp => _hp.method == "GET") : null;
-			if (highestPermission) {
-				highestPermission = highestPermission.fields;
-			}
-			if (!highestPermission || _.isEmpty(highestPermission)) {
-				newData = { "message": "No permission" };
-			} else if (typeof body === "object") {
-				newData = Array.isArray(body) ? body.map(obj => e.filterBody(highestPermission, ["W", "R"], obj, forFile)) : e.filterBody(highestPermission, ["W", "R"], body, forFile);
-			} else {
-				newData = body;
-			}
-		} catch (err) {
-			logger.error(`[${req.headers.TxnId}] ${err.message}`);
-			newData = {
-				message: err.message
-			};
-		}
-		return newData;
-	}
-	else {
-		return body;
-	}
+// let manipulateBody = (body, req) => {
+// 	let newData = null;
+// 	let forFile = req.query.forFile;
+// 	if (!req.path.endsWith("/secret/enc") && !req.path.startsWith("/api/a/mon") && !e.compareUrl("/api/a/sec/enc/{appName}/decrypt", req.path) && !req.path.startsWith("/api/a/sm/calendar")) {
+// 		try {
+// 			let highestPermission = req._highestPermission ? req._highestPermission.find(_hp => _hp.method == "GET") : null;
+// 			if (highestPermission) {
+// 				highestPermission = highestPermission.fields;
+// 			}
+// 			if (!highestPermission || _.isEmpty(highestPermission)) {
+// 				newData = { "message": "No permission" };
+// 			} else if (typeof body === "object") {
+// 				newData = Array.isArray(body) ? body.map(obj => e.filterBody(highestPermission, ["W", "R"], obj, forFile)) : e.filterBody(highestPermission, ["W", "R"], body, forFile);
+// 			} else {
+// 				newData = body;
+// 			}
+// 		} catch (err) {
+// 			logger.error(`[${req.headers.TxnId}] ${err.message}`);
+// 			newData = {
+// 				message: err.message
+// 			};
+// 		}
+// 		return newData;
+// 	}
+// 	else {
+// 		return body;
+// 	}
 
-};
+// };
 
 e.isUrlPermitted = (permittedUrls, req) => {
 	let permitted = false;
@@ -509,11 +509,11 @@ e.getProxyReqHandler = () => {
 	};
 };
 
-function hasCUDPerm(highestPermission) {
-	let cudArr = ["POST", "PUT", "DELETE"];
-	let allPer = highestPermission ? highestPermission.map(_h => _h.method) : [];
-	return cudArr.some(_c => allPer.indexOf(_c) > -1);
-}
+// function hasCUDPerm(highestPermission) {
+// 	let cudArr = ["POST", "PUT", "DELETE"];
+// 	let allPer = highestPermission ? highestPermission.map(_h => _h.method) : [];
+// 	return cudArr.some(_c => allPer.indexOf(_c) > -1);
+// }
 
 function hasApproveViewPerm(highestPermission) {
 	let cudArr = ["POST", "PUT", "DELETE", "REVIEW"];
@@ -1103,126 +1103,21 @@ e.getProxyResHandler = (permittedUrls) => {
 					if (res.statusCode < 200 || res.statusCode >= 400) {
 						return res.send(body);
 					}
-					// let reqPath = req.originalUrl.split("?")[0];
-					// let isAppCenter = false;
-					// let splitPath = reqPath.split("/");
-					// if (splitPath[2] === "c") isAppCenter = true;
-					if (hasCUDPerm(req._highestPermission)) {
-						return res.json(body);
-						// let promise = null;
-						// if (isAppCenter) {
-						// 	let app = splitPath[3];
-						// 	if (e.compareUrl("/api/c/{app}/{service}/utils/simulate", reqPath)) {
-						// 		promise = Promise.resolve(body);
-						// 	}
-						// 	else {
-						// 		promise = getSecuredFields(splitPath[3], splitPath[4], req)
-						// 			.then(secureFields => {
-						// 				let forFile = req.query.forFile;
-						// 				return secureFields.reduce((acc, curr) => {
-						// 					return acc.then(_d => Array.isArray(_d) ? decryptArrData(_d, curr, app, forFile) : decryptData(_d, curr, app, forFile));
-						// 				}, Promise.resolve(body));
-						// 			});
-						// 	}
-						// } else {
-						// 	promise = Promise.resolve(body);
-						// }
-						// return promise.then(_d => {
-						// 	res.json(_d);
-						// })
-						// 	.catch(err => {
-						// 		res.status(500).json({ message: err.message });
-						// 	});
-					}
-					let highestPermission = req._highestPermission ? req._highestPermission.find(_hp => _hp.method == "GET") : null;
-					if (highestPermission) {
-						highestPermission = highestPermission.fields;
-					}
-					// let urlArr = req.path.split('/');
-					if (res.statusCode < 200 || res.statusCode >= 400) {
-						return res.send(body);
-					}
-					// let promise = Promise.resolve(body);
-					// if (isAppCenter) {
-					// 	let app = splitPath[3];
-					// 	promise = getSecuredFields(splitPath[3], splitPath[4], req)
-					// 		.then(secureFields => {
-					// 			let forFile = req.query.forFile;
-					// 			return secureFields.reduce((acc, curr) => {
-					// 				return acc.then(_d => Array.isArray(_d) ? decryptArrData(_d, curr, app, forFile) : decryptData(_d, curr, app, forFile));
-					// 			}, Promise.resolve(body));
-					// 		});
-					// } else {
-					// 	promise = Promise.resolve(body);
+					return res.json(body);
+					// if (hasCUDPerm(req._highestPermission)) {
+					// 	return res.json(body);
 					// }
-					// promise.then((_d) => {
-					// 	body = JSON.parse(JSON.stringify(_d));
-					let appcenterPermittedURL = ["/api/c/{app}/{api}/utils/filetransfers", "/api/c/{app}/{service}/utils/experienceHook"];
-					if (req.user.isSuperAdmin || hasCUDPerm(req._highestPermission) || appcenterPermittedURL.some(_u => e.compareUrl(_u, req.path))) {
-						return res.json(body);
-					}
-					let output = manipulateBody(body, req);
-					return res.json(output);
-					// })
-					// 	.catch(err => {
-					// 		res.status(500).json({ message: err.message });
-					// 	});
-					/*    
-					if (urlArr[5] && (urlArr[5] == 'audit') || req.path.startsWith('/api/a/sm/audit')) {
-						if (req.user.isSuperAdmin || hasCUDPerm(req._highestPermission)) {
-							return res.json(body);
-						} else if (highestPermission && e.hasAnyReadPermission(highestPermission)) {
-							let newBody = null;
-							if (Array.isArray(body)) {
-								newBody = body.map(obj => {
-									obj.data.new = obj.data.new ? e.filterBody(highestPermission, ['R'], obj.data.new) : null;
-									obj.data.old = obj.data.old ? e.filterBody(highestPermission, ['R'], obj.data.old) : null;
-									return obj;
-								});
-							} else {
-								newBody = JSON.parse(JSON.stringify(body));
-								newBody.data.new = body.data.new ? e.filterBody(highestPermission, ['R'], body.data.new) : null;
-								newBody.data.old = body.data.old ? e.filterBody(highestPermission, ['R'], body.data.old) : null;
-							}
-							return res.json(newBody);
-						} else {
-							return res.status(403).json({ 'message': 'No permission' });
-						}
-					} else if (urlArr[5] && (urlArr[5] == 'logs' || urlArr[5] == 'webHookStatus')) {
-						if (req.user.isSuperAdmin || (highestPermission && e.hasAnyReadPermission(highestPermission))) {
-							return res.json(body);
-						} else {
-							return res.status(403).json({ 'message': 'No permission' });
-						}
-					} else {
-						if (res.statusCode < 200 || res.statusCode >= 400) {
-							return res.send(body);
-						}
-						let promise = null;
-						if (isAppCenter) {
-							let app = splitPath[3];
-							promise = getSecuredFields(splitPath[3], splitPath[4], req)
-								.then(secureFields => {
-									return secureFields.reduce((acc, curr) => {
-										return acc.then(_d => Array.isArray(_d) ? decryptArrData(_d, curr, app) : decryptData(_d, curr, app));
-									}, Promise.resolve(body));
-								});
-						} else {
-							promise = Promise.resolve(body);
-						}
-						promise.then((_d) => {
-							body = JSON.parse(JSON.stringify(_d));
-							if (req.user.isSuperAdmin || hasCUDPerm(req._highestPermission)) {
-								return res.json(body);
-							}
-							let output = manipulateBody(body, req);
-							return res.json(output);
-						})
-							.catch(err => {
-								res.status(500).json({ message: err.message });
-							});
-
-					}*/
+					// let highestPermission = req._highestPermission ? req._highestPermission.find(_hp => _hp.method == "GET") : null;
+					// if (highestPermission) {
+					// 	highestPermission = highestPermission.fields;
+					// }
+				
+					// let appcenterPermittedURL = ["/api/c/{app}/{api}/utils/filetransfers", "/api/c/{app}/{service}/utils/experienceHook"];
+					// if (req.user.isSuperAdmin || hasCUDPerm(req._highestPermission) || appcenterPermittedURL.some(_u => e.compareUrl(_u, req.path))) {
+					// 	return res.json(body);
+					// }
+					// let output = manipulateBody(body, req);
+					// return res.json(output);
 				}
 			}, (err) => {
 				res.status(403).json({ message: err.message });
