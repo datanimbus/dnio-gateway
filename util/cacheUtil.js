@@ -2,7 +2,6 @@
 
 const bluebird = require("bluebird");
 const redis = require("ioredis");
-bluebird.promisifyAll(redis);
 
 let logger = global.logger;
 let envConfig = require("../config/config");
@@ -36,6 +35,7 @@ e.init = () => {
 		logger.info("Connecting to standalone Cache");
 		client = redis.createClient(port, host);
 	}
+	bluebird.promisifyAll(client);
 	client.on("error", function (err) {
 		logger.error(err.message);
 	});
