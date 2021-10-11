@@ -16,6 +16,7 @@
     "homepage": "https://bitbucket.org/appveen/ds-gateway#readme",
     "dependencies": {
         "@appveen/data.stack-utils": "^1.0.17",
+        "@appveen/ds-auth-cache": "github:appveen/ds-auth-cache",
         "@appveen/utils": "^2.1.4",
         "bluebird": "^3.5.1",
         "cookie-parser": "^1.4.3",
@@ -26,6 +27,7 @@
         "filesize-parser": "^1.5.0",
         "image-size": "^0.7.4",
         "ioredis": "^4.16.3",
+        "jsonwebtoken": "^8.5.1",
         "log4js": "^6.3.0",
         "mongodb": "^3.0.4",
         "multer": "^1.4.2",

@@ -102,4 +102,6 @@ e.baseUrlSEC = e.get("sec") + "/sec";
 e.baseUrlDM = e.get("dm") + "/dm";
 e.baseUrlPM = e.get("pm") + "/pm";
 
+e.TOKEN_SECRET = process.env.TOKEN_SECRET || "u?5k167v13w5fhjhuiweuyqi67621gqwdjavnbcvadjhgqyuqagsduyqtw87e187etqiasjdbabnvczmxcnkzn";
+
 module.exports = e;

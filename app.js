@@ -29,8 +29,8 @@ const cacheUtil = require("./util/cacheUtil");
 const diagRouter = require("./routes/diag.route");
 const userHBRouter = require("./routes/userHB.route");
 const authenticationMiddleware = require("./auth/authenticationMiddleware");
-const authorizationMiddleware = require("./auth/authorizationMiddleware");
-const requestDetailsMiddelware = require("./auth/requestDetailsMiddelware");
+// const authorizationMiddleware = require("./auth/authorizationMiddleware");
+// const requestDetailsMiddelware = require("./auth/requestDetailsMiddelware");
 const bulkImportUser = require("./util/bulkImportUserMiddleware");
 
 
@@ -110,9 +110,8 @@ app.use((req, res, next) => {
 app.use(cookieParser());
 
 app.use(utilMiddleware.notPermittedUrlCheck);
-
 app.use(utilMiddleware.checkTokenMiddleware);
-
+app.use(utilMiddleware.storeUserPermissions);
 app.use(utilMiddleware.corsMiddleware);
 
 // START OF SOME REAL SHIT
@@ -123,18 +122,17 @@ diagRouter.e.dependencyCheck().catch(_e => logger.error(_e));
 app.use("/gw", diagRouter.router);
 app.put("/api/a/rbac/usr/hb", userHBRouter);
 
-app.use(authenticationMiddleware.authN);
+// app.use(authenticationMiddleware.authN);
 app.use(authenticationMiddleware.diagnosticAPIHandler);
 
-app.use(requestDetailsMiddelware.addRequestDetails);
-
+// app.use(requestDetailsMiddelware.addRequestDetails);
 app.get("/api/a/rbac/usr/role", authUtil.highestPermissionHandlerCurrentUser);
 app.get("/api/a/rbac/user/role", authUtil.highestPermissionHandlerUser);
 app.get("/api/a/rbac/group/role", authUtil.highestPermissionHandlerGroup);
 app.get("/api/a/rbac/usr/workflow", authUtil.workFlowCalculator);
 app.get("/api/a/workflow/:app/serviceList", authUtil.workflowServiceList);
 
-app.use(authorizationMiddleware);
+// app.use(authorizationMiddleware);
 
 app.use(fileMapper.fileMapperHandler);
 
@@ -185,7 +183,7 @@ app.use(router.getRouterMiddleware({
 		"/api/a/": "/",
 		"/api/c/": "/"
 	},
-	onRes: authUtil.getProxyResHandler(["/api/a/rbac", "/api/a/workflow"])
+	// onRes: authUtil.getProxyResHandler(["/api/a/rbac", "/api/a/workflow"])
 }));
 
 
@@ -295,34 +293,6 @@ app.use(function (error, req, res, next) {
 		next();
 	}
 });
-
-// function skipWorkflow(path, req) {
-// 	let paths = path.split("/");
-// 	if (paths[6] == "experienceHook"
-// 		|| paths[6] == "simulate"
-// 		|| (paths[5] == "file" && paths[6] == "upload")
-// 		|| authUtil.compareUrl("/api/c/{app}/{api}/utils/filetransfers/{id}", path)
-// 		|| authUtil.compareUrl("/api/c/{app}/{api}/utils/aggregate", path)) {
-// 		return Promise.resolve(true);
-// 	} else {
-// 		const api = "/" + paths[4];
-// 		const app = paths[3];
-// 		return global.mongoConnectionAuthor.collection("services").findOne({
-// 			"app": app,
-// 			"api": api,
-// 			"_metadata.deleted": false
-// 		}, {
-// 			app: 1,
-// 			api: 1
-// 		})
-// 			.then((_d) => {
-// 				if (!_d) throw new Error("No service found");
-// 				req.serviceId = _d._id;
-// 				req.app = _d.app;
-// 				return gwUtil.checkReviewPermissionForService(req, _d._id, req.user._id);
-// 			});
-// 	}
-// }
 
 
 var server = app.listen(port, (err) => {

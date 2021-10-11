@@ -1,9 +1,7 @@
 const crypto = require("crypto");
 const sh = require("shorthash");
 const uuid = require("uuid/v1");
-const config = require("../config/config");
 const urlConfig = require("../config/urlConfig");
-const request = require("request");
 let logger = global.logger;
 
 let e = {};
@@ -23,38 +21,7 @@ e.getTxnId = (_req) => {
 	if (!_req.path.startsWith("/gw/health")) logger.debug(`getTxnId() :: _req.headers.TxnId :: ${_req.headers.TxnId}`);
 };
 
-e.checkReviewPermissionForService = (_req, _id, usrId) => {
-	let txnId = _req.get("TxnId") || _req.headers.TxnId;
-	return new Promise((resolve, reject) => {
-		const options = {
-			url: config.baseUrlUSR + `/usr/reviewpermissionservice/${_id}?user=${usrId}`,
-			method: "GET",
-			headers: {
-				"Content-Type": "application/json",
-				"TxnId": _req.get("txnId"),
-				"Authorization": _req.get("Authorization"),
-				"User": usrId
-			},
-			json: true
-		};
-		request(options, (_err, _res) => {
-			if (_err) {
-				logger.error(`[${txnId}] Review permission :: User - ${usrId}, DS - ${_id} :: ${_err.message}`);
-				reject(_err);
-			} else {
-				if (_res.statusCode == 404) {
-					logger.info(`[${txnId}] Review permission required? :: User - ${usrId}, DS - ${_id} :: YES`);
-					return resolve(true);
-				}
-				logger.info(`[${txnId}] Review permission required? :: User - ${usrId}, DS - ${_id} :: NO`);
-				return resolve(false);
-			}
-		});
-	});
-};
-
 e.compareUrl = (tempUrl, url) => {
-	
 	let tempUrlSegment = tempUrl.split("/").filter(_d => _d != "");
 	let urlSegment = url.split("/").filter(_d => _d != "");
 	if (tempUrlSegment.length != urlSegment.length) return false;
@@ -68,23 +35,6 @@ e.compareUrl = (tempUrl, url) => {
 	});
 	logger.trace(`Compare URL :: ${tempUrl}, ${url} :: ${flag}`);
 	return flag;
-};
-
-e.getParams = (tempUrl, url) => {
-	let tempUrlSegment = tempUrl.split("/");
-	let urlSegment = url.split("/");
-	if (tempUrlSegment.length != urlSegment.length) return {};
-
-	let params = {};
-	tempUrlSegment = tempUrlSegment.splice(1, tempUrlSegment.length - 1);
-	urlSegment = urlSegment.splice(1, urlSegment.length - 1);
-
-	tempUrlSegment.forEach((_k, i) => {
-		if (_k.startsWith("{") && _k.endsWith("}") && urlSegment[i] != "") {
-			params[_k.split("{")[1].split("}")[0]] = urlSegment[i];
-		}
-	});
-	return params;
 };
 
 e.md5 = data => {
@@ -101,19 +51,6 @@ e.isPermittedAuthZUrl = (_req) => {
 
 e.isDownloadURL = (_req) => {
 	return urlConfig.downloadUrl.some(_url => e.compareUrl(_url, _req.path));
-};
-
-e.isIntenalAPICall = (_req) => {
-	return _req.method === "GET" &&
-	(
-		(
-			e.compareUrl("/api/c/{app}/{api}", _req.path) &&
-					(
-						_req.query.expand || _req.get("Cache")
-					)
-		) ||
-			e.compareUrl("/api/c/{app}/{api}/utils/export", _req.path)
-	);
 };
 
 e.hasDuplicate = (arr) => {

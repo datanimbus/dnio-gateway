@@ -1,8 +1,8 @@
 let e = {};
 const _ = require("lodash");
-const config = require("../config/config");
 const request = require("request");
 const uuid = require("uuid/v1");
+const config = require("../config/config");
 const gwUtil = require("./gwUtil");
 const cacheUtil = require("./cacheUtil");
 
@@ -1111,7 +1111,7 @@ e.getProxyResHandler = (permittedUrls) => {
 					// if (highestPermission) {
 					// 	highestPermission = highestPermission.fields;
 					// }
-				
+
 					// let appcenterPermittedURL = ["/api/c/{app}/{api}/utils/filetransfers", "/api/c/{app}/{service}/utils/experienceHook"];
 					// if (req.user.isSuperAdmin || hasCUDPerm(req._highestPermission) || appcenterPermittedURL.some(_u => e.compareUrl(_u, req.path))) {
 					// 	return res.json(body);
