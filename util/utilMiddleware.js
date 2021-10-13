@@ -41,7 +41,7 @@ e.checkTokenMiddleware = (_req, _res, _next) => {
 	if (gwUtil.compareUrl("/api/a/rbac/logout", _req.path) && !token) return _res.status(200).json({ message: "Logged out successfully" });
 
 	if (!token) return _res.status(401).json({ message: "Unauthorized" });
-	
+
 	token = token.split("JWT ")[1];
 	const user = JWT.verify(token, envConfig.TOKEN_SECRET, { ignoreExpiration: true });
 	if (!user) {
@@ -85,12 +85,14 @@ e.storeUserPermissions = async function (req, res, next) {
 				{ $match: { users: userId } },
 				{ $unwind: "$roles" },
 				// { $match: { 'roles.type': 'appcenter' } },
-				{ $group: { _id: null, perms: { $addToSet: "$roles.id" } } }
+				{ $group: { _id: "$roles.app", perms: { $addToSet: "$roles.id" } } }
 			]);
-			if (!permissions || permissions.length == 0) {
-				throw new Error("No Permissions Assigned");
+			if (permissions && permissions.length > 0) {
+				for (let index = 0; index < permissions.length; index++) {
+					const element = permissions[index];
+					await cacheUtils.setUserPermissions(userId + '_' + element._id, element.perms);
+				}
 			}
-			await cacheUtils.setUserPermissions(userId, permissions[0].perms);
 		}
 		next();
 	} catch (err) {
