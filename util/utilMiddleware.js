@@ -90,7 +90,7 @@ e.storeUserPermissions = async function (req, res, next) {
 			if (permissions && permissions.length > 0) {
 				for (let index = 0; index < permissions.length; index++) {
 					const element = permissions[index];
-					await cacheUtils.setUserPermissions(userId + '_' + element._id, element.perms);
+					await cacheUtils.setUserPermissions(userId + "_" + element._id, element.perms);
 				}
 			}
 		}
