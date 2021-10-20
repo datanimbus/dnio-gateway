@@ -93,7 +93,7 @@ e.deleteServiceList = _data => {
 			delete global.serviceIdMap[`${_data.app}${_data.api}`];
 		}
 	} catch (err) {
-		logger.error('deleteServiceList', err);
+		logger.error("deleteServiceList", err);
 	}
 };
 
