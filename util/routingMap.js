@@ -68,7 +68,13 @@ e.updateServiceList = _data => {
 	try {
 		let hashMapValues = getDSHashMapValues(_data);
 		if (hashMapValues) {
+			if (!global.masterServiceRouter) {
+				global.masterServiceRouter = {};
+			}
 			global.masterServiceRouter[hashMapValues[0]] = hashMapValues[1];
+			if (!global.serviceIdMap) {
+				global.serviceIdMap = {};
+			}
 			global.serviceIdMap[hashMapValues[0]] = _data._id;
 		}
 	} catch (err) {
