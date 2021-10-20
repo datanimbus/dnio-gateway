@@ -65,10 +65,14 @@ e.createServiceList = async () => {
 
 e.updateServiceList = _data => {
 	logger.info("Updating DS routing map");
-	let hashMapValues = getDSHashMapValues(_data);
-	if (hashMapValues) {
-		global.masterServiceRouter[hashMapValues[0]] = hashMapValues[1];
-		global.serviceIdMap[hashMapValues[0]] = _data._id;
+	try {
+		let hashMapValues = getDSHashMapValues(_data);
+		if (hashMapValues) {
+			global.masterServiceRouter[hashMapValues[0]] = hashMapValues[1];
+			global.serviceIdMap[hashMapValues[0]] = _data._id;
+		}
+	} catch (err) {
+		logger.error(err);
 	}
 };
 
