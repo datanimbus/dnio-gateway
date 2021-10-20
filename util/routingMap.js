@@ -42,7 +42,8 @@ e.createServiceList = async () => {
 			count: -1,
 		},
 		headers: {
-			"TxnId": `GW_${sh.unique(crypto.createHash("md5").update(Date.now().toString()).digest("hex"))}`
+			"TxnId": `GW_${sh.unique(crypto.createHash("md5").update(Date.now().toString()).digest("hex"))}`,
+			"Authorization": `JWT ${global.GW_TOKEN}`
 		},
 		json: true
 	};
@@ -83,9 +84,17 @@ e.updateServiceList = _data => {
 };
 
 e.deleteServiceList = _data => {
-	logger.debug(`Deleting DS routing map entry :: ${_data.app}${_data.api}`);
-	delete global.masterServiceRouter[`${_data.app}${_data.api}`];
-	delete global.serviceIdMap[`${_data.app}${_data.api}`];
+	try {
+		logger.debug(`Deleting DS routing map entry :: ${_data.app}${_data.api}`);
+		if (global.masterServiceRouter) {
+			delete global.masterServiceRouter[`${_data.app}${_data.api}`];
+		}
+		if (global.serviceIdMap) {
+			delete global.serviceIdMap[`${_data.app}${_data.api}`];
+		}
+	} catch (err) {
+		logger.error('deleteServiceList', err);
+	}
 };
 
 e.createFaasList = async () => {
@@ -97,7 +106,8 @@ e.createFaasList = async () => {
 			count: -1,
 		},
 		headers: {
-			"TxnId": `GW_${sh.unique(crypto.createHash("md5").update(Date.now().toString()).digest("hex"))}`
+			"TxnId": `GW_${sh.unique(crypto.createHash("md5").update(Date.now().toString()).digest("hex"))}`,
+			"Authorization": `JWT ${global.GW_TOKEN}`
 		},
 		json: true
 	};

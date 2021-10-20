@@ -7,6 +7,11 @@ const mongoUtils = require("./mongoUtils");
 
 let logger = global.logger;
 
+
+// Create a Token for GW to make internal API Calls
+const token = JWT.sign({ name: 'DS_GATEWAY', _id: 'admin', isSuperAdmin: true }, envConfig.TOKEN_SECRET);
+global.GW_TOKEN = token;
+
 let e = {};
 
 e.requestLogger = (_req, _res, _next) => {
