@@ -45,6 +45,14 @@ function isMonAccessControlValid(req) {
         modifyMonLogFilter(req, permissionApp, false);
         return true;
 
+    } else if (authUtil.compareUrl("/api/a/mon/author/bot/log", req.path) || authUtil.compareUrl("/api/a/mon/author/bot/log/count", req.path)) {
+        if (req.user.isSuperAdmin) return true;
+        let permissionApp = req.user.roles.filter(_r => (_r.id === "PVISB") && _r.entity == "INS").map(_r => _r.app);
+        permissionApp = _.uniq(appsAdmin.concat(permissionApp));
+        if(!permissionApp.length) return false;
+        modifyMonLogFilter(req, permissionApp, false);
+        return true;
+
     } else if (authUtil.compareUrl("/api/a/mon/author/group/log", req.path) || authUtil.compareUrl("/api/a/mon/author/group/log/count", req.path)) {
         if (req.user.isSuperAdmin) return true;
         let permissionApp = req.user.roles.filter(_r => (_r.id === "PVISG") && _r.entity == "INS").map(_r => _r.app);
