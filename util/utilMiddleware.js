@@ -84,8 +84,8 @@ e.storeUserPermissions = async function (req, res, next) {
 	try {
 		if (gwUtil.isPermittedURL(req)) return next();
 		const userId = req.user._id;
-		const data = await cacheUtils.getUserPermissions(userId);
-		if (!data) {
+		const keys = await cacheUtils.client.keys(`perm:${userId}_*`) || [];
+		if (!keys || keys.length == 0) {
 			const permissions = await mongoUtils.aggregate(false, "userMgmt.groups", [
 				{ $match: { users: userId } },
 				{ $unwind: "$roles" },
