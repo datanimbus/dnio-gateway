@@ -198,7 +198,9 @@ function getDSApi(req, api) {
 			logger.debug(`${req.headers.TxnId} Calling getDSApi`);
 			request(config.get("sm") + "/sm/service", {
 				headers: {
-					"content-type": "application/json"
+					"content-type": "application/json",
+					"Authorization": req.get("Authorization"),
+					"User": req.user ? req.user._id : null
 				},
 				qs: {
 					filter: JSON.stringify(filter),
@@ -245,7 +247,9 @@ function getFaasApi(req, api) {
 			logger.debug(`${req.headers.TxnId} Calling getFaasApi`);
 			request(config.get("pm") + "/pm/faas", {
 				headers: {
-					"content-type": "application/json"
+					"content-type": "application/json",
+					"Authorization": req.get("Authorization"),
+					"User": req.user ? req.user._id : null
 				},
 				qs: {
 					filter: JSON.stringify(filter),

@@ -1870,6 +1870,8 @@ e.workflowServiceList = async (req, res) => {
 			headers: {
 				"Content-Type": "application/json",
 				"TxnId": req.get("TxnId"),
+				"Authorization": req.get("Authorization"),
+				"User": req.user ? req.user._id : null
 			},
 			qs: {
 				select: "name,api,app",
@@ -1887,6 +1889,8 @@ e.workflowServiceList = async (req, res) => {
 					headers: {
 						"Content-Type": "application/json",
 						"TxnId": req.get("TxnId"),
+						"Authorization": req.get("Authorization"),
+						"User": req.user ? req.user._id : null
 					},
 					qs: {
 						filter: filter,
