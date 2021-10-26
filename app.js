@@ -183,6 +183,24 @@ app.use(router.getRouterMiddleware({
 		"/api/a/": "/",
 		"/api/c/": "/"
 	},
+	onRes: function (req, res, body) {
+		if ((req.path === "/api/a/rbac/login" || req.path === "/api/a/rbac/refresh" || req.path === "/api/a/rbac/check") && res.statusCode === 200) {
+			let domain = process.env.FQDN ? process.env.FQDN.split(":").shift() : "localhost";
+			let cookieJson = {};
+			if (domain != "localhost") {
+				cookieJson = {
+					expires: new Date(body.expiresIn),
+					httpOnly: true,
+					sameSite: true,
+					secure: true,
+					domain: domain,
+					path: "/api/"
+				};
+			}
+			res.cookie("Authorization", "JWT " + body.token, cookieJson);
+		}
+		return res.json(body);
+	}
 	// onRes: authUtil.getProxyResHandler(["/api/a/rbac", "/api/a/workflow"])
 }));
 
