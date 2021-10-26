@@ -45,7 +45,10 @@ e.checkTokenMiddleware = (_req, _res, _next) => {
 	// WTF?
 	if (gwUtil.compareUrl("/api/a/rbac/logout", _req.path) && !token) return _res.status(200).json({ message: "Logged out successfully" });
 
-	if (!token) return _res.status(401).json({ message: "Unauthorized" });
+	if (!token){
+		logger.debug(`[${_req.header("txnId")}] No token found in cookie or header`);
+		return _res.status(401).json({ message: "Unauthorized" });
+	}
 
 	token = token.split("JWT ")[1];
 	const user = JWT.verify(token, envConfig.TOKEN_SECRET, { ignoreExpiration: true });
