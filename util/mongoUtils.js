@@ -6,7 +6,7 @@ const config = require("../config/config");
 let logger = global.logger;
 
 let authorDB = process.env.MONGO_AUTHOR_DBNAME || "datastackConfig";
-let logsDB = process.env.MONGO_LOGS_DB || "datastackLog";
+let logsDB = process.env.MONGO_LOGS_DB || "datastackLogs";
 
 logger.debug(`AuthorDB :: ${authorDB}`);
 logger.debug(`LogsDB :: ${logsDB}`);
