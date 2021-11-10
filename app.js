@@ -162,7 +162,9 @@ app.use(router.getRouterMiddleware({
 		if (req.path.startsWith("/api/a/faas")) {
 			return getFaasApi(req, faasApi);
 		} else {
-			logApi(api, req.method);
+			if (config.dsApiMetrics) {
+				logApi(api, req.method);
+			}
 			return getDSApi(req, api);
 		}
 
@@ -312,8 +314,8 @@ function logApi(api, method){
 		"method": method,
 		"timestamp": new Date().getTime()
 	})
-		.then()
-		.catch();
+		.then(() => { logger.info("API call loged");})
+		.catch( error => { logger.error(error.message);});
 }
 
 app.use(function (error, req, res, next) {
