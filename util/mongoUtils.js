@@ -6,7 +6,10 @@ const config = require("../config/config");
 let logger = global.logger;
 
 let authorDB = process.env.MONGO_AUTHOR_DBNAME || "datastackConfig";
+let logsDB = process.env.MONGO_LOGS_DB || "datastackLog";
+
 logger.debug(`AuthorDB :: ${authorDB}`);
+logger.debug(`LogsDB :: ${logsDB}`);
 
 let e = {};
 
@@ -52,6 +55,27 @@ e.init = () => {
 			db.on("connected", () => {
 				global.mongoAppCenterConnected = true;
 				logger.info("DB :: AppCenter :: Connected");
+			});
+		}
+	});
+
+	mongo.connect(config.mongoUrlAuthor, config.mongoOptions, (error, db) => {
+		if (error) logger.error(error.message);
+		if (db) {
+			global.mongoConnectionLogs = db.db(logsDB);
+			global.mongoLogsConnected = true;
+			logger.info("DB :: Logs :: Connected");
+			db.on("connecting", () => {
+				global.mongoLogsConnected = false;
+				logger.info("DB :: Logs :: Connecting");
+			});
+			db.on("close", () =>{
+				global.mongoLogsConnected = false;
+				logger.error("DB :: Logs :: Lost Connection");
+			});
+			db.on("connected", () => {
+				global.mongoLogsConnected = true;
+				logger.info("DB :: Logs :: Connected");
 			});
 		}
 	});
