@@ -162,6 +162,7 @@ app.use(router.getRouterMiddleware({
 		if (req.path.startsWith("/api/a/faas")) {
 			return getFaasApi(req, faasApi);
 		} else {
+			logApi(api, req.method);
 			return getDSApi(req, api);
 		}
 
@@ -301,6 +302,19 @@ function getFaasApi(req, api) {
 	});
 }
 
+function logApi(api, method){
+	const apiSplit = api.split("/");
+	const app = apiSplit[0];
+	const path = "/" + apiSplit[1]; 
+	global.mongoConnectionLogs.collection("gw.logs").insertOne({
+		"app": app,
+		"path": path,
+		"method": method,
+		"timestamp": new Date().getTime()
+	})
+		.then()
+		.catch();
+}
 
 app.use(function (error, req, res, next) {
 	if (error) {
