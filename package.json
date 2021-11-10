@@ -16,7 +16,7 @@
     "homepage": "https://bitbucket.org/appveen/ds-gateway#readme",
     "dependencies": {
         "@appveen/data.stack-utils": "^1.0.17",
-        "@appveen/ds-auth-cache": "github:appveen/ds-auth-cache",
+        "@appveen/ds-auth-cache": "1.0.1",
         "@appveen/utils": "^2.1.4",
         "bluebird": "^3.5.1",
         "cookie-parser": "^1.4.3",
