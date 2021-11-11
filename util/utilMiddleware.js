@@ -45,7 +45,7 @@ e.checkTokenMiddleware = (_req, _res, _next) => {
 	// WTF?
 	if (gwUtil.compareUrl("/api/a/rbac/logout", _req.path) && !token) return _res.status(200).json({ message: "Logged out successfully" });
 
-	if (!token){
+	if (!token) {
 		logger.debug(`[${_req.header("txnId")}] No token found in cookie or header`);
 		return _res.status(401).json({ message: "Unauthorized" });
 	}
@@ -96,10 +96,10 @@ e.storeUserPermissions = async function (req, res, next) {
 				{ $group: { _id: "$roles.app", perms: { $addToSet: "$roles.id" } } }
 			]);
 			if (permissions && permissions.length > 0) {
-				for (let index = 0; index < permissions.length; index++) {
-					const element = permissions[index];
-					await cacheUtils.setUserPermissions(userId + "_" + element._id, element.perms);
-				}
+				let promises = permissions.map(async (element) => {
+					return await cacheUtils.setUserPermissions(userId + "_" + element._id, element.perms);
+				});
+				await Promise.all(promises);
 			}
 		}
 		next();
