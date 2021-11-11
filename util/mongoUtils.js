@@ -65,6 +65,7 @@ e.init = () => {
 			global.mongoConnectionLogs = db.db(logsDB);
 			global.mongoLogsConnected = true;
 			logger.info("DB :: Logs :: Connected");
+			createIndexforGWLogs();
 			db.on("connecting", () => {
 				global.mongoLogsConnected = false;
 				logger.info("DB :: Logs :: Connecting");
@@ -76,6 +77,7 @@ e.init = () => {
 			db.on("connected", () => {
 				global.mongoLogsConnected = true;
 				logger.info("DB :: Logs :: Connected");
+				createIndexforGWLogs();
 			});
 		}
 	});
@@ -103,6 +105,17 @@ e.find = async(_isAppCenter, _collection, _filter, _select) => {
 		throw "DB lookup error";
 	}
 };
+
+async function createIndexforGWLogs(){
+	try {
+		await global.mongoConnectionLogs.collection("gw.logs").createIndex(
+			{"expireAt" : 1}, { expireAfterSeconds: 0 }
+		);
+		logger.info("Successfully created index for GW Logs");
+	} catch (error) {
+		logger.error(error.message);
+	}
+}
 
 /**
  * Find one in the DB

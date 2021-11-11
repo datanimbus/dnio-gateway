@@ -75,6 +75,7 @@ e.init = () => {
 	}
 };
 e.dsApiMetrics = process.env.DS_API_METRICS || true;
+e.apiLogTtl = process.env.DS_API_LOG_TTL || 300;
 e.mongoOptions = {
 	useNewUrlParser: true,
 	useUnifiedTopology: true
