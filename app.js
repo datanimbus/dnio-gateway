@@ -307,14 +307,17 @@ function getFaasApi(req, api) {
 function logApi(api, method){
 	const apiSplit = api.split("/");
 	const app = apiSplit[0];
-	const path = "/" + apiSplit[1]; 
+	const path = "/" + apiSplit[1];
+	let apiLogTtl = config.apiLogTtl * 1000;
+	let expireAt = new Date().getTime() + apiLogTtl;
 	global.mongoConnectionLogs.collection("gw.logs").insertOne({
 		"app": app,
 		"path": path,
 		"method": method,
-		"timestamp": new Date().getTime()
+		"timestamp": new Date().getTime(),
+		"expireAt": new Date(expireAt)
 	})
-		.then(() => { logger.info("API call loged");})
+		.then(() => { logger.debug("API call loged");})
 		.catch( error => { logger.error(error.message);});
 }
 
