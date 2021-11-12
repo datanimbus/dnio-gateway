@@ -87,20 +87,31 @@ e.storeUserPermissions = async function (req, res, next) {
 	try {
 		if (gwUtil.isPermittedURL(req)) return next();
 		const userId = req.user._id;
-		const keys = await cacheUtils.client.keys(`perm:${userId}_*`) || [];
-		if (!keys || keys.length == 0) {
-			const permissions = await mongoUtils.aggregate(false, "userMgmt.groups", [
-				{ $match: { users: userId } },
-				{ $unwind: "$roles" },
-				// { $match: { 'roles.type': 'appcenter' } },
-				{ $group: { _id: "$roles.app", perms: { $addToSet: "$roles.id" } } }
-			]);
-			if (permissions && permissions.length > 0) {
-				let promises = permissions.map(async (element) => {
-					return await cacheUtils.setUserPermissions(userId + "_" + element._id, element.perms);
-				});
-				await Promise.all(promises);
-			}
+		// const keys = await cacheUtils.client.keys(`perm:${userId}_*`) || [];
+		// if (!keys || keys.length == 0) {
+		// const permissions = await mongoUtils.aggregate(false, "userMgmt.groups", [
+		// 	{ $match: { users: userId } },
+		// 	{ $unwind: "$roles" },
+		// 	// { $match: { 'roles.type': 'appcenter' } },
+		// 	{ $group: { _id: "$roles.app", perms: { $addToSet: "$roles.id" } } }
+		// ]);
+		// if (permissions && permissions.length > 0) {
+		// 	let promises = permissions.map(async (element) => {
+		// 		return await cacheUtils.setUserPermissions(userId + "_" + element._id, element.perms);
+		// 	});
+		// 	await Promise.all(promises);
+		// }
+		// }
+		const permissions = await mongoUtils.aggregate(false, "userMgmt.groups", [
+			{ $match: { users: userId } },
+			{ $unwind: "$roles" },
+			{ $group: { _id: "$roles.app", perms: { $addToSet: "$roles.id" } } }
+		]);
+		if (permissions && permissions.length > 0) {
+			let promises = permissions.map(async (element) => {
+				return await cacheUtils.setUserPermissions(userId + "_" + element._id, element.perms);
+			});
+			await Promise.all(promises);
 		}
 		next();
 	} catch (err) {
