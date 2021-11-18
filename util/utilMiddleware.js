@@ -128,7 +128,7 @@ e.logApiMiddleware = function (_req, _res, next){
 		return next();
 	}
 	if (global.mongoLogsConnected) {
-		logger.info(`[${_req.header("txnId")}] Logs DB is Connected`);
+		logger.debug(`[${_req.header("txnId")}] Logs DB is Connected`);
 		let apiLogTtl = envConfig.apiLogTtl * 1000;
 		let expireAt = new Date().getTime() + apiLogTtl;
 		global.mongoConnectionLogs.collection("billing.raw.logs").insertOne({
@@ -138,11 +138,11 @@ e.logApiMiddleware = function (_req, _res, next){
 			"timestamp": new Date().getTime(),
 			"expireAt": new Date(expireAt)
 		})
-			.then(() => { logger.info("API call loged");})
+			.then(() => { logger.debug("API call loged");})
 			.catch( error => { logger.error(error.message);});
 		next();
 	} else {
-		logger.info(`[${_req.header("txnId")}] Logs DB is not connected`);
+		logger.debug(`[${_req.header("txnId")}] Logs DB is not connected`);
 		next();
 	}
 };
