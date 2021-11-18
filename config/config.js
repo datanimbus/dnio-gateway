@@ -74,8 +74,8 @@ e.init = () => {
 		logger.error(e);
 	}
 };
-e.dsApiMetrics = process.env.DS_API_METRICS || true;
-e.apiLogTtl = process.env.DS_API_LOG_TTL || 300;
+e.dsBillingApiMetrics = process.env.DS_BILLING_API_METRICS || true;
+e.dsBillingapiLogTtl = process.env.DS_BILLING_API_LOG_TTL || 3600;
 e.mongoOptions = {
 	useNewUrlParser: true,
 	useUnifiedTopology: true
