@@ -110,4 +110,41 @@ e.storeUserPermissions = async function (req, res, next) {
 	}
 };
 
+e.logApiMiddleware = function (_req, _res, next){
+	if (gwUtil.isPermittedURL(_req)) return next();
+	const avoidApisforLogging = [
+		"/api/common",
+		"/api/a/rbac",
+		"/api/a/sm",
+		"/api/a/pm",
+		"/api/a/mon",
+		"/api/a/route",
+		"/api/a/sec",
+		"/api/a/b2bgw",
+		"/api/a/de"
+	];
+	let checkResult = avoidApisforLogging.some( d => _req.path.startsWith(d));
+	if (checkResult){
+		return next();
+	}
+	if (global.mongoLogsConnected) {
+		logger.info(`[${_req.header("txnId")}] Logs DB is Connected`);
+		let apiLogTtl = envConfig.apiLogTtl * 1000;
+		let expireAt = new Date().getTime() + apiLogTtl;
+		global.mongoConnectionLogs.collection("billing.raw.logs").insertOne({
+			"user": _req.user._id,
+			"path": _req.path,
+			"method": _req.method,
+			"timestamp": new Date().getTime(),
+			"expireAt": new Date(expireAt)
+		})
+			.then(() => { logger.info("API call loged");})
+			.catch( error => { logger.error(error.message);});
+		next();
+	} else {
+		logger.info(`[${_req.header("txnId")}] Logs DB is not connected`);
+		next();
+	}
+};
+
 module.exports = e;

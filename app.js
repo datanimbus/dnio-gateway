@@ -137,7 +137,7 @@ app.get("/api/a/workflow/:app/serviceList", authUtil.workflowServiceList);
 app.use(fileMapper.fileMapperHandler);
 
 app.use(bulkImportUser);
-
+app.use(utilMiddleware.logApiMiddleware);
 app.use(router.getRouterMiddleware({
 	target: config.get("gw"),
 	router: function (req) {
@@ -162,9 +162,6 @@ app.use(router.getRouterMiddleware({
 		if (req.path.startsWith("/api/a/faas")) {
 			return getFaasApi(req, faasApi);
 		} else {
-			if (config.dsApiMetrics) {
-				logApi(api, req.method);
-			}
 			return getDSApi(req, api);
 		}
 
@@ -302,23 +299,6 @@ function getFaasApi(req, api) {
 		}
 
 	});
-}
-
-function logApi(api, method){
-	const apiSplit = api.split("/");
-	const app = apiSplit[0];
-	const path = "/" + apiSplit[1];
-	let apiLogTtl = config.apiLogTtl * 1000;
-	let expireAt = new Date().getTime() + apiLogTtl;
-	global.mongoConnectionLogs.collection("gw.logs").insertOne({
-		"app": app,
-		"path": path,
-		"method": method,
-		"timestamp": new Date().getTime(),
-		"expireAt": new Date(expireAt)
-	})
-		.then(() => { logger.debug("API call loged");})
-		.catch( error => { logger.error(error.message);});
 }
 
 app.use(function (error, req, res, next) {
