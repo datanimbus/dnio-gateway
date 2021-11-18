@@ -59,28 +59,32 @@ e.init = () => {
 		}
 	});
 
-	mongo.connect(config.mongoUrlAuthor, config.mongoOptions, (error, db) => {
-		if (error) logger.error(error.message);
-		if (db) {
-			global.mongoConnectionLogs = db.db(logsDB);
-			global.mongoLogsConnected = true;
-			logger.info("DB :: Logs :: Connected");
-			createIndexforGWLogs();
-			db.on("connecting", () => {
-				global.mongoLogsConnected = false;
-				logger.info("DB :: Logs :: Connecting");
-			});
-			db.on("close", () =>{
-				global.mongoLogsConnected = false;
-				logger.error("DB :: Logs :: Lost Connection");
-			});
-			db.on("connected", () => {
+	if (config.dsBillingApiMetrics) {
+		mongo.connect(config.mongoUrlAppcenter, config.mongoOptions, (error, db) => {
+			if (error) logger.error(error.message);
+			if (db){
+				global.mongoConnectionLogs = db.db(logsDB);
 				global.mongoLogsConnected = true;
 				logger.info("DB :: Logs :: Connected");
 				createIndexforGWLogs();
-			});
-		}
-	});
+				db.on("connecting", () =>{
+					global.mongoLogsConnected = false;
+					logger.info("DB :: Logs :: Connecting");
+				});
+				db.on("close", () => {
+					global.mongoLogsConnected = false;
+					logger.info("DB :: Logs :: Lost Connection");
+				});
+				db.on("connected", () => {
+					global.mongoLogsConnected = true;
+					createIndexforGWLogs();
+					logger.info("DB :: Logs :: Connected");
+				});
+			}
+		});
+	} else {
+		global.mongoLogsConnected = false;
+	}
 };
 
 /**
@@ -108,7 +112,7 @@ e.find = async(_isAppCenter, _collection, _filter, _select) => {
 
 async function createIndexforGWLogs(){
 	try {
-		await global.mongoConnectionLogs.collection("gw.logs").createIndex(
+		await global.mongoConnectionLogs.collection("billing.raw.logs").createIndex(
 			{"expireAt" : 1}, { expireAfterSeconds: 0 }
 		);
 		logger.info("Successfully created index for GW Logs");
