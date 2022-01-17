@@ -51,7 +51,13 @@ e.checkTokenMiddleware = (_req, _res, _next) => {
 	}
 
 	token = token.split("JWT ")[1];
-	const user = JWT.verify(token, envConfig.TOKEN_SECRET);
+	let user;
+	try {
+		user = JWT.verify(token, envConfig.TOKEN_SECRET);
+	} catch (err) {
+		logger.error(`[${_req.header("txnId")}] Invalid JWT`);
+		return _res.status(401).json({ "message": "Unauthorized" });
+	}
 	if (!user) {
 		logger.error(`[${_req.header("txnId")}] Invalid JWT format`);
 		return _res.status(401).json({ "message": "Unauthorized" });
