@@ -62,10 +62,10 @@ function dependencyCheck() {
             logger.trace(data);
             return readinessCheck('mon')
         })
-        .then(data => {
-            logger.trace(data);
-            return readinessCheck('sec')
-        })
+        // .then(data => {
+        //     logger.trace(data);
+        //     return readinessCheck('sec')
+        // })
         .then(data => logger.trace(data))
         .catch(err => {
         	logger.error(err)

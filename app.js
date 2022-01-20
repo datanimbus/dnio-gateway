@@ -149,7 +149,7 @@ app.use(router.getRouterMiddleware({
 			"/api/a/mon": config.get("mon"),
 			// "/api/a/workflow": config.get("wf"),
 			"/api/a/route": config.get("b2b"),
-			"/api/a/sec": config.get("sec"),
+			// "/api/a/sec": config.get("sec"),
 			"/api/a/b2bgw": config.get("b2bgw"),
 			"/api/a/de": config.get("de")
 		};
