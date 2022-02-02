@@ -126,7 +126,7 @@ module.exports = (_server) => {
 
 	// Connecting to SM and PM
 	__smSocketHandler();
-	__pmSocketHander();
+	// __pmSocketHander();
 
 	// Handling UI socket connections
 	io.on("connection", (socket) => {
