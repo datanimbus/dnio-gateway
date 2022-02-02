@@ -752,7 +752,7 @@ function SMResHandler(req, resBody, res) {
 	if (e.compareUrl("/api/a/sm/{app}/service/start", req.path) || e.compareUrl("/api/a/sm/{app}/service/stop", req.path)) {
 		return Promise.resolve(resBody);
 	}
-	let validUrlList = ["/api/a/sm/service/{srvcId}", "/api/a/sm/service", "/api/a/sm/globalSchema/{id}", "/api/a/sm/globalSchema", "/api/a/pm/partner/{id}", "/api/a/pm/partner", "/api/a/pm/nanoService/{id}", "/api/a/pm/nanoService"];
+	let validUrlList = ["/api/a/sm/service/{srvcId}", "/api/a/sm/service", "/api/a/sm/globalSchema/{id}", "/api/a/sm/globalSchema", "/api/a/bm/partner/{id}", "/api/a/bm/partner", "/api/a/bm/nanoService/{id}", "/api/a/bm/nanoService"];
 	if (!validUrlList.some(_url => e.compareUrl(_url, req.path))) return null;
 	// if (!(e.compareUrl('/api/a/sm/service/{srvcId}', req.path) || e.compareUrl('/api/a/sm/service', req.path) || e.compareUrl('/api/a/sm/globalSchema/{id}', req.path) || e.compareUrl('/api/a/sm/globalSchema', req.path))) return Promise.resolve(null);
 	if (!(res.statusCode >= 200 && res.statusCode < 400)) return Promise.resolve(resBody);
@@ -760,10 +760,10 @@ function SMResHandler(req, resBody, res) {
 	if (e.compareUrl("/api/a/sm/service/{srvcId}", req.path) || e.compareUrl("/api/a/sm/service", req.path)) {
 		smType = "SM";
 	}
-	if (e.compareUrl("/api/a/pm/partner/{id}", req.path) || e.compareUrl("/api/a/pm/partner", req.path)) {
+	if (e.compareUrl("/api/a/bm/partner/{id}", req.path) || e.compareUrl("/api/a/bm/partner", req.path)) {
 		smType = "PM";
 	}
-	if (e.compareUrl("/api/a/pm/nanoService/{id}", req.path) || e.compareUrl("/api/a/pm/nanoService", req.path)) {
+	if (e.compareUrl("/api/a/bm/nanoService/{id}", req.path) || e.compareUrl("/api/a/bm/nanoService", req.path)) {
 		smType = "NS";
 	}
 	let srvcIds = null;
@@ -1033,17 +1033,17 @@ e.getProxyResHandler = (permittedUrls) => {
 				delete body.password;
 			}
 		}
-		if (e.compareUrl("/api/a/pm/agentRegistry", req.path) && Array.isArray(body)) {
+		if (e.compareUrl("/api/a/bm/agentRegistry", req.path) && Array.isArray(body)) {
 			body = body.map(_b => {
 				if (typeof _b === "object") delete _b.password;
 				return _b;
 			});
 		}
-		if (e.compareUrl("/api/a/pm/agentRegistry/{id}", req.path)) {
+		if (e.compareUrl("/api/a/bm/agentRegistry/{id}", req.path)) {
 			delete body.password;
 		}
 		let splitUrl = req.path.split("/");
-		if (req.path.startsWith("/api/a/pm") && splitUrl[4] !== "partner" && splitUrl[4] !== "nanoService") {
+		if (req.path.startsWith("/api/a/bm") && splitUrl[4] !== "partner" && splitUrl[4] !== "nanoService") {
 			return res.json(body);
 		}
 		if (req.path.startsWith("/api/c/") && splitUrl[5] && splitUrl[5] == "utils"

@@ -36,7 +36,7 @@ e.get = (_service) => {
 	if (e.isK8sEnv()) {
 		if (_service == "ne") return `http://ne.${e.odpNS}`;
 		if (_service == "sm") return `http://sm.${e.odpNS}`;
-		if (_service == "pm") return `http://pm.${e.odpNS}`;
+		if (_service == "bm") return `http://bm.${e.odpNS}`;
 		if (_service == "user") return `http://user.${e.odpNS}`;
 		if (_service == "gw") return `http://gw.${e.odpNS}`;
 		if (_service == "mon") return `http://mon.${e.odpNS}`;
@@ -49,7 +49,7 @@ e.get = (_service) => {
 	} else {
 		if (_service == "ne") return "http://localhost:10010";
 		if (_service == "sm") return "http://localhost:10003";
-		if (_service == "pm") return "http://localhost:10011";
+		if (_service == "bm") return "http://localhost:10011";
 		if (_service == "user") return "http://localhost:10004";
 		if (_service == "gw") return "http://localhost:9080";
 		if (_service == "mon") return "http://localhost:10005";
@@ -100,7 +100,7 @@ e.baseUrlMON = e.get("mon") + "/mon";
 e.baseUrlWF = e.get("wf") + "/workflow";
 e.baseUrlSEC = e.get("sec") + "/sec";
 e.baseUrlDM = e.get("dm") + "/dm";
-e.baseUrlPM = e.get("pm") + "/pm";
+e.baseUrlBM = e.get("bm") + "/bm";
 
 e.TOKEN_SECRET = process.env.TOKEN_SECRET || "u?5k167v13w5fhjhuiweuyqi67621gqwdjavnbcvadjhgqyuqagsduyqtw87e187etqiasjdbabnvczmxcnkzn";
 

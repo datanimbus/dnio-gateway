@@ -25,7 +25,7 @@ function isSecAccessControlInvalid(req) {
 
 	}
 
-	let secPMApi = ["/pm/{partnerId}/secret/enc", "/pm/{partnerId}/secret/dec/{secretId}", "/pm/{partnerId}/secret/{secretId}"];
+	let secPMApi = ["/bm/{partnerId}/secret/enc", "/bm/{partnerId}/secret/dec/{secretId}", "/bm/{partnerId}/secret/{secretId}"];
 	let secPMApiFlag = secPMApi.some(_a => authUtil.compareUrl(`/api/a/sec${_a}`, req.path));
 	if (secPMApiFlag) {
         let permissionApp = [];
