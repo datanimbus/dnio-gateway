@@ -145,7 +145,7 @@ app.use(router.getRouterMiddleware({
 			"/api/common": config.get("common"),
 			"/api/a/rbac": config.get("user"),
 			"/api/a/sm": config.get("sm"),
-			"/api/a/pm": config.get("pm"),
+			"/api/a/bm": config.get("bm"),
 			"/api/a/mon": config.get("mon"),
 			// "/api/a/workflow": config.get("wf"),
 			"/api/a/route": config.get("b2b"),
@@ -263,7 +263,7 @@ function getFaasApi(req, api) {
 			let apiSplit = api.split("/");
 			let filter = { app: apiSplit[4], url: apiPath };
 			logger.debug(`${req.headers.TxnId} Calling getFaasApi`);
-			request(config.get("pm") + "/pm/faas", {
+			request(config.get("bm") + "/bm/faas", {
 				headers: {
 					"content-type": "application/json",
 					"Authorization": req.get("Authorization"),
