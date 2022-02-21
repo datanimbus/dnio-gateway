@@ -76,7 +76,7 @@ const storage = multer.diskStorage({
 		logger.debug(`[${_req.headers.TxnId}] File extn of file "${_file.originalname}"" :: ${extn}`);
 		let fileValidExtension = allowedFileTypes;
 		if (_req.path.indexOf("fileMapper") > -1 || _req.path.indexOf("bulkCreate") > -1) {
-			fileValidExtension = ["csv", "xlsx", "xls", "ods"];
+			fileValidExtension = ["csv", "xlsx", "xls", "ods", "json"];
 		}
 		if (fileValidExtension.indexOf(extn) == -1) return _cb({ "message": "Invalid file extension!" });
 		_cb(null, `tmp-${Date.now()}`);
