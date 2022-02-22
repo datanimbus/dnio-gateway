@@ -197,7 +197,15 @@ function sheetSelect(_req, _res) {
 			logger.debug("File read completed");
 			sheetId = type === "csv" ? wb.SheetNames[0] : sheetId;
 			let ws = wb.Sheets[sheetId];
-			var range = XLSX.utils.decode_range(ws["!ref"]);
+			if (Object.entries(ws).length > 0 && ws["!ref"]) {
+				var range = XLSX.utils.decode_range(ws["!ref"]);
+			} else {
+				_res.status(400).json({
+					message: "File is empty"
+				});
+				return Promise.reject(new Error("File is empty"));
+			}
+			
 			logger.debug("Calculated range");
 			var sc = range.s.c;
 			let originalFileId = fileName;
