@@ -66,9 +66,9 @@ async function upload(_req, _res) {
 	let collectionName = urlSplit[4];
 	logger.debug(`GridFS DB.col :: ${db}.${collectionName}`);
 
-	let dsDetails = await global.mongoConnectionAuthor.collection(`services`).findOne({ app: urlSplit[3], api: `/${urlSplit[4]}` });
+	let dsDetails = await global.mongoConnectionAuthor.collection("services").findOne({ app: urlSplit[3], api: `/${urlSplit[4]}` });
 
-	logger.trace('Data Service Details - ', dsDetails);
+	logger.trace("Data Service Details - ", dsDetails);
 
 	FileType.fromFile(_req.file.path)
 		.then(_fileExtn => {
@@ -89,6 +89,11 @@ async function upload(_req, _res) {
 				fileId: _req.file.fileId,
 				fileName: _req.file.originalname
 			};
+			if (_d === "json") {
+				let bufferData = fs.readFileSync(_req.file.path);
+				if (bufferData && bufferData.length > 0) JSON.parse(bufferData.toString());
+			}
+
 			if (_d == "excel") responsePayload.sheets = XLSX.readFile(_req.file.path).SheetNames;
 			_res.json(responsePayload);
 		})
@@ -205,7 +210,7 @@ function sheetSelect(_req, _res) {
 				});
 				return Promise.reject(new Error("File is empty"));
 			}
-			
+
 			logger.debug("Calculated range");
 			var sc = range.s.c;
 			let originalFileId = fileName;
@@ -370,8 +375,8 @@ function mapJson(req, res) {
 
 				if (jsonRecords && jsonRecords[0]) {
 					let headers = null;
-					let originalFileId = fileName ;
-					fileName += '-1';
+					let originalFileId = fileName;
+					fileName += "-1";
 
 					logger.debug(`[${txnId}] Sending response`);
 					res.json({
@@ -430,7 +435,7 @@ e.fileMapperHandler = async (req, res, next) => {
 		}
 		if (req.method === "PUT" && !urlSplit[8]) {
 			logger.debug(`[${txnId}] Filemapper :: Sheet selection`);
-			if (req.body.type === 'json') {
+			if (req.body.type === "json") {
 				return mapJson(req, res);
 			} else {
 				return sheetSelect(req, res);
