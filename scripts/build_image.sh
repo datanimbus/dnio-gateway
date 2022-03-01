@@ -2,8 +2,8 @@
 set -e
 if [ -f $WORKSPACE/../TOGGLE ]; then
     echo "****************************************************"
-    echo "data.stack:gw :: Toggle mode is on, terminating build"
-    echo "data.stack:gw :: BUILD CANCLED"
+    echo "data.stack.gw :: Toggle mode is on, terminating build"
+    echo "data.stack.gw :: BUILD CANCLED"
     echo "****************************************************"
     exit 0
 fi
@@ -28,8 +28,8 @@ if [ $1 ]; then
 fi
 if [ ! $REL ]; then
     echo "****************************************************"
-    echo "data.stack:gw :: Please Create file DATA_STACK_RELEASE with the releaese at $WORKSPACE or provide it as 1st argument of this script."
-    echo "data.stack:gw :: BUILD FAILED"
+    echo "data.stack.gw :: Please Create file DATA_STACK_RELEASE with the releaese at $WORKSPACE or provide it as 1st argument of this script."
+    echo "data.stack.gw :: BUILD FAILED"
     echo "****************************************************"
     exit 0
 fi
@@ -42,13 +42,13 @@ if [ $3 ]; then
 fi
 if [ $CICD ]; then
     echo "****************************************************"
-    echo "data.stack:gw :: CICI env found"
+    echo "data.stack.gw :: CICI env found"
     echo "****************************************************"
     TAG=$TAG"_"$cDate
     if [ ! -f $WORKSPACE/../DATA_STACK_NAMESPACE ]; then
         echo "****************************************************"
-        echo "data.stack:gw :: Please Create file DATA_STACK_NAMESPACE with the namespace at $WORKSPACE"
-        echo "data.stack:gw :: BUILD FAILED"
+        echo "data.stack.gw :: Please Create file DATA_STACK_NAMESPACE with the namespace at $WORKSPACE"
+        echo "data.stack.gw :: BUILD FAILED"
         echo "****************************************************"
         exit 0
     fi
@@ -58,26 +58,26 @@ fi
 sh $WORKSPACE/scripts/prepare_yaml.sh $REL $2
 
 echo "****************************************************"
-echo "data.stack:gw :: Using build :: "$TAG
+echo "data.stack.gw :: Using build :: "$TAG
 echo "****************************************************"
 
 cd $WORKSPACE
 
 echo "****************************************************"
-echo "data.stack:gw :: Adding IMAGE_TAG in Dockerfile :: "$TAG
+echo "data.stack.gw :: Adding IMAGE_TAG in Dockerfile :: "$TAG
 echo "****************************************************"
 sed -i.bak s#__image_tag__#$TAG# Dockerfile
 
 if [ -f $WORKSPACE/../CLEAN_BUILD_GW ]; then
     echo "****************************************************"
-    echo "data.stack:gw :: Doing a clean build"
+    echo "data.stack.gw :: Doing a clean build"
     echo "****************************************************"
     
-    docker build --no-cache -t data.stack:gw.$TAG .
+    docker build --no-cache -t data.stack.gw:$TAG .
     rm $WORKSPACE/../CLEAN_BUILD_GW
 
     echo "****************************************************"
-    echo "data.stack:gw :: Copying deployment files"
+    echo "data.stack.gw :: Copying deployment files"
     echo "****************************************************"
 
     if [ $CICD ]; then
@@ -96,26 +96,26 @@ if [ -f $WORKSPACE/../CLEAN_BUILD_GW ]; then
 
 else
     echo "****************************************************"
-    echo "data.stack:gw :: Doing a normal build"
+    echo "data.stack.gw :: Doing a normal build"
     echo "****************************************************"
-    docker build -t data.stack:gw.$TAG .
+    docker build -t data.stack.gw:$TAG .
     if [ $CICD ]; then
         if [ $DOCKER_REG ]; then
-            kubectl set image deployment/gw gw=$DOCKER_REG/data.stack:gw.$TAG -n $DATA_STACK_NS --record=true
+            kubectl set image deployment/gw gw=$DOCKER_REG/data.stack.gw:$TAG -n $DATA_STACK_NS --record=true
         else 
-            kubectl set image deployment/gw gw=data.stack:gw.$TAG -n $DATA_STACK_NS --record=true
+            kubectl set image deployment/gw gw=data.stack.gw:$TAG -n $DATA_STACK_NS --record=true
         fi
     fi
 fi
 if [ $DOCKER_REG ]; then
     echo "****************************************************"
-    echo "data.stack:gw :: Docker Registry found, pushing image"
+    echo "data.stack.gw :: Docker Registry found, pushing image"
     echo "****************************************************"
 
-    docker tag data.stack:gw.$TAG $DOCKER_REG/data.stack:gw.$TAG
-    docker push $DOCKER_REG/data.stack:gw.$TAG
+    docker tag data.stack.gw:$TAG $DOCKER_REG/data.stack.gw:$TAG
+    docker push $DOCKER_REG/data.stack.gw:$TAG
 fi
 echo "****************************************************"
-echo "data.stack:gw :: BUILD SUCCESS :: data.stack:gw.$TAG"
+echo "data.stack.gw :: BUILD SUCCESS :: data.stack.gw:$TAG"
 echo "****************************************************"
 echo $TAG > $WORKSPACE/../LATEST_GW
