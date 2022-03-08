@@ -100,7 +100,7 @@ e.deleteServiceList = _data => {
 e.createFaasList = async () => {
 	logger.debug("Calling PM and creating the faas routing map");
 	let options = {
-		url: `${config.get("bm")}/bm/faas`,
+		url: `${config.get("pm")}/pm/faas`,
 		qs: {
 			select: "_id,port,url,app,name,deploymentName,namespace",
 			count: -1,
