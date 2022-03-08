@@ -30,7 +30,7 @@ async function getManageRoleServiceList(_req) {
 
 e.addRequestDetails = async (_req, _res, next) => {
 	try {
-		if (_req.path == "/api/a/bm/agentRegistry/IEG/password") return next()
+		if (_req.path == "/api/a/pm/agentRegistry/IEG/password") return next()
 		if (gwUtil.compareUrl("/api/a/workflow/serviceList", _req.path)) return next()
 
 		logger.debug(`[${_req.headers.TxnId}] Add request detail required`)
@@ -132,11 +132,11 @@ e.addRequestDetails = async (_req, _res, next) => {
 		}
 		
 		if (
-				_req.path != "/api/a/bm/flow/count" && 
-				!gwUtil.compareUrl("/api/a/bm/flow/{app}/stopAll", _req.path) && 
-				!gwUtil.compareUrl("/api/a/bm/flow/{app}/startAll", _req.path) && 
-				( gwUtil.compareUrl("/api/a/bm/flow/{id}", _req.path) || gwUtil.compareUrl("/api/a/bm/flow/{id}/{action}", _req.path))
-				&& !gwUtil.compareUrl("/api/a/bm/flow/status/count", _req.path)
+				_req.path != "/api/a/pm/flow/count" && 
+				!gwUtil.compareUrl("/api/a/pm/flow/{app}/stopAll", _req.path) && 
+				!gwUtil.compareUrl("/api/a/pm/flow/{app}/startAll", _req.path) && 
+				( gwUtil.compareUrl("/api/a/pm/flow/{id}", _req.path) || gwUtil.compareUrl("/api/a/pm/flow/{id}/{action}", _req.path))
+				&& !gwUtil.compareUrl("/api/a/pm/flow/status/count", _req.path)
 			) {
 			let filter = { 
 				"$or" : [
@@ -165,7 +165,7 @@ e.addRequestDetails = async (_req, _res, next) => {
 			return next(new Error(`Partner not found: ${pathSplit[5]}`))
 		}
 		
-		if (_req.path != "/api/a/bm/nanoService/count" && gwUtil.compareUrl("/api/a/bm/nanoService/{id}", _req.path)) {
+		if (_req.path != "/api/a/pm/nanoService/count" && gwUtil.compareUrl("/api/a/pm/nanoService/{id}", _req.path)) {
 			let nanoService = await db.findOne(false, "b2b.nanoService", { _id: pathSplit[5] }, { projection: { app: 1 }})
 			if (nanoService) {
 				_req.apiDetails = nanoService
@@ -174,7 +174,7 @@ e.addRequestDetails = async (_req, _res, next) => {
 			return next(new Error(`Nanoservice not found: ${pathSplit[5]}`))
 		}
 		
-		if (_req.path != "/api/a/bm/dataFormat/count" && gwUtil.compareUrl("/api/a/bm/dataFormat/{id}", _req.path)) {
+		if (_req.path != "/api/a/pm/dataFormat/count" && gwUtil.compareUrl("/api/a/pm/dataFormat/{id}", _req.path)) {
 			let dataFormat = await db.findOne(false, "dataFormat", { _id: pathSplit[5] }, { projection: { app: 1 }})
 			if (dataFormat) {
 				_req.apiDetails = dataFormat
@@ -184,9 +184,9 @@ e.addRequestDetails = async (_req, _res, next) => {
 		}
 		
 		if (
-			_req.path != "/api/a/bm/agentRegistry/count" && 
-			gwUtil.compareUrl("/api/a/bm/agentRegistry/{id}", _req.path) || 
-			gwUtil.compareUrl("/api/a/bm/agentRegistry/{id}/{action}", _req.path)
+			_req.path != "/api/a/pm/agentRegistry/count" && 
+			gwUtil.compareUrl("/api/a/pm/agentRegistry/{id}", _req.path) || 
+			gwUtil.compareUrl("/api/a/pm/agentRegistry/{id}/{action}", _req.path)
 		) {
 			let agentRegistry = await db.findOne(false, "b2b.agentRegistry", { _id: pathSplit[5] }, { projection: { app: 1 }})
 			if (agentRegistry) {

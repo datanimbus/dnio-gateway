@@ -38,11 +38,11 @@ module.exports = {
 		"/api/a/workflow/file/download",
 		"/api/a/route/file/download",
 		"/api/a/b2bgw/downloadfile",
-		"/api/a/bm/{app}/download/{type}/{id}",
+		"/api/a/pm/{app}/download/{type}/{id}",
 		"/api/a/rbac/usr/bulkCreate/{id}/download",
-		"/api/a/bm/ieg/download/{type}",
-		"/api/a/bm/{app}/download/appagent/{id}/{type}",
-		"/api/a/bm/{app}/download/partneragent/{id}/{type}",
+		"/api/a/pm/ieg/download/{type}",
+		"/api/a/pm/{app}/download/appagent/{id}/{type}",
+		"/api/a/pm/{app}/download/partneragent/{id}/{type}",
 		"/api/a/sec/identity/{appName}/fetch/download",
 		"/api/a/sec/identity/{appName}/csr",
 		"/api/a/sec/identity/{appName}/certificate/download",
@@ -52,9 +52,9 @@ module.exports = {
 	],
 	secret: {
 		partner: [
-			"/api/a/sec/bm/{partnerId}/secret/enc",
-			"/api/a/sec/bm/{partnerId}/secret/dec/{secretId}",
-			"/api/a/sec/bm/{partnerId}/secret/{secretId}"
+			"/api/a/sec/pm/{partnerId}/secret/enc",
+			"/api/a/sec/pm/{partnerId}/secret/dec/{secretId}",
+			"/api/a/sec/pm/{partnerId}/secret/{secretId}"
 		]
 	}
 };

@@ -48,7 +48,7 @@ function __smSocketHandler() {
 }
 
 function __pmSocketHander() {
-	let socketClientPM = ioClient.connect(config.get("bm"));
+	let socketClientPM = ioClient.connect(config.get("pm"));
 
 	socketClientPM.on("connect", () => {
 		logger.info("WS :: PM :: Connected to PM");
