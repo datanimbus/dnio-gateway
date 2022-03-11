@@ -36,7 +36,7 @@ function getFaasHashMapValues(_data) {
 e.createServiceList = async () => {
 	logger.debug("Calling SM and creating the DS routing map");
 	let options = {
-		url: `${config.get("sm")}/sm/service`,
+		url: `${config.get("sm")}/sm/service/fetchAll`,
 		qs: {
 			select: "_id,port,api,app,name",
 			count: -1,
@@ -100,7 +100,7 @@ e.deleteServiceList = _data => {
 e.createFaasList = async () => {
 	logger.debug("Calling PM and creating the faas routing map");
 	let options = {
-		url: `${config.get("bm")}/bm/faas`,
+		url: `${config.get("bm")}/bm/faas/fetchAll`,
 		qs: {
 			select: "_id,port,url,app,name,deploymentName,namespace",
 			count: -1,
