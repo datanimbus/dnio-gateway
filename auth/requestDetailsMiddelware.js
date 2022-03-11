@@ -156,15 +156,6 @@ e.addRequestDetails = async (_req, _res, next) => {
 			return next(new Error("Flow not found"))
 		}
 		
-		if (urlConfig.secret.partner.some(_url => gwUtil.compareUrl(_url, _req.path))) {
-			let partner = await db.findOne(false, "b2b.partners", { _id: pathSplit[5] }, { projection: { app: 1 }})
-			if (partner) {
-				_req.apiDetails = { app: partner.app }
-				return next()
-			}
-			return next(new Error(`Partner not found: ${pathSplit[5]}`))
-		}
-		
 		if (_req.path != "/api/a/bm/nanoService/count" && gwUtil.compareUrl("/api/a/bm/nanoService/{id}", _req.path)) {
 			let nanoService = await db.findOne(false, "b2b.nanoService", { _id: pathSplit[5] }, { projection: { app: 1 }})
 			if (nanoService) {

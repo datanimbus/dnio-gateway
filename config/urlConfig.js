@@ -2,10 +2,10 @@
 
 module.exports = {
 	urlNotPermitted: [
-		"/api/a/sm/service/{id}/statusChange",
-		"/api/a/sm/app/{app}",
-		"/api/a/rbac/service/{id}",
-		"api/a/mon/appcenter/{id}/audit/purge/{type}",
+		"/api/a/sm/{app}/service/{id}/statusChange",
+		"/api/a/sm/{app}/app",
+		"/api/a/rbac/{app}/service/{id}",
+		"api/a/mon/{app}/appcenter/{id}/audit/purge/{type}",
 	],
 	permittedUrl: [
 		"/api/a/rbac/login",
@@ -15,8 +15,8 @@ module.exports = {
 		"/api/a/rbac/azure/userFetch/callback",
 		"/api/a/rbac/authType/{id}",
 		"/api/a/rbac/closeAllSessions",
-		"/gw/health/live",
-		"/gw/health/ready"
+		"/gw/internal/health/live",
+		"/gw/internal/health/ready"
 	],
 	permittedAuthZUrl: [
 		"/api/a/rbac/login",
@@ -31,8 +31,8 @@ module.exports = {
 		"/api/a/rbac/authType",
 		"/api/a/rbac/closeAllSessions",
 		"/api/a/b2bgw/downloadfile",
-		"/gw/health/live",
-		"/gw/health/ready"
+		"/gw/internal/health/live",
+		"/gw/internal/health/ready"
 	],
 	downloadUrl: [
 		"/api/a/workflow/file/download",
@@ -49,12 +49,5 @@ module.exports = {
 		"/api/a/sec/keys/download/IEG",
 		"/api/a/sec/keys/download/CA",
 		"/api/c/{app}/{api}/utils/export/download/{fileId}"
-	],
-	secret: {
-		partner: [
-			"/api/a/sec/bm/{partnerId}/secret/enc",
-			"/api/a/sec/bm/{partnerId}/secret/dec/{secretId}",
-			"/api/a/sec/bm/{partnerId}/secret/{secretId}"
-		]
-	}
+	]
 };

@@ -75,8 +75,8 @@ function dependencyCheck() {
 }
 
 function readinessCheck(_serviceShortName) {
-    let url = `${_serviceShortName}/health/ready`
-    if (_serviceShortName == "user") url = 'rbac/health/ready'
+    let url = `${_serviceShortName}/internal/health/ready`
+    if (_serviceShortName == "user") url = 'rbac/internal/health/ready'
     if (_serviceShortName == "bm") url = `${_serviceShortName}/internal/health/ready`
     url = `${config.get(_serviceShortName)}/${url}`
     logger.trace(`Calling readiness url for ${_serviceShortName.toUpperCase()} :: ${url}`);
@@ -117,8 +117,8 @@ function dsFileImportStatusHandler(req, res) {
 
 module.exports = {
     router: express.Router()
-        .get('/health/ready', healthReadyHandler)
-        .get('/health/live', healthLiveHandler)
+        .get('/internal/health/ready', healthReadyHandler)
+        .get('/internal/health/live', healthLiveHandler)
         .get('/diag', diagnosticHandler)
         .put('/fileStatus/:action', dsFileImportStatusHandler),
     e: {
