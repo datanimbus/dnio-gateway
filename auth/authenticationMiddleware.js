@@ -109,7 +109,7 @@ e.authN = async (_req, _res, _next) => {
 	} catch (_error) {
 		logger.error(`[${_req.headers.TxnId}] ${_error}`)
 		if(_error == '500') return _res.status(500).end()
-		if (gwUtil.compareUrl("/api/a/rbac/logout", _req.path)) return _res.status(200).json({ message: "Logged out successfully" })
+		if (gwUtil.compareUrl("/api/a/rbac/auth/logout", _req.path)) return _res.status(200).json({ message: "Logged out successfully" })
 		_res.status(401).json({ message: "Unauthorized" })
 	}
 }

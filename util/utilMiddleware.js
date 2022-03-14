@@ -43,7 +43,7 @@ e.checkTokenMiddleware = (_req, _res, _next) => {
 	}
 
 	// WTF?
-	if (gwUtil.compareUrl("/api/a/rbac/logout", _req.path) && !token) return _res.status(200).json({ message: "Logged out successfully" });
+	if (gwUtil.compareUrl("/api/a/rbac/auth/logout", _req.path) && !token) return _res.status(200).json({ message: "Logged out successfully" });
 
 	if (!token) {
 		logger.debug(`[${_req.header("txnId")}] No token found in cookie or header`);

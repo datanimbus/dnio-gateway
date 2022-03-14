@@ -10,7 +10,7 @@ const getColumns = require("./fileMapperMiddleware").getColumns;
 const FileType = require("file-type");
 let levenshtein = require("fast-levenshtein");
 
-router.post("/api/a/rbac/usr/bulkCreate/upload",function(_req, _res){
+router.post("/api/a/rbac/:app/user/utils/bulkCreate/upload",function(_req, _res){
 	let extensionType = ["ods", "xlsx"];
 	logger.debug("File upload hander :: upload()");
 	logger.debug(`File metadata :: ${JSON.stringify(_req.file)}`);
@@ -73,7 +73,7 @@ router.post("/api/a/rbac/usr/bulkCreate/upload",function(_req, _res){
 			});
 		});
 });
-router.put("/api/a/rbac/usr/bulkCreate/:fileId/sheetSelect",function(_req, _res) {
+router.put("/api/a/rbac/:app/user/utils/bulkCreate/:fileId/sheetSelect",function(_req, _res) {
 	logger.debug(`Sheet select : ${JSON.stringify(_req.body)}`);
 	let fileName = _req.body.fileId;
 	logger.debug(`fileName :: ${fileName}`);

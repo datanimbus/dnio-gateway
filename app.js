@@ -174,7 +174,7 @@ app.use(router.getRouterMiddleware({
 		"/api/c/": "/"
 	},
 	onRes: function (req, res, body) {
-		if ((req.path === "/api/a/rbac/login" || req.path === "/api/a/rbac/refresh" || req.path === "/api/a/rbac/check") && res.statusCode === 200) {
+		if ((req.path === "/api/a/rbac/auth/login" || req.path === "/api/a/rbac/auth/refresh" || req.path === "/api/a/rbac/auth/check") && res.statusCode === 200) {
 			let domain = process.env.FQDN ? process.env.FQDN.split(":").shift() : "localhost";
 			let cookieJson = {};
 			if (domain != "localhost") {
