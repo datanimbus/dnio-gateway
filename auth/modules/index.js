@@ -4,6 +4,5 @@ module.exports = {
     pmAuthorizationMw: require('./bm.authorizationMiddleware'),
     secAuthorizationMw: require('./sec.authorizationMiddleware'),
     smAuthorizationMw: require('./sm.authorizationMiddleware'),
-    userAuthorizationMw: require('./user.authorizationMiddleware'),
-    wfAuthorizationMw: require('./wf.authorizationMiddleware'),
+    userAuthorizationMw: require('./user.authorizationMiddleware')
 }

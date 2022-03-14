@@ -15,8 +15,6 @@ module.exports = (req, res, next) => {
 		return authorizationModules.smAuthorizationMw(req, res, next);
 	} else if ((req.path.startsWith("/api/a/mon"))) {
 		return authorizationModules.monAuthorizationMw(req, res, next);
-	} else if ((req.path.startsWith("/api/a/workflow"))) {
-		return authorizationModules.wfAuthorizationMw(req, res, next);
 	} else if ((req.path.startsWith("/api/a/sec"))) {
 		return authorizationModules.secAuthorizationMw(req, res, next);
 	} else if ((req.path.startsWith("/api/a/bm"))) {
