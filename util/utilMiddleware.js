@@ -16,7 +16,7 @@ let e = {};
 
 e.requestLogger = (_req, _res, _next) => {
 	gwUtil.getTxnId(_req);
-	if (!_req.path.startsWith("/gw/health")) logger.info(`[${_req.header("txnId")}] [${_req.hostname}] ${_req.method} ${_req.path}`);
+	if (!_req.path.startsWith("/gw/internal/health")) logger.info(`[${_req.header("txnId")}] [${_req.hostname}] ${_req.method} ${_req.path}`);
 	_res.set("TxnId", _req.header("txnId"));
 	_next();
 };
