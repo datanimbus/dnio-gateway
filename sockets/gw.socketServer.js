@@ -47,54 +47,54 @@ function __smSocketHandler() {
 	});
 }
 
-function __pmSocketHander() {
+function __bmSocketHander() {
 	let socketClientPM = ioClient.connect(config.get("bm"));
 
 	socketClientPM.on("connect", () => {
-		logger.info("WS :: PM :: Connected to PM");
+		logger.info("WS :: BM :: Connected to BM");
 		routingMap.createFaasList();
 	});
-	socketClientPM.on("reconnect", (n) => logger.info("WS :: PM :: Reconnecting to PM " + n));
-	socketClientPM.on("reconnect_failed", (n) => logger.error("WS :: PM :: Reconnecting to PM failed " + n));
-	socketClientPM.on("connect_error", (err) => logger.error("WS :: PM :: Connection error in PM:: " + err.message));
+	socketClientPM.on("reconnect", (n) => logger.info("WS :: BM :: Reconnecting to BM " + n));
+	socketClientPM.on("reconnect_failed", (n) => logger.error("WS :: BM :: Reconnecting to BM failed " + n));
+	socketClientPM.on("connect_error", (err) => logger.error("WS :: BM :: Connection error in BM:: " + err.message));
 
 	socketClientPM.on("flowStatus", (data) => {
-		logger.info("WS :: PM :: Flow status from Partner Manager :", JSON.stringify(data));
+		logger.info("WS :: BM :: Flow status from B2B Manager :", JSON.stringify(data));
 		Object.keys(socketClients).forEach(key => {
 			socketClients[key].emit("flowStatus", data);
 		});
 	});
 
 	socketClientPM.on("flowCreated", (data) => {
-		logger.info("WS :: PM :: Flow created from Partner Manager :", JSON.stringify(data));
+		logger.info("WS :: BM :: Flow created from B2B Manager :", JSON.stringify(data));
 		Object.keys(socketClients).forEach(key => {
 			socketClients[key].emit("flowCreated", data);
 		});
 	});
 
 	socketClientPM.on("flowDeleted", (data) => {
-		logger.info("WS :: PM :: Flow deleted from Partner Manager :", JSON.stringify(data));
+		logger.info("WS :: BM :: Flow deleted from B2B Manager :", JSON.stringify(data));
 		Object.keys(socketClients).forEach(key => {
 			socketClients[key].emit("flowDeleted", data);
 		});
 	});
 
 	socketClientPM.on("interactionCreated", (data) => {
-		logger.info("WS :: PM :: Interaction created from Partner Manager :", JSON.stringify(data));
+		logger.info("WS :: BM :: Interaction created from B2B Manager :", JSON.stringify(data));
 		Object.keys(socketClients).forEach(key => {
 			socketClients[key].emit("interactionCreated", data);
 		});
 	});
 
 	socketClientPM.on("interactionUpdated", (data) => {
-		logger.info("WS :: PM :: Interaction updated from Partner Manager :", JSON.stringify(data));
+		logger.info("WS :: BM :: Interaction updated from B2B Manager :", JSON.stringify(data));
 		Object.keys(socketClients).forEach(key => {
 			socketClients[key].emit("interactionUpdated", data);
 		});
 	});
 
 	socketClientPM.on("faasStatus", (data) => {
-		logger.info("WS :: PM :: Faas status from Partner Manager :", JSON.stringify(data));
+		logger.info("WS :: BM :: Faas status from B2B Manager :", JSON.stringify(data));
 		Object.keys(socketClients).forEach(key => {
 			socketClients[key].emit("faasStatus", data);
 		});
@@ -102,14 +102,14 @@ function __pmSocketHander() {
 	});
 
 	socketClientPM.on("faasCreated", (data) => {
-		logger.info("WS :: PM :: Faas created from Partner Manager :", JSON.stringify(data));
+		logger.info("WS :: BM :: Faas created from B2B Manager :", JSON.stringify(data));
 		Object.keys(socketClients).forEach(key => {
 			socketClients[key].emit("faasCreated", data);
 		});
 	});
 
 	socketClientPM.on("faasDeleted", (data) => {
-		logger.info("WS :: PM :: Faas deleted from Partner Manager :", JSON.stringify(data));
+		logger.info("WS :: BM :: Faas deleted from B2B Manager :", JSON.stringify(data));
 		Object.keys(socketClients).forEach(key => {
 			socketClients[key].emit("faasDeleted", data);
 		});
@@ -124,9 +124,9 @@ module.exports = (_server) => {
 	socketClients = {};
 	global.socketClients = socketClients;
 
-	// Connecting to SM and PM
+	// Connecting to SM and BM
 	__smSocketHandler();
-	// __pmSocketHander();
+	__bmSocketHander();
 
 	// Handling UI socket connections
 	io.on("connection", (socket) => {
