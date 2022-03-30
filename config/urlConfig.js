@@ -13,7 +13,7 @@ module.exports = {
 		"/api/a/rbac/auth/azure/userFetch/callback",
 		"/api/a/rbac/auth/authType/{id}",
 		"/api/a/rbac/{app}/user/utils/closeAllSessions/{id}",
-		"/api/bm/auth/login",
+		"/api/a/bm/auth/login",
 		"/gw/internal/health/live",
 		"/gw/internal/health/ready"
 	],
