@@ -435,13 +435,13 @@ e.isUrlPermitted = (permittedUrls, req) => {
 	if (req.path.startsWith("/api/c") && allowedApiEndPoint.indexOf(req.path.split("/")[5]) > -1) {
 		return true;
 	}
-	else if (e.compareUrl("/api/a/mon/appCenter/{SRVC}/logs", req.path) || e.compareUrl("/api/a/mon/appCenter/{SRVC}/logs/count", req.path) || e.compareUrl("/api/a/mon/appCenter/{SRVC}/postHook", req.path) || e.compareUrl("/api/a/mon/appCenter/{SRVC}/postHook/count", req.path) || e.compareUrl("/api/a/mon/appCenter/{SRVC}/preHook", req.path) || e.compareUrl("/api/a/mon/appCenter/{SRVC}/preHook/count", req.path) || e.compareUrl("/api/a/mon/author/sm/audit", req.path) || e.compareUrl("/api/a/mon/author/sm/audit/count", req.path)) {
+	else if (e.compareUrl("/api/a/mon/{app}/appCenter/{SRVC}/logs", req.path) || e.compareUrl("/api/a/mon/{app}/appCenter/{SRVC}/logs/count", req.path) || e.compareUrl("/api/a/mon/{app}/appCenter/{SRVC}/postHook", req.path) || e.compareUrl("/api/a/mon/{app}/appCenter/{SRVC}/postHook/count", req.path) || e.compareUrl("/api/a/mon/{app}/appCenter/{SRVC}/preHook", req.path) || e.compareUrl("/api/a/mon/{app}/appCenter/{SRVC}/preHook/count", req.path) || e.compareUrl("/api/a/mon/{app}/author/sm/audit", req.path) || e.compareUrl("/api/a/mon/{app}/author/sm/audit/count", req.path)) {
 		return false;
 	}
 	else if (req.path.startsWith("/api/a/mon")) {
-		if (req.path.startsWith("/api/a/mon/dataService/log")
-			|| req.path.startsWith("/api/a/mon/author/user/log")
-			|| req.path.startsWith("/api/a/mon/author/group/log"))
+		if (req.path.startsWith("/api/a/mon/{app}/dataService/log")
+			|| req.path.startsWith("/api/a/mon/{app}/author/user/log")
+			|| req.path.startsWith("/api/a/mon/{app}/author/group/log"))
 			return false;
 		else
 			return true;
