@@ -229,12 +229,12 @@ e.addRequestDetails = async (_req, _res, next) => {
 				})
 		}
 		
-		if (gwUtil.compareUrl("/api/a/mon/appCenter/{SRVC}/logs", _req.path) || gwUtil.compareUrl("/api/a/mon/appCenter/{SRVC}/logs/count", _req.path) || gwUtil.compareUrl("/api/a/mon/appCenter/{SRVC}/postHook", _req.path) || gwUtil.compareUrl("/api/a/mon/appCenter/{SRVC}/postHook/count", _req.path) || gwUtil.compareUrl("/api/a/mon/appCenter/{SRVC}/preHook", _req.path) || gwUtil.compareUrl("/api/a/mon/appCenter/{SRVC}/preHook/count", _req.path)) {
+		if (gwUtil.compareUrl("/api/a/mon/{app}/appCenter/{SRVC}/logs", _req.path) || gwUtil.compareUrl("/api/a/mon/{app}/appCenter/{SRVC}/logs/count", _req.path) || gwUtil.compareUrl("/api/a/mon/{app}/appCenter/{SRVC}/postHook", _req.path) || gwUtil.compareUrl("/api/a/mon/{app}/appCenter/{SRVC}/postHook/count", _req.path) || gwUtil.compareUrl("/api/a/mon/{app}/appCenter/{SRVC}/preHook", _req.path) || gwUtil.compareUrl("/api/a/mon/{app}/appCenter/{SRVC}/preHook/count", _req.path)) {
 			_req.apiDetails = await db.findOne(false, "services", { _id: pathSplit[5] }, { projection: { app: 1 }})
 			return next()
 		}
 		
-		if (gwUtil.compareUrl("/api/a/mon/author/sm/audit", _req.path) || gwUtil.compareUrl("/api/a/mon/author/sm/audit/count", _req.path)) {
+		if (gwUtil.compareUrl("/api/a/mon/{app}/author/sm/audit", _req.path) || gwUtil.compareUrl("/api/a/mon/{app}/author/sm/audit/count", _req.path)) {
 			let filter = JSON.parse(_req.query.filter)
 			let srvcId = filter["data._id"]
 			_req.apiDetails = await db.findOne(false, "services", { _id: srvcId }, { projection: { app: 1 }})
