@@ -1,7 +1,7 @@
 let e = {};
 const _ = require("lodash");
 const request = require("request");
-const uuid = require("uuid/v1");
+const { v1: uuid } = require("uuid");
 const config = require("../config/config");
 const cacheUtil = require("./cacheUtil");
 

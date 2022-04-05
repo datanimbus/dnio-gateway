@@ -1,13 +1,13 @@
 const crypto = require("crypto");
 const sh = require("shorthash");
-const uuid = require("uuid/v1");
+const { v1: uuid } = require("uuid");
 const urlConfig = require("../config/urlConfig");
 let logger = global.logger;
 
 let e = {};
 
 
-e.randomStr = function(len) {
+e.randomStr = function (len) {
 	let str = "";
 	const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 	for (let i = 0; i < len; i++) {
@@ -55,7 +55,7 @@ e.isDownloadURL = (_req) => {
 
 e.hasDuplicate = (arr) => {
 	return arr.length !== Array.from(new Set(arr)).length;
-}; 
+};
 
 e.getDuplicateValues = (arr) => {
 	var duplicates = arr.filter(a => arr.indexOf(a) !== arr.lastIndexOf(a));

@@ -1,4 +1,4 @@
-FROM node:12-alpine
+FROM node:16-alpine
 
 RUN set -ex; apk add --no-cache --virtual .fetch-deps curl tar git ;
 
