@@ -8,7 +8,7 @@ function isWorkflowInvalid(req) {
 	req.user.roles = req.user.roles.filter(r => r.entity);
 	if (authUtil.compareUrl("/api/a/workflow/serviceList", req.path)) {
 		logger.debug(JSON.stringify("req.user.roles -- ", req.user.roles));
-		let serviceList = req.user.roles.filter(_r => _r.type == "appcenter" && !(_r.entity.startsWith("INTR") || _r.entity.startsWith("BM_"))).map(_r => _r.entity);
+		let serviceList = req.user.roles.filter(_r => _r.type == "appcenter" && !(_r.entity.startsWith("INTR") || _r.entity.startsWith("PM_"))).map(_r => _r.entity);
 		if (req.query.filter) {
 			let oldFilter = req.query.filter;
 			req.query.filter = JSON.stringify({ "$and": [typeof oldFilter === "object" ? oldFilter : JSON.parse(oldFilter), { serviceId: { "$in": serviceList } }] });
@@ -19,7 +19,7 @@ function isWorkflowInvalid(req) {
 	}
 	if (authUtil.compareUrl("/api/a/workflow", req.path) || authUtil.compareUrl("/api/a/workflow/count", req.path)) {
 		if (req.method === "GET") {
-			let serviceList = req.user.roles.filter(_r => _r.type == "appcenter" && !(_r.entity.startsWith("INTR") || _r.entity.startsWith("BM_"))).map(_r => _r.entity);
+			let serviceList = req.user.roles.filter(_r => _r.type == "appcenter" && !(_r.entity.startsWith("INTR") || _r.entity.startsWith("PM_"))).map(_r => _r.entity);
 			if (req.query.filter) {
 				let oldFilter = req.query.filter;
 				req.query.filter = JSON.stringify({ "$and": [typeof oldFilter === "object" ? oldFilter : JSON.parse(oldFilter), { serviceId: { "$in": serviceList } }] });

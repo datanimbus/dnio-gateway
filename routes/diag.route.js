@@ -31,7 +31,7 @@ function diagnosticHandler(req, res) {
     promises.push(readinessCheck('sec'))
     promises.push(readinessCheck('user'))
     promises.push(readinessCheck('sm'))
-    promises.push(readinessCheck('pm'))
+    // promises.push(readinessCheck('pm'))
     promises.push(readinessCheck('ne'))
     promises.push(readinessCheck('mon'))
 
@@ -50,10 +50,10 @@ function dependencyCheck() {
             logger.trace(data);
             return readinessCheck('sm')
         })
-        .then(data => {
-            logger.trace(data);
-            return readinessCheck('pm')
-        })
+        // .then(data => {
+        //     logger.trace(data);
+        //     return readinessCheck('pm')
+        // })
         .then(data => {
             logger.trace(data);
             return readinessCheck('ne')
@@ -62,10 +62,10 @@ function dependencyCheck() {
             logger.trace(data);
             return readinessCheck('mon')
         })
-        .then(data => {
-            logger.trace(data);
-            return readinessCheck('sec')
-        })
+        // .then(data => {
+        //     logger.trace(data);
+        //     return readinessCheck('sec')
+        // })
         .then(data => logger.trace(data))
         .catch(err => {
         	logger.error(err)
@@ -77,6 +77,7 @@ function dependencyCheck() {
 function readinessCheck(_serviceShortName) {
     let url = `${_serviceShortName}/health/ready`
     if (_serviceShortName == "user") url = 'rbac/health/ready'
+    if (_serviceShortName == "pm") url = `${_serviceShortName}/internal/health/ready`
     url = `${config.get(_serviceShortName)}/${url}`
     logger.trace(`Calling readiness url for ${_serviceShortName.toUpperCase()} :: ${url}`);
     return request({
