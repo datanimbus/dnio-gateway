@@ -24,7 +24,7 @@ module.exports = (req, res, next) => {
 		next(); // The Authorization code is moved to Data Service Itself.
 	} else if (req.path.startsWith("/api/a/faas")) {
 		return next();
-	} else if (req.path.startsWith("/api/common")) {
+	} else if (req.path.startsWith("/api/a/common")) {
 		return next();
 	} else {
 		logger.error(`[${txnId}] Url not registered.`);
