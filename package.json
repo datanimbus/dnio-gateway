@@ -20,7 +20,7 @@
         "@appveen/utils": "^2.1.4",
         "bluebird": "^3.5.1",
         "cookie-parser": "^1.4.3",
-        "express": "^4.16.3",
+        "express": "^4.17.3",
         "express-fileupload": "^1.2.1",
         "fast-levenshtein": "^2.0.6",
         "file-type": "^14.1.4",
