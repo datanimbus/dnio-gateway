@@ -19,7 +19,7 @@
         "@appveen/ds-auth-cache": "1.0.1",
         "@appveen/utils": "^2.1.4",
         "bluebird": "^3.5.1",
-        "cookie-parser": "^1.4.3",
+        "cookie-parser": "^1.4.6",
         "express": "^4.16.3",
         "express-fileupload": "^1.2.1",
         "fast-levenshtein": "^2.0.6",
