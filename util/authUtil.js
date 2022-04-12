@@ -1,7 +1,7 @@
 let e = {};
 const _ = require("lodash");
 const request = require("request");
-const uuid = require("uuid/v1");
+const { v1: uuid } = require("uuid");
 const config = require("../config/config");
 const cacheUtil = require("./cacheUtil");
 
@@ -855,7 +855,7 @@ e.getProxyResHandler = (permittedUrls) => {
 		if (req.path.startsWith("/api/a/faas/")) {
 			return res.json(body);
 		}
-		if (req.path.startsWith("/api/common")) {
+		if (req.path.startsWith("/api/a/common")) {
 			return res.json(body);
 		}
 		// ODP code
