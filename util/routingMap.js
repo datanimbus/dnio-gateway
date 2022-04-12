@@ -101,10 +101,10 @@ e.createFaasList = async () => {
 	logger.debug("Calling PM and creating the faas routing map");
 	let options = {
 		url: `${config.get("bm")}/bm/faas/fetchAll`,
-		qs: {
-			select: "_id,port,url,app,name,deploymentName,namespace",
-			count: -1,
-		},
+		// qs: {
+		// 	select: "_id,url,app,name,deploymentName,namespace",
+		// 	count: -1,
+		// },
 		headers: {
 			"TxnId": `GW_${sh.unique(crypto.createHash("md5").update(Date.now().toString()).digest("hex"))}`,
 			"Authorization": `JWT ${global.GW_TOKEN}`
