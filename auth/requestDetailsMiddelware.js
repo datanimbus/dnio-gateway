@@ -30,11 +30,11 @@ async function getManageRoleServiceList(_req) {
 
 e.addRequestDetails = async (_req, _res, next) => {
 	try {
-		if (_req.path == "/api/a/bm/agentRegistry/IEG/password") return next()
+		if (_req.path == "/api/a/pm/agentRegistry/IEG/password") return next()
 		if (gwUtil.compareUrl("/api/a/workflow/serviceList", _req.path)) return next()
 
 		logger.debug(`[${_req.headers.TxnId}] Add request detail required`)
-		
+
 		if (_req.body) {
 			delete _req.body._metadata
 			delete _req.body.__v
@@ -43,9 +43,9 @@ e.addRequestDetails = async (_req, _res, next) => {
 		let pathSplit = _req.path.split("/")
 		logger.debug(`[${_req.headers.TxnId}] Path array :: ${pathSplit}`)
 		let promise = Promise.resolve()
-		
+
 		if (_req.path.startsWith("/api/a/rbac/group")) {
-			
+
 			if (_req.method === "POST") {
 				_req.apiDetails = _req.body
 				let query = { _id: { $in: _req.apiDetails.users ? _req.apiDetails.users : [] } }
@@ -59,39 +59,39 @@ e.addRequestDetails = async (_req, _res, next) => {
 				let userList = (_req.body.users ? _req.body.users : []).concat(_req.apiDetails.users ? _req.apiDetails.users : [])
 				_req.apiDetails.usersDetail = await db.find(false, "userMgmt.users", { _id: { $in: userList } }, { bot: 1 })
 			}
-			
+
 			return next()
 		}
 
 		if (gwUtil.compareUrl("/api/a/rbac/usr/{usrId}/addToGroups", _req.path) || gwUtil.compareUrl("/api/a/rbac/usr/{usrId}/removeFromGroups", _req.path)) {
 			let aggregateQuery = [
-			  {
-			    '$match': { '_id': { '$in': _req.body.groups } }
-			  }, {
-			    '$group': { '_id': '$app' }
-			  }
+				{
+					'$match': { '_id': { '$in': _req.body.groups } }
+				}, {
+					'$group': { '_id': '$app' }
+				}
 			]
 			let app = await db.aggregate(false, "userMgmt.groups", aggregateQuery)
-			_req.apiDetails = { app : [app[0]._id] }
-			let user = await db.findOne(false, "userMgmt.users", { _id: pathSplit[5] }, {projection : {bot :1 }})
+			_req.apiDetails = { app: [app[0]._id] }
+			let user = await db.findOne(false, "userMgmt.users", { _id: pathSplit[5] }, { projection: { bot: 1 } })
 			_req.apiDetails.bot = user.bot
 			return next()
 		}
 
 		if (
-				( _req.path.startsWith("/api/a/rbac/usr") && _req.method === "PUT") || 
-				gwUtil.compareUrl("/api/a/rbac/usr/{id}/allRoles", _req.path) || 
-				( gwUtil.compareUrl("/api/a/rbac/usr/{id}/closeAllSessions", _req.path) && _req.method === "DELETE") || 
-				gwUtil.compareUrl("/api/a/rbac/usr/{id}/reset", _req.path)
-			) {
-			
+			(_req.path.startsWith("/api/a/rbac/usr") && _req.method === "PUT") ||
+			gwUtil.compareUrl("/api/a/rbac/usr/{id}/allRoles", _req.path) ||
+			(gwUtil.compareUrl("/api/a/rbac/usr/{id}/closeAllSessions", _req.path) && _req.method === "DELETE") ||
+			gwUtil.compareUrl("/api/a/rbac/usr/{id}/reset", _req.path)
+		) {
+
 			if (gwUtil.compareUrl("/api/a/rbac/usr/{username}/{app}/import", _req.path)) {
 				_req.apiDetails = await db.findOne(false, "userMgmt.users", { _id: pathSplit[5] }, null)
 				return next()
 			}
 
-			if(gwUtil.compareUrl("/api/a/rbac/usr/bulkCreate/{fileId}/sheetSelect", _req.path)
-			|| gwUtil.compareUrl("/api/a/rbac/usr/bulkCreate/{fileId}/validate", _req.path)) {
+			if (gwUtil.compareUrl("/api/a/rbac/usr/bulkCreate/{fileId}/sheetSelect", _req.path)
+				|| gwUtil.compareUrl("/api/a/rbac/usr/bulkCreate/{fileId}/validate", _req.path)) {
 				return next()
 			}
 
@@ -108,38 +108,38 @@ e.addRequestDetails = async (_req, _res, next) => {
 			_req.apiDetails.app = aggregationResult[0].apps
 			return next()
 		}
-		
+
 		if (gwUtil.compareUrl("/api/a/rbac/bot/botKey/session/{_id}", _req.path)) {
 			let aggregationResult = await db.getUserApps(pathSplit[7]);
 			_req.apiDetails = {};
 			_req.apiDetails.app = aggregationResult[0].apps
 			return next()
 		}
-		
+
 		if (gwUtil.compareUrl("/api/a/rbac/{userType}/{_id}/status/{userState}", _req.path)) {
 			let aggregationResult = await db.getUserApps(pathSplit[5]);
 			_req.apiDetails = {};
 			_req.apiDetails.app = aggregationResult ? aggregationResult[0].apps : []
 			return next();
 		}
-		
+
 		if (gwUtil.compareUrl("/api/a/sm/service/{Id}", _req.path) && _req.method === "PUT") {
 			let ds = await db.findOne(false, "services", { _id: pathSplit[5] })
-			if(ds.draftVersion) ds = await db.findOne(false, "services.draft" ,{ _id: pathSplit[5] })
+			if (ds.draftVersion) ds = await db.findOne(false, "services.draft", { _id: pathSplit[5] })
 			_req.apiDetails = ds
 			_req.apiDetails.role = await db.findOne(false, "userMgmt.roles", { _id: pathSplit[5] })
 			return next()
 		}
-		
+
 		if (
-				_req.path != "/api/a/bm/flow/count" && 
-				!gwUtil.compareUrl("/api/a/bm/flow/{app}/stopAll", _req.path) && 
-				!gwUtil.compareUrl("/api/a/bm/flow/{app}/startAll", _req.path) && 
-				( gwUtil.compareUrl("/api/a/bm/flow/{id}", _req.path) || gwUtil.compareUrl("/api/a/bm/flow/{id}/{action}", _req.path))
-				&& !gwUtil.compareUrl("/api/a/bm/flow/status/count", _req.path)
-			) {
-			let filter = { 
-				"$or" : [
+			_req.path != "/api/a/pm/flow/count" &&
+			!gwUtil.compareUrl("/api/a/pm/flow/{app}/stopAll", _req.path) &&
+			!gwUtil.compareUrl("/api/a/pm/flow/{app}/startAll", _req.path) &&
+			(gwUtil.compareUrl("/api/a/pm/flow/{id}", _req.path) || gwUtil.compareUrl("/api/a/pm/flow/{id}/{action}", _req.path))
+			&& !gwUtil.compareUrl("/api/a/pm/flow/status/count", _req.path)
+		) {
+			let filter = {
+				"$or": [
 					{ _id: pathSplit[5] },
 					{ "runningFlow": pathSplit[5] },
 					{ "nextFlow": pathSplit[5] }
@@ -155,45 +155,45 @@ e.addRequestDetails = async (_req, _res, next) => {
 			}
 			return next(new Error("Flow not found"))
 		}
-		
+
 		if (_req.path != "/api/a/bm/nanoService/count" && gwUtil.compareUrl("/api/a/bm/nanoService/{id}", _req.path)) {
-			let nanoService = await db.findOne(false, "b2b.nanoService", { _id: pathSplit[5] }, { projection: { app: 1 }})
+			let nanoService = await db.findOne(false, "b2b.nanoService", { _id: pathSplit[5] }, { projection: { app: 1 } })
 			if (nanoService) {
 				_req.apiDetails = nanoService
 				return next()
 			}
 			return next(new Error(`Nanoservice not found: ${pathSplit[5]}`))
 		}
-		
-		if (_req.path != "/api/a/bm/dataFormat/count" && gwUtil.compareUrl("/api/a/bm/dataFormat/{id}", _req.path)) {
-			let dataFormat = await db.findOne(false, "dataFormat", { _id: pathSplit[5] }, { projection: { app: 1 }})
+
+		if (_req.path != "/api/a/pm/dataFormat/count" && gwUtil.compareUrl("/api/a/pm/dataFormat/{id}", _req.path)) {
+			let dataFormat = await db.findOne(false, "dataFormat", { _id: pathSplit[5] }, { projection: { app: 1 } })
 			if (dataFormat) {
 				_req.apiDetails = dataFormat
 				return next()
 			}
 			return next(new Error(`Dataformat not found: ${pathSplit[5]}`))
 		}
-		
+
 		if (
-			_req.path != "/api/a/bm/agentRegistry/count" && 
-			gwUtil.compareUrl("/api/a/bm/agentRegistry/{id}", _req.path) || 
-			gwUtil.compareUrl("/api/a/bm/agentRegistry/{id}/{action}", _req.path)
+			_req.path != "/api/a/pm/agentRegistry/count" &&
+			gwUtil.compareUrl("/api/a/pm/agentRegistry/{id}", _req.path) ||
+			gwUtil.compareUrl("/api/a/pm/agentRegistry/{id}/{action}", _req.path)
 		) {
-			let agentRegistry = await db.findOne(false, "b2b.agentRegistry", { _id: pathSplit[5] }, { projection: { app: 1 }})
+			let agentRegistry = await db.findOne(false, "b2b.agentRegistry", { _id: pathSplit[5] }, { projection: { app: 1 } })
 			if (agentRegistry) {
 				_req.apiDetails = agentRegistry
 				return next()
 			}
 			return next(new Error(`Agent ${pathSplit[5]} not found in registry`))
 		}
-		
+
 		if (gwUtil.compareUrl("/api/a/workflow/action", _req.path)) {
 			const wfIds = _req.body.ids
-			_req.apiDetails = await db.find(false, "workflow", { _id: { $in: wfIds } }, { projection: { serviceId: 1, app: 1 }})
+			_req.apiDetails = await db.find(false, "workflow", { _id: { $in: wfIds } }, { projection: { serviceId: 1, app: 1 } })
 			_req.apiDetails.manageServiceList = getManageRoleServiceList(_req)
 			return next()
 		}
-		
+
 		if (_req.path != "/api/a/workflow/count" && gwUtil.compareUrl("/api/a/workflow/{Id}", _req.path)) {
 			promise = global.mongoConnectionAuthor.collection("workflow").findOne({ _id: pathSplit[4] }, { serviceId: 1, app: 1 })
 				.then(wf => {
@@ -212,7 +212,7 @@ e.addRequestDetails = async (_req, _res, next) => {
 					}
 				})
 		}
-		
+
 		if (gwUtil.compareUrl("/api/a/workflow/doc/{Id}", _req.path)) {
 			promise = global.mongoConnectionAuthor.collection("workflow").findOne({ _id: pathSplit[5] }, { serviceId: 1, app: 1 })
 				.then(wf => {
@@ -228,16 +228,16 @@ e.addRequestDetails = async (_req, _res, next) => {
 					}
 				})
 		}
-		
+
 		if (gwUtil.compareUrl("/api/a/mon/{app}/appCenter/{SRVC}/logs", _req.path) || gwUtil.compareUrl("/api/a/mon/{app}/appCenter/{SRVC}/logs/count", _req.path) || gwUtil.compareUrl("/api/a/mon/{app}/appCenter/{SRVC}/postHook", _req.path) || gwUtil.compareUrl("/api/a/mon/{app}/appCenter/{SRVC}/postHook/count", _req.path) || gwUtil.compareUrl("/api/a/mon/{app}/appCenter/{SRVC}/preHook", _req.path) || gwUtil.compareUrl("/api/a/mon/{app}/appCenter/{SRVC}/preHook/count", _req.path)) {
-			_req.apiDetails = await db.findOne(false, "services", { _id: pathSplit[5] }, { projection: { app: 1 }})
+			_req.apiDetails = await db.findOne(false, "services", { _id: pathSplit[5] }, { projection: { app: 1 } })
 			return next()
 		}
-		
+
 		if (gwUtil.compareUrl("/api/a/mon/{app}/author/sm/audit", _req.path) || gwUtil.compareUrl("/api/a/mon/{app}/author/sm/audit/count", _req.path)) {
 			let filter = JSON.parse(_req.query.filter)
 			let srvcId = filter["data._id"]
-			_req.apiDetails = await db.findOne(false, "services", { _id: srvcId }, { projection: { app: 1 }})
+			_req.apiDetails = await db.findOne(false, "services", { _id: srvcId }, { projection: { app: 1 } })
 			return next()
 		}
 

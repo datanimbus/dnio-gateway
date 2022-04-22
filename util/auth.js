@@ -93,17 +93,17 @@ module.exports = [{
 	}
 },
 {
-	url: "/api/a/bm/partner",
+	url: "/api/a/pm/partner",
 	getEntity: () => {
 		// let splitUrl = req.path.split("/");
-		// if (authUtil.compareUrl("/api/a/bm/partner/{id}", req.path)) {
+		// if (authUtil.compareUrl("/api/a/pm/partner/{id}", req.path)) {
 		// 	return Promise.resolve(["PM", `PM_${splitUrl[5]}`]);
 		// }
 		return Promise.resolve("PM");
 	},
 	getApp: (req) => {
 		let splitUrl = req.path.split("/");
-		if (authUtil.compareUrl("/api/a/bm/partner/{id}", req.path)) {
+		if (authUtil.compareUrl("/api/a/pm/partner/{id}", req.path)) {
 			return global.mongoConnectionAuthor.collection("b2b.partners").findOne({ _id: splitUrl[5] }, { app: 1 })
 				.then(_ptr => {
 					if(!_ptr) throw new Error("partner is not valid");                    
@@ -111,7 +111,7 @@ module.exports = [{
 				});
 		}
 		let app = null;
-		if (authUtil.compareUrl("/api/a/bm/partner", req.path) && req.method == "POST") {
+		if (authUtil.compareUrl("/api/a/pm/partner", req.path) && req.method == "POST") {
 			app = req.body.app;
 			return Promise.resolve(app);
 		}
@@ -122,28 +122,28 @@ module.exports = [{
 	}
 },
 {
-	url: "/api/a/bm/nanoService",
+	url: "/api/a/pm/nanoService",
 	getEntity: () => {
 		// let splitUrl = req.path.split("/");
-		// if (authUtil.compareUrl("/api/a/bm/nanoService/{id}", req.path)) {
+		// if (authUtil.compareUrl("/api/a/pm/nanoService/{id}", req.path)) {
 		// 	return Promise.resolve(["NS", `NS_${splitUrl[5]}`]);
 		// }
 		return Promise.resolve("NS");
 	},
 	getApp: (req) => {
 		let splitUrl = req.path.split("/");
-		if (authUtil.compareUrl("/api/a/bm/nanoService/{id}", req.path)) {
+		if (authUtil.compareUrl("/api/a/pm/nanoService/{id}", req.path)) {
 			return global.mongoConnectionAuthor.collection("b2b.nanoService").findOne({ _id: splitUrl[5] }, { app: 1 })
 				.then(_ptr => {
 					return _ptr.app;
 				});
 		}
 		let app = null;
-		if (authUtil.compareUrl("/api/a/bm/nanoService", req.path) && req.method == "POST") {
+		if (authUtil.compareUrl("/api/a/pm/nanoService", req.path) && req.method == "POST") {
 			app = req.body.app;
 			return Promise.resolve(app);
 		}
-		if (authUtil.compareUrl("/api/a/bm/nanoService/{id}", req.path) && req.method == "PUT") {
+		if (authUtil.compareUrl("/api/a/pm/nanoService/{id}", req.path) && req.method == "PUT") {
 			app = req.body.app;
 			return Promise.resolve(app);
 		}
