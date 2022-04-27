@@ -135,7 +135,7 @@ app.use(router.getRouterMiddleware({
 			"/api/a/common": config.get("common"),
 			"/api/a/rbac": config.get("user"),
 			"/api/a/sm": config.get("sm"),
-			"/api/a/pm": config.get("pm"),
+			"/api/a/bm": config.get("bm"),
 			"/api/a/mon": config.get("mon"),
 			// "/api/a/workflow": config.get("wf"),
 			"/api/a/route": config.get("b2b"),
