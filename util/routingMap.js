@@ -115,6 +115,7 @@ e.createFaasList = async () => {
 		let faasRoutingMap = {};
 		let faasIdMap = {};
 		let functions = await request(options);
+		logger.trace("Functions from BM :: ", JSON.stringify(functions));
 		functions.forEach(_function => {
 			let hashMapValues = getFaasHashMapValues(_function);
 			faasRoutingMap[hashMapValues[0]] = hashMapValues[1];
