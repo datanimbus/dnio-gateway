@@ -23,7 +23,7 @@ function getDSHashMapValues(_data) {
 
 function getFaasHashMapValues(_data) {
 	if (_data.app && _data.url) {
-		let URL = "http://localhost:" + _data.port;
+		let URL = "http://localhost:" + (_data.port || 30010);
 		if (process.env.GW_ENV == "K8s") {
 			URL = "http://" + _data.deploymentName + "." + _data.namespace; // + data.port
 		}
