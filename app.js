@@ -253,7 +253,7 @@ function getFaasApi(req, api) {
 			let apiSplit = api.split("/");
 			let filter = { app: apiSplit[4], url: apiPath };
 			logger.debug(`${req.headers.TxnId} Calling getFaasApi`);
-			request(config.get("pm") + "/pm/faas", {
+			request(config.get("bm") + "/bm/faas", {
 				headers: {
 					"content-type": "application/json",
 					"Authorization": req.get("Authorization"),
@@ -278,7 +278,7 @@ function getFaasApi(req, api) {
 						return reject(new Error(`Faas with ${api} api doesn't exist.`));
 					}
 					let faasDetails = parsed[0];
-					let URL = "http://localhost:" + faasDetails.port;
+					let URL = "http://localhost:" + (faasDetails.port || 30010);
 					if (process.env.GW_ENV == "K8s") {
 						URL = "http://" + faasDetails.deploymentName + "." + faasDetails.namespace; // + faasDetails.port
 					}
