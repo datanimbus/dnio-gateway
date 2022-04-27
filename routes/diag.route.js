@@ -31,7 +31,7 @@ function diagnosticHandler(req, res) {
     promises.push(readinessCheck('sec'))
     promises.push(readinessCheck('user'))
     promises.push(readinessCheck('sm'))
-    // promises.push(readinessCheck('pm'))
+    promises.push(readinessCheck('bm'))
     promises.push(readinessCheck('ne'))
     promises.push(readinessCheck('mon'))
 
@@ -50,10 +50,10 @@ function dependencyCheck() {
             logger.trace(data);
             return readinessCheck('sm')
         })
-        // .then(data => {
-        //     logger.trace(data);
-        //     return readinessCheck('pm')
-        // })
+        .then(data => {
+            logger.trace(data);
+            return readinessCheck('bm')
+        })
         .then(data => {
             logger.trace(data);
             return readinessCheck('ne')
@@ -79,7 +79,7 @@ function readinessCheck(_serviceShortName) {
     if (_serviceShortName == "user") url = 'rbac/internal/health/ready'
     if (_serviceShortName == "bm") url = `${_serviceShortName}/internal/health/ready`
     url = `${config.get(_serviceShortName)}/${url}`
-    logger.trace(`Calling readiness url for ${_serviceShortName.toUpperCase()} :: ${url}`);
+    logger.info(`Calling readiness url for ${_serviceShortName.toUpperCase()} :: ${url}`);
     return request({
     	"uri": url,
     	"headers": {
@@ -89,14 +89,14 @@ function readinessCheck(_serviceShortName) {
     .then(_ => {
       if (_serviceShortName == 'user') return Promise.resolve("User Management is connected.")
       if (_serviceShortName == 'sm') return Promise.resolve("Service Manager is connected.")
-      if (_serviceShortName == 'pm') return Promise.resolve("Partner Manager is connected.")
+      if (_serviceShortName == 'bm') return Promise.resolve("Partner Manager is connected.")
       if (_serviceShortName == 'ne') return Promise.resolve("Notification Engine is connected.")
       if (_serviceShortName == 'mon') return Promise.resolve("Monitoring is connected.")
       if (_serviceShortName == 'sec') return Promise.resolve("Security module is connected.")
     }, _error => {
       if (_serviceShortName == 'user') return Promise.reject("Unable to reach User Management")
       if (_serviceShortName == 'sm') return Promise.reject("Unable to reach Service Manager")
-      if (_serviceShortName == 'pm') return Promise.reject("Unable to reach Partner Manager")
+      if (_serviceShortName == 'bm') return Promise.reject("Unable to reach Partner Manager")
       if (_serviceShortName == 'ne') return Promise.reject("Unable to reach Notification Engine")
       if (_serviceShortName == 'mon') return Promise.reject("Unable to reach Monitoring")
       if (_serviceShortName == 'sec') return Promise.reject("Unable to reach Security module")
