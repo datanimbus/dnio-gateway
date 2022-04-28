@@ -253,7 +253,7 @@ function getFaasApi(req, api) {
 			let apiSplit = api.split("/");
 			let filter = { app: apiSplit[4], url: apiPath };
 			logger.debug(`${req.headers.TxnId} Calling getFaasApi`);
-			request(config.get("bm") + "/bm/faas", {
+			request(config.get("bm") + "/bm/" + apiSplit[4] + "/faas", {
 				headers: {
 					"content-type": "application/json",
 					"Authorization": req.get("Authorization"),
