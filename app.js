@@ -143,6 +143,7 @@ app.use(router.getRouterMiddleware({
 			"/api/a/b2bgw": config.get("b2bgw"),
 			"/api/a/de": config.get("de")
 		};
+		logger.debug(`[${req.headers.TxnId}] getRouterMiddleware :: ${req.path}`);
 		let selectedKey = Object.keys(fixRoutes).find(key => req.path.startsWith(key));
 		if (selectedKey) return Promise.resolve(fixRoutes[selectedKey]);
 		let api = req.path.split("/")[3] + "/" + req.path.split("/")[4];
@@ -246,13 +247,14 @@ function getDSApi(req, api) {
 function getFaasApi(req, api) {
 	return new Promise((resolve, reject) => {
 		let apiPath = `/api/a/${api}`;
+		logger.debug(`[${req.headers.TxnId}] getFaasApi :: ApiPath :: ${apiPath}`);
 		if (global.masterFaasRouter[apiPath]) {
 			logger.debug(`[${req.headers.TxnId}] Routing to :: ${global.masterFaasRouter[apiPath]}`);
 			resolve(global.masterFaasRouter[apiPath]);
 		} else {
 			let apiSplit = api.split("/");
 			let filter = { app: apiSplit[4], url: apiPath };
-			logger.debug(`${req.headers.TxnId} Calling getFaasApi`);
+			logger.debug(`[${req.headers.TxnId}] Calling getFaasApi :: ${config.get("bm") + "/bm/" + apiSplit[4] + "/faas"}`);
 			request(config.get("bm") + "/bm/" + apiSplit[4] + "/faas", {
 				headers: {
 					"content-type": "application/json",
