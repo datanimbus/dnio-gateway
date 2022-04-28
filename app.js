@@ -169,7 +169,7 @@ app.use(router.getRouterMiddleware({
 		// }
 	},
 	pathRewrite: {
-		"/api/a/faas": "/api",
+		"/api/a/faas": "/api/faas",
 		"/api/a/": "/",
 		"/api/c/": "/"
 	},
