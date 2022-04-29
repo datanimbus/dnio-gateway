@@ -248,15 +248,15 @@ function getFaasApi(req, api) {
 	return new Promise((resolve, reject) => {
 		let apiPath = `/api/a/${api}`;
 		logger.debug(`[${req.headers.TxnId}] getFaasApi :: ApiPath :: ${apiPath}`);
-		logger.trace(`[${req.headers.TxnId}] Global Master Faas Router :: ${global.masterFaasRouter}`);
+		logger.trace(`[${req.headers.TxnId}] Global Master Faas Router :: ${JSON.stringify(global.masterFaasRouter)}`);
 		if (global.masterFaasRouter[apiPath]) {
 			logger.debug(`[${req.headers.TxnId}] Routing to :: ${global.masterFaasRouter[apiPath]}`);
 			resolve(global.masterFaasRouter[apiPath]);
 		} else {
 			let apiSplit = api.split("/");
-			let filter = { app: apiSplit[4], url: apiPath };
-			logger.debug(`[${req.headers.TxnId}] Calling getFaasApi :: ${config.get("bm") + "/bm/" + apiSplit[4] + "/faas"}`);
-			request(config.get("bm") + "/bm/" + apiSplit[4] + "/faas", {
+			let filter = { app: apiSplit[1], url: apiPath };
+			logger.debug(`[${req.headers.TxnId}] Calling getFaasApi :: ${config.get("bm") + "/bm/" + apiSplit[1] + "/faas"}`);
+			request(config.get("bm") + "/bm/" + apiSplit[1] + "/faas", {
 				headers: {
 					"content-type": "application/json",
 					"Authorization": req.get("Authorization"),
