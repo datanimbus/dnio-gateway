@@ -248,6 +248,7 @@ function getFaasApi(req, api) {
 	return new Promise((resolve, reject) => {
 		let apiPath = `/api/a/${api}`;
 		logger.debug(`[${req.headers.TxnId}] getFaasApi :: ApiPath :: ${apiPath}`);
+		logger.trace(`[${req.headers.TxnId}] Global Master Faas Router :: ${global.masterFaasRouter}`);
 		if (global.masterFaasRouter[apiPath]) {
 			logger.debug(`[${req.headers.TxnId}] Routing to :: ${global.masterFaasRouter[apiPath]}`);
 			resolve(global.masterFaasRouter[apiPath]);
