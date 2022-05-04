@@ -78,7 +78,7 @@ function readinessCheck(_serviceShortName) {
 	if (_serviceShortName == "user") url = "rbac/internal/health/ready";
 	if (_serviceShortName == "bm") url = `${_serviceShortName}/internal/health/ready`;
 	url = `${config.get(_serviceShortName)}/${url}`;
-	logger.info(`Calling readiness url for ${_serviceShortName.toUpperCase()} :: ${url}`);
+	logger.debug(`Calling readiness url for ${_serviceShortName.toUpperCase()} :: ${url}`);
 	return request({
 		"uri": url,
 		"headers": {
