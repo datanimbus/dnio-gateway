@@ -4,7 +4,8 @@ pipeline {
 
     parameters{
         string(name: 'tag', defaultValue: 'vNext', description: 'Image Tag')
-        booleanParam(name: 'deploy', defaultValue: true, description: 'Deploy in machine')
+        booleanParam(name: 'cleanBuild', defaultValue: false, description: 'Clean Build')
+        booleanParam(name: 'deploy', defaultValue: false, description: 'Deploy in machine')
         booleanParam(name: 'dockerHub', defaultValue: false, description: 'Push to Docker Hub')
     }
     stages {
