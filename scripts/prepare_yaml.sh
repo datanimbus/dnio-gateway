@@ -1,22 +1,25 @@
 #!/bin/bash
 
+set -e
+
 echo "****************************************************"
 echo "data.stack:gw :: Copying yaml file "
 echo "****************************************************"
-if [ ! -d $WORKSPACE/../yamlFiles ]; then
-    mkdir $WORKSPACE/../yamlFiles
+if [ ! -d yamlFiles ]; then
+    mkdir yamlFiles
 fi
 
-REL=$1
-if [ $2 ]; then
-    REL=$REL-$2
-fi
+TAG=`cat CURRENT_GW`
 
-rm -rf $WORKSPACE/../yamlFiles/gw.*
-cp $WORKSPACE/gw.yaml $WORKSPACE/../yamlFiles/gw.$REL.yaml
-cd $WORKSPACE/../yamlFiles/
+rm -rf yamlFiles/gw.*
+cp gw.yaml yamlFiles/gw.$TAG.yaml
+cd yamlFiles/
 echo "****************************************************"
 echo "data.stack:gw :: Preparing yaml file "
 echo "****************************************************"
-sed -i.bak s/__release_tag__/"'$1'"/ gw.$REL.yaml
-sed -i.bak s/__release__/$REL/ gw.$REL.yaml
+
+sed -i.bak s/__release__/$TAG/ gw.$TAG.yaml
+
+echo "****************************************************"
+echo "data.stack:gw :: yaml file saved"
+echo "****************************************************"
