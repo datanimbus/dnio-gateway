@@ -9,7 +9,7 @@ echo "****************************************************"
 echo "data.stack:gw :: Pushing Image to ECR :: $ECR_URL/data.stack.gw:$TAG"
 echo "****************************************************"
 
-aws ecr get-login --no-include-email
+$(aws ecr get-login --no-include-email)
 docker tag data.stack.gw:$TAG $ECR_URL/data.stack.gw:$TAG
 docker push $ECR_URL/data.stack.gw:$TAG
 
