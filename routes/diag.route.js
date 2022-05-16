@@ -31,7 +31,7 @@ function diagnosticHandler(req, res) {
 	promises.push(readinessCheck("user"));
 	promises.push(readinessCheck("sm"));
 	// promises.push(readinessCheck("bm"));
-	promises.push(readinessCheck("ne"));
+	// promises.push(readinessCheck("ne"));
 	promises.push(readinessCheck("mon"));
 
 	Promise.all(promises)
@@ -53,10 +53,10 @@ function dependencyCheck() {
 		//     logger.trace(data);
 		//     return readinessCheck("bm");
 		// })
-		.then(data => {
-			logger.trace(data);
-			return readinessCheck("ne");
-		})
+		// .then(data => {
+		// 	logger.trace(data);
+		// 	return readinessCheck("ne");
+		// })
 		.then(data => {
 			logger.trace(data);
 			return readinessCheck("mon");
