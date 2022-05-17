@@ -9,7 +9,11 @@ echo "data.stack:gw :: Building GW using TAG :: $TAG"
 echo "****************************************************"
 
 
-docker build -t data.stack.gw:$TAG .
+if [ $cleanBuild ]; then
+    docker build --no-cache -t data.stack.gw:$TAG .
+else 
+    docker build -t data.stack.gw:$TAG .
+fi
 
 
 echo "****************************************************"
