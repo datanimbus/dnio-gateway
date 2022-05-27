@@ -1,9 +1,24 @@
 const router = require("express").Router();
 const FileType = require("file-type");
-const { parseFile } = require("fast-csv");
+const { parseFile, writeToString } = require("fast-csv");
 const { ObjectId } = require("mongodb");
 
 let logger = global.logger;
+router.get("/api/a/rbac/:app/user/utils/bulkCreate/template", async function (req, res) {
+	const templateData = [
+		["Name [Required for local Auth Mode]", "Username [Email]", "Password [Required for local Auth Mode]", "Auth Mode [local/azure/ldap]"],
+		["John Doe", "johndoe@datastack.com", "thisisapassword", "local"],
+	];
+	const csvString = await writeToString(templateData);
+	if (req.header("content-type") !== "application/json") {
+		res.header("Content-Disposition", "attachment; filename=\"data-stack-users-template.csv\"");
+		res.write(csvString);
+		res.end();
+	} else {
+		res.status(200).json({ csvString });
+	}
+});
+
 
 router.post("/api/a/rbac/:app/user/utils/bulkCreate/upload", async function (req, res) {
 	try {
