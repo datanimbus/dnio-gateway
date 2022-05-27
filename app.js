@@ -31,7 +31,7 @@ const userHBRouter = require("./routes/userHB.route");
 const authenticationMiddleware = require("./auth/authenticationMiddleware");
 // const authorizationMiddleware = require("./auth/authorizationMiddleware");
 // const requestDetailsMiddelware = require("./auth/requestDetailsMiddelware");
-const bulkImportUser = require("./util/bulkImportUserMiddleware");
+const bulkImportUser = require("./util/bulk-import-user.utils");
 
 
 config.init();
