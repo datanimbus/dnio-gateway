@@ -31,7 +31,7 @@ const userHBRouter = require("./routes/userHB.route");
 const authenticationMiddleware = require("./auth/authenticationMiddleware");
 // const authorizationMiddleware = require("./auth/authorizationMiddleware");
 // const requestDetailsMiddelware = require("./auth/requestDetailsMiddelware");
-const bulkImportUser = require("./util/bulk-import-user.utils");
+// const bulkImportUser = require("./util/bulk-import-user.utils");
 
 
 config.init();
@@ -126,7 +126,7 @@ app.get("/api/a/workflow/:app/serviceList", authUtil.workflowServiceList);
 
 app.use(authenticationMiddleware.diagnosticAPIHandler);
 app.use(fileMapper.fileMapperHandler);
-app.use(bulkImportUser);
+// app.use(bulkImportUser);
 
 app.use(router.getRouterMiddleware({
 	target: config.get("gw"),
