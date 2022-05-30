@@ -41,7 +41,7 @@ function sendRequest(txnId, config, res) {
 		let pathSplit = config.path.split("/");
 		let pathArray = ["/bm/{app}/download/{type}/{id}", "/rbac/{app}/user/utils/bulkCreate/{id}/download", "/bm/ieg/download/{type}", "/bm/{app}/download/appagent/{id}/{type}", "/bm/{app}/download/partneragent/{id}/{type}" ];
 		if (pathArray.some((url) => authUtil.compareUrl(url, config.path))) newRes.pipe(res);
-		else if ((pathSplit[4] == "file" && pathSplit[5] == "download") || (pathSplit[4] && pathSplit[4].split("?")[0] == "export")) {
+		else if ((pathSplit[4] == "file" && pathSplit[5] == "download") || (pathSplit[4] && pathSplit[4].split("?")[0] == "export") || pathSplit[5] == "callback") {
 			newRes.pipe(res);
 		}
 		if (config.files) {
