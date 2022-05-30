@@ -1,13 +1,13 @@
 "use strict";
 
-const os = require("os");
-const path = require("path");
+// const os = require("os");
+// const path = require("path");
 const request = require("request");
 const express = require("express");
-// const multer = require("multer");
+const multer = require("multer");
 const cookieParser = require("cookie-parser");
 const avUtils = require("@appveen/utils");
-const fileUpload = require("express-fileupload");
+// const fileUpload = require("express-fileupload");
 const fileSizeParser = require("filesize-parser");
 
 
@@ -68,34 +68,34 @@ let allowedFileTypes = process.env.ALLOWED_FILE_TYPES || config.defaultAllowedFi
 allowedFileTypes = allowedFileTypes.split(",");
 logger.info(`Allowed file types : ${allowedFileTypes}`);
 
-// const storage = multer.diskStorage({
-// 	destination: function (req, file, cb) {
-// 		cb(null, "./uploads");
-// 	},
-// 	filename: function (_req, _file, _cb) {
-// 		logger.debug(`[${_req.headers.TxnId}] File details :: ${JSON.stringify(_file)}`);
-// 		let extn = _file.originalname.split(".").pop();
-// 		logger.debug(`[${_req.headers.TxnId}] File extn of file "${_file.originalname}"" :: ${extn}`);
-// 		let fileValidExtension = allowedFileTypes;
-// 		if (_req.path.indexOf("fileMapper") > -1) {
-// 			fileValidExtension = ["csv", "xlsx", "xls", "ods", "json"];
-// 		}
-// 		if (fileValidExtension.indexOf(extn) == -1) return _cb({ "message": "Invalid file extension!" });
-// 		_cb(null, `tmp-${Date.now()}`);
-// 	}
-// });
-// let upload = multer({ storage: storage });
+const storage = multer.diskStorage({
+	destination: function (req, file, cb) {
+		cb(null, "./uploads");
+	},
+	filename: function (_req, _file, _cb) {
+		logger.debug(`[${_req.headers.TxnId}] File details :: ${JSON.stringify(_file)}`);
+		let extn = _file.originalname.split(".").pop();
+		logger.debug(`[${_req.headers.TxnId}] File extn of file "${_file.originalname}"" :: ${extn}`);
+		let fileValidExtension = allowedFileTypes;
+		if (_req.path.indexOf("fileMapper") > -1) {
+			fileValidExtension = ["csv", "xlsx", "xls", "ods", "json"];
+		}
+		if (fileValidExtension.indexOf(extn) == -1) return _cb({ "message": "Invalid file extension!" });
+		_cb(null, `tmp-${Date.now()}`);
+	}
+});
+let upload = multer({ storage: storage });
 
-// app.use((req, res, next) => {
-// 	let urlSplit = req.path.split("/");
-// 	if ((urlSplit[6] && urlSplit[6] === "fileMapper") || (urlSplit[4] && urlSplit[4] === "usr" && urlSplit[5] && urlSplit[5] === "bulkCreate")) {
-// 		upload.single("file")(req, res, next);
-// 	} else {
-// 		fileUpload({ useTempFiles: true })(req, res, next);
-// 	}
-// });
+app.use((req, res, next) => {
+	let urlSplit = req.path.split("/");
+	if ((urlSplit[6] && urlSplit[6] === "fileMapper")) {
+		upload.single("file")(req, res, next);
+	} else {
+		next();
+	}
+});
 
-app.use(fileUpload({ useTempFiles: true, tempFileDir: path.join(os.tmpdir(), "gw-files") }));
+// app.use(fileUpload({ useTempFiles: true, tempFileDir: path.join(os.tmpdir(), "gw-files") }));
 
 app.use((req, res, next) => {
 	let urlSplit = req.path.split("/");
