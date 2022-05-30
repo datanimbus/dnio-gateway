@@ -1,13 +1,13 @@
 "use strict";
 
-// const os = require("os");
-// const path = require("path");
+const os = require("os");
+const path = require("path");
 const request = require("request");
 const express = require("express");
 const multer = require("multer");
 const cookieParser = require("cookie-parser");
 const avUtils = require("@appveen/utils");
-// const fileUpload = require("express-fileupload");
+const fileUpload = require("express-fileupload");
 const fileSizeParser = require("filesize-parser");
 
 
@@ -95,7 +95,7 @@ app.use((req, res, next) => {
 	}
 });
 
-// app.use(fileUpload({ useTempFiles: true, tempFileDir: path.join(os.tmpdir(), "gw-files") }));
+app.use(fileUpload({ useTempFiles: true, tempFileDir: path.join(os.tmpdir(), "gw-files") }));
 
 app.use((req, res, next) => {
 	let urlSplit = req.path.split("/");
