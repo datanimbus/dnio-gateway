@@ -194,6 +194,10 @@ app.use(router.getRouterMiddleware({
 			}
 			res.cookie("Authorization", "JWT " + body.token, cookieJson);
 		}
+		if (req.path === "/api/a/rbac/auth/logout" && res.statusCode === 200) {
+			res.cookie("Authorization", null, { maxAge: 0 });
+			res.cookie("azure-token", null, { maxAge: 0 });
+		}
 		return res.json(body);
 	}
 	// onRes: authUtil.getProxyResHandler(["/api/a/rbac", "/api/a/workflow"])
