@@ -126,6 +126,14 @@ diagRouter.e.dependencyCheck().catch(_e => logger.error(_e));
 app.use("/gw", diagRouter.router);
 app.put("/api/a/rbac/usr/hb", userHBRouter);
 app.get("/api/a/workflow/:app/serviceList", authUtil.workflowServiceList);
+app.post("/api/a/gw/socket-emit", async (req, res) => {
+	if (global.socketClients && req.body && req.body.event && req.body.data) {
+		Object.keys(global.socketClients).forEach(key => {
+			global.socketClients[key].emit(req.body.event, req.body.data);
+		});
+	}
+	res.status(202).end();
+});
 
 
 app.use(authenticationMiddleware.diagnosticAPIHandler);

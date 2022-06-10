@@ -14,6 +14,7 @@ module.exports = {
 		"/api/a/rbac/auth/authType/{id}",
 		"/api/a/rbac/{app}/user/utils/closeAllSessions/{id}",
 		"/api/a/bm/auth/login",
+		"/api/a/gw/socket-emit",
 		"/gw/internal/health/live",
 		"/gw/internal/health/ready"
 	],
