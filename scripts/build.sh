@@ -8,8 +8,13 @@ echo "****************************************************"
 echo "data.stack:gw :: Building GW using TAG :: $TAG"
 echo "****************************************************"
 
+sed -i.bak s#__image_tag__#$TAG# Dockerfile
 
-docker build -t data.stack.gw:$TAG .
+if [ $cleanBuild ]; then
+    docker build --no-cache -t data.stack.gw:$TAG .
+else 
+    docker build -t data.stack.gw:$TAG .
+fi
 
 
 echo "****************************************************"
