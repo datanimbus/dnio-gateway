@@ -9,7 +9,7 @@ let logger = global.logger;
 
 
 // Create a Token for GW to make internal API Calls
-const token = JWT.sign({ name: "DS_GATEWAY", _id: "admin", isSuperAdmin: true }, envConfig.TOKEN_SECRET);
+const token = JWT.sign({ name: "DS_GATEWAY", _id: "admin", isSuperAdmin: true }, envConfig.RBAC_JWT_KEY);
 global.GW_TOKEN = token;
 
 let e = {};
@@ -53,7 +53,7 @@ e.checkTokenMiddleware = (_req, _res, _next) => {
 	token = token.split("JWT ")[1];
 	let user;
 	try {
-		user = JWT.verify(token, envConfig.TOKEN_SECRET);
+		user = JWT.verify(token, envConfig.RBAC_JWT_KEY);
 	} catch (err) {
 		logger.error(`[${_req.header("txnId")}] Invalid JWT`);
 		return _res.status(401).json({ "message": "Unauthorized" });
