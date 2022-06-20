@@ -91,11 +91,9 @@ app.use((req, res, next) => {
 	if ((urlSplit[6] && urlSplit[6] === "fileMapper")) {
 		upload.single("file")(req, res, next);
 	} else {
-		next();
+		fileUpload({ useTempFiles: true, tempFileDir: path.join(os.tmpdir(), "gw-files") })(req, res, next);
 	}
 });
-
-app.use(fileUpload({ useTempFiles: true, tempFileDir: path.join(os.tmpdir(), "gw-files") }));
 
 app.use((req, res, next) => {
 	let urlSplit = req.path.split("/");
