@@ -14,7 +14,10 @@ function __smSocketHandler() {
 
 	socketClientSM.on("reconnect", (n) => logger.info("WS :: SM :: Reconnecting to SM " + n));
 	socketClientSM.on("reconnect_failed", (n) => logger.info("WS :: SM :: reconnecting to SM failed " + n));
-	socketClientSM.on("connect_error", (err) => logger.info("WS :: SM :: Connection error in SM:: " + err.message));
+	socketClientSM.on("connect_error", (err) => {
+		logger.info("WS :: SM :: Connection error in SM:: " + err.message);
+		socketClientSM.close();
+	});
 
 	socketClientSM.on("connect", () => {
 		logger.info("WS :: SM :: Connected to SM");
@@ -56,7 +59,10 @@ function __bmSocketHander() {
 	});
 	socketClientPM.on("reconnect", (n) => logger.info("WS :: BM :: Reconnecting to BM " + n));
 	socketClientPM.on("reconnect_failed", (n) => logger.error("WS :: BM :: Reconnecting to BM failed " + n));
-	socketClientPM.on("connect_error", (err) => logger.error("WS :: BM :: Connection error in BM:: " + err.message));
+	socketClientPM.on("connect_error", (err) => {
+		logger.error("WS :: BM :: Connection error in BM:: " + err.message);
+		socketClientPM.close();
+	});
 
 	socketClientPM.on("flowStatus", (data) => {
 		logger.info("WS :: BM :: Flow status from B2B Manager :", JSON.stringify(data));

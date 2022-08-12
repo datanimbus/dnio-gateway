@@ -27,7 +27,6 @@ function healthLiveHandler(req, res) {
 
 function diagnosticHandler(req, res) {
 	let promises = [];
-	promises.push(readinessCheck("sec"));
 	promises.push(readinessCheck("user"));
 	promises.push(readinessCheck("sm"));
 	// promises.push(readinessCheck("bm"));
@@ -61,10 +60,6 @@ function dependencyCheck() {
 			logger.trace(data);
 			return readinessCheck("mon");
 		})
-		// .then(data => {
-		//     logger.trace(data);
-		//     return readinessCheck("sec");
-		// })
 		.then(data => logger.trace(data))
 		.catch(err => {
 			logger.error(err);
