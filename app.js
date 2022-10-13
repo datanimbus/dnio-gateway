@@ -156,28 +156,17 @@ app.use(router.getRouterMiddleware({
 		logger.debug(`[${req.headers.TxnId}] getRouterMiddleware :: ${req.path}`);
 		let selectedKey = Object.keys(fixRoutes).find(key => req.path.startsWith(key));
 		if (selectedKey) return Promise.resolve(fixRoutes[selectedKey]);
-		let api = req.path.split("/")[3] + "/" + req.path.split("/")[4];
-		let faasApi = req.path.split("/")[3] + "/" + req.path.split("/")[4] + "/" + req.path.split("/")[5];
-		logger.info(`[${req.headers.TxnId}] Master service router API :: ${api}`);
 
 		if (req.path.startsWith("/api/a/faas")) {
+			let faasApi = req.path.split("/")[3] + "/" + req.path.split("/")[4] + "/" + req.path.split("/")[5];
+			logger.info(`[${req.headers.TxnId}] Master service router API :: ${faasApi}`);
 			return getFaasApi(req, faasApi);
 		} else {
+			let api = req.path.split("/")[3] + "/" + req.path.split("/")[4];
+			logger.info(`[${req.headers.TxnId}] Master service router API :: ${api}`);
 			return getDSApi(req, api);
 		}
 
-		// if (req.method === "GET") {
-		// 	return getDSApi(req, api);
-		// } else {
-		// 	return skipWorkflow(req.path, req)
-		// 		.then(_flag => {
-		// 			if (_flag) {
-		// 				return getDSApi(req, api);
-		// 			} else {
-		// 				return "next";
-		// 			}
-		// 		});
-		// }
 	},
 	pathRewrite: {
 		"/api/a/faas": "/api/faas",
@@ -278,7 +267,7 @@ function getFaasApi(req, api) {
 				},
 				qs: {
 					filter: JSON.stringify(filter),
-					select: "_id,app,url,port,deploymentName,namespace"
+					select: "_id app url port deploymentName namespace"
 				}
 			}, (err, res, body) => {
 				if (err) {
