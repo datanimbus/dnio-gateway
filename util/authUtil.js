@@ -1287,6 +1287,7 @@ function httpRequest(options) {
 				if (res.statusCode >= 200 && res.statusCode < 400) {
 					return resolve(body);
 				} else {
+					logger.error(res.body);
 					return reject(new Error(res.body.message ? res.body.message : "Unable fetch data"));
 				}
 			}

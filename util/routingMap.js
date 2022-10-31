@@ -1,9 +1,10 @@
 "use stict";
 
 const request = require("request-promise");
-const config = require("../config/config");
 const sh = require("shorthash");
 const crypto = require("crypto");
+
+const config = require("../config/config");
 
 let logger = global.logger;
 
@@ -12,7 +13,7 @@ let e = {};
 function getDSHashMapValues(_data) {
 	if (_data.app && _data.port && _data.api) {
 		let URL = "http://localhost:" + _data.port;
-		if (process.env.GW_ENV == "K8s") {
+		if (config.isK8sEnv()) {
 			URL = "http://" + _data.api.split("/")[1] + "." + config.odpNS + "-" + _data.app.toLowerCase().replace(/ /g, "");
 		}
 		logger.trace(`Routing map :: ${_data.app}${_data.api} : ${URL}`);
@@ -23,9 +24,9 @@ function getDSHashMapValues(_data) {
 
 function getFaasHashMapValues(_data) {
 	logger.trace(`Creating Faas Hash Map ${JSON.stringify(_data)}`);
-	if (_data.app && _data.url) {
+	if (_data.url) {
 		let URL = "http://localhost:" + (_data.port || 30010);
-		if (process.env.GW_ENV == "K8s") {
+		if (config.isK8sEnv()) {
 			URL = "http://" + _data.deploymentName + "." + _data.namespace; // + data.port
 		}
 		logger.debug(`Faas Routing Hash Map :: ${_data.url} : ${URL}`);
@@ -122,8 +123,8 @@ e.createFaasList = async () => {
 			faasRoutingMap[hashMapValues[0]] = hashMapValues[1];
 			faasIdMap[hashMapValues[0]] = _function._id;
 		});
-		global.masterFaasRouter = faasRoutingMap;
-		global.faasIdMap = faasIdMap;
+		global.masterFaasRouter = JSON.parse(JSON.stringify(faasRoutingMap));
+		global.faasIdMap = JSON.parse(JSON.stringify(faasIdMap));
 	} catch (_e) {
 		logger.error("Unable to create faas routing map!");
 		logger.error(_e);

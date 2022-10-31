@@ -75,6 +75,7 @@ async function upload(_req, _res) {
 			if (_fileExtn) {
 				logger.debug(`FileType : ${JSON.stringify(_fileExtn)}`);
 				if (_fileExtn.ext == "msi" && fileExtn == "xls") return "excel";
+				if (_fileExtn.ext == "cfb" && fileExtn == "xls") return "excel";
 				if (extensionType.indexOf(_fileExtn.ext) != -1) return "excel";
 			}
 			logger.debug(`FileType : ${_fileExtn}`);
