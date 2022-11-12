@@ -3,7 +3,8 @@
 module.exports = {
 	urlNotPermitted: [
 		"/api/a/sm/{app}/service/{id}/statusChange",
-		"api/a/mon/{app}/appcenter/{id}/audit/purge/{type}",
+		"/api/a/sm/internal/ds/env",
+		"api/a/mon/{app}/appcenter/{id}/audit/purge/{type}"
 	],
 	permittedUrl: [
 		"/api/a/rbac/auth/login",

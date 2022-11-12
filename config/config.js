@@ -41,9 +41,6 @@ e.get = (_service) => {
 		if (_service == "gw") return `http://gw.${e.odpNS}`;
 		if (_service == "mon") return `http://mon.${e.odpNS}`;
 		if (_service == "b2b") return `http://b2b.${e.odpNS}`;
-		if (_service == "wf") return `http://wf.${e.odpNS}`;
-		if (_service == "sec") return `http://sec.${e.odpNS}`;
-		if (_service == "b2bgw") return `http://b2bgw-internal.${e.odpNS}`;
 		if (_service == "de") return `http://de.${e.odpNS}`;
 		if (_service == "common") return `http://common.${e.odpNS}`;
 	} else {
@@ -53,10 +50,6 @@ e.get = (_service) => {
 		if (_service == "user") return "http://localhost:10004";
 		if (_service == "gw") return "http://localhost:9080";
 		if (_service == "mon") return "http://localhost:10005";
-		if (_service == "b2b") return "http://localhost:8080";
-		if (_service == "wf") return "http://localhost:10006";
-		if (_service == "sec") return "http://localhost:10007";
-		if (_service == "b2bgw") return "http://localhost:20000";
 		if (_service == "de") return "http://localhost:10012";
 		if (_service == "common") return "http://localhost:3000";
 	}
