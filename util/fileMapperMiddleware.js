@@ -203,6 +203,12 @@ function sheetSelect(_req, _res) {
 			logger.debug("File read completed");
 			sheetId = type === "csv" ? wb.SheetNames[0] : sheetId;
 			let ws = wb.Sheets[sheetId];
+			if (!Object.entries(ws) || _.isEmpty(Object.entries(ws))) {
+				_res.status(400).json({
+					message: "File is empty"
+				});
+				return Promise.reject(new Error("File is empty"));
+			}
 			if (Object.entries(ws).length > 0 && ws["!ref"]) {
 				var range = XLSX.utils.decode_range(ws["!ref"]);
 			} else {
@@ -237,6 +243,12 @@ function sheetSelect(_req, _res) {
 				logger.debug("Converted sheet to json");
 				parsedData = parsedData.map(arr => arr.map(key => typeof key === "string" ? key.trim().replace(/[^ -~]/g, "") : key));
 				let maxCol = 0;
+				if (parsedData.length == 0) {
+					_res.status(400).json({
+						message: "File is empty"
+					});
+					return Promise.reject(new Error("File is empty"));
+				}
 				parsedData.forEach(arr => {
 					if (arr.length > maxCol) maxCol = arr.length;
 				});
