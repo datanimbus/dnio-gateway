@@ -243,7 +243,7 @@ function sheetSelect(_req, _res) {
 				logger.debug("Converted sheet to json");
 				parsedData = parsedData.map(arr => arr.map(key => typeof key === "string" ? key.trim().replace(/[^ -~]/g, "") : key));
 				let maxCol = 0;
-				if (parsedData.length == 0) {
+				if (parsedData.length == 0 || (isHeaderProvided && parsedData.length == 1)) {
 					_res.status(400).json({
 						message: "File is empty"
 					});
