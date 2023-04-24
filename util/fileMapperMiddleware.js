@@ -442,6 +442,11 @@ e.fileMapperHandler = async (req, res, next) => {
 	let txnId = req.get("TxnId") || req.headers.TxnId;
 	let urlSplit = req.path.split("/");
 	if (urlSplit[6] && urlSplit[6] === "fileMapper") {
+
+		if (urlSplit[3] && !urlSplit[3].match(/^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]+$/)) {
+			return next(new Error('App name must consist of alphanumeric characters or \'-\' , and must start and end with an alphanumeric character.'));
+		}
+		
 		if (urlSplit[7] === "upload") {
 			logger.debug(`[${txnId}] Filemapper :: Upload`);
 			return await upload(req, res);
