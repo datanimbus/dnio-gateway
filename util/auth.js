@@ -230,6 +230,10 @@ module.exports = [{
 	getEntity: (req) => {
 		let api = "/" + req.path.split("/")[4];
 		let app = unescape(req.path.split("/")[3]);
+
+		if (app && !app.match(/^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]+$/)) {
+			return next(new Error('APP_NAME_ERROR :: App name must consist of alphanumeric characters or \'-\' , and must start and end with an alphanumeric character.'));
+		}
 		// return getServiceInfo(JSON.stringify({
 		//     'api': api,
 		//     'app': app
