@@ -157,12 +157,20 @@ app.use(router.getRouterMiddleware({
 		let selectedKey = Object.keys(fixRoutes).find(key => req.path.startsWith(key));
 		if (selectedKey) return Promise.resolve(fixRoutes[selectedKey]);
 
+		let urlSplit = req.path.split("/");
+
 		if (req.path.startsWith("/api/a/faas")) {
-			let faasApi = req.path.split("/")[3] + "/" + req.path.split("/")[4] + "/" + req.path.split("/")[5];
+			if (urlSplit[4] && !urlSplit[4].match(/^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]+$/)) {
+				throw new Error('APP_NAME_ERROR :: App name must consist of alphanumeric characters or \'-\' , and must start and end with an alphanumeric character.');
+			}
+			let faasApi = urlSplit[3] + "/" + urlSplit[4] + "/" + urlSplit[5];
 			logger.info(`[${req.headers.TxnId}] Master service router API :: ${faasApi}`);
 			return getFaasApi(req, faasApi);
 		} else {
-			let api = req.path.split("/")[3] + "/" + req.path.split("/")[4];
+			if (urlSplit[3] && !urlSplit[3].match(/^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]+$/)) {
+				throw new Error('APP_NAME_ERROR :: App name must consist of alphanumeric characters or \'-\' , and must start and end with an alphanumeric character.');
+			}
+			let api = urlSplit[3] + "/" + urlSplit[4];
 			logger.info(`[${req.headers.TxnId}] Master service router API :: ${api}`);
 			return getDSApi(req, api);
 		}
