@@ -62,7 +62,7 @@ async function upload(_req, _res) {
 
 	let fileExtn = _req.file.originalname.split(".").pop();
 	let urlSplit = _req.path.split("/");
-	let db = `${config.odpNS}-${urlSplit[3]}`;
+	let db = `${config.dataStackNS}-${urlSplit[3]}`;
 	let collectionName = urlSplit[4];
 	logger.debug(`GridFS DB.col :: ${db}.${collectionName}`);
 
@@ -192,7 +192,7 @@ function sheetSelect(_req, _res) {
 	let dsKeys = _req.body.dsKeys;
 	logger.debug("Read File");
 	let urlSplit = _req.path.split("/");
-	let db = `${config.odpNS}-${urlSplit[3]}`;
+	let db = `${config.dataStackNS}-${urlSplit[3]}`;
 	let collectionName = urlSplit[4];
 	logger.debug(`GridFS DB.col :: ${db}.${collectionName}`);
 	let csv;
@@ -373,7 +373,7 @@ function mapJson(req, res) {
 
 	let jsonRecords = [];
 	let urlSplit = req.path.split("/");
-	let db = `${config.odpNS}-${urlSplit[3]}`;
+	let db = `${config.dataStackNS}-${urlSplit[3]}`;
 	let collectionName = urlSplit[4];
 	logger.debug(`[${txnId}] GridFS DB collection name :: ${db}.${collectionName}`);
 

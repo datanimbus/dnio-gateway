@@ -1076,7 +1076,7 @@ function getdbAndCollection(serviceids) {
 			let result = {};
 			_services.forEach(_s => {
 				result[_s._id] = {
-					db: `${config.odpNS}-${_s.app}`,
+					db: `${config.dataStackNS}-${_s.app}`,
 					collection: _s.collectionName
 				};
 			});
@@ -1238,7 +1238,7 @@ e.workflowServiceList = async (req, res) => {
 		});
 		const docsPromise = services.map((e) => {
 			return new Promise((resolve) => {
-				const url = "http://" + e.api.split("/")[1] + "." + config.odpNS + "-" + e.app.toLowerCase().replace(/ /g, "") + "/" + e.app + e.api + "/utils/workflow/serviceList";
+				const url = "http://" + e.api.split("/")[1] + "." + config.dataStackNS + "-" + e.app.toLowerCase().replace(/ /g, "") + "/" + e.app + e.api + "/utils/workflow/serviceList";
 				httpRequest({
 					url,
 					method: "GET",

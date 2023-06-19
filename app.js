@@ -250,7 +250,7 @@ function getDSApi(req, api) {
 					let dsDetails = parsed[0];
 					let URL = "http://localhost:" + dsDetails.port;
 					if (process.env.GW_ENV == "K8s") {
-						URL = "http://" + dsDetails.api.split("/")[1] + "." + config.odpNS + "-" + dsDetails.app.toLowerCase().replace(/ /g, "");
+						URL = "http://" + dsDetails.api.split("/")[1] + "." + config.dataStackNS + "-" + dsDetails.app.toLowerCase().replace(/ /g, "");
 					}
 					global.masterServiceRouter[escape(dsDetails.app) + dsDetails.api] = URL;
 					resolve(global.masterServiceRouter[api]);

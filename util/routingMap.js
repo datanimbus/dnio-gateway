@@ -14,7 +14,7 @@ function getDSHashMapValues(_data) {
 	if (_data.app && _data.port && _data.api) {
 		let URL = "http://localhost:" + _data.port;
 		if (config.isK8sEnv()) {
-			URL = "http://" + _data.api.split("/")[1] + "." + config.odpNS + "-" + _data.app.toLowerCase().replace(/ /g, "");
+			URL = "http://" + _data.api.split("/")[1] + "." + config.dataStackNS + "-" + _data.app.toLowerCase().replace(/ /g, "");
 		}
 		logger.trace(`Routing map :: ${_data.app}${_data.api} : ${URL}`);
 		return [`${_data.app}${_data.api}`, `${URL}`];
