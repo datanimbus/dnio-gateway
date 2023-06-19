@@ -142,11 +142,12 @@ app.use(router.getRouterMiddleware({
 	target: config.get("gw"),
 	router: function (req) {
 		let fixRoutes = {
-			"/api/a/common": config.get("common"),
-			"/api/a/rbac": config.get("user"),
-			"/api/a/sm": config.get("sm"),
 			"/api/a/bm": config.get("bm"),
+			"/api/a/cm": config.get("cm"),
+			"/api/a/common": config.get("common"),
 			"/api/a/mon": config.get("mon"),
+			"/api/a/sm": config.get("sm"),
+			"/api/a/rbac": config.get("user"),
 			// "/api/a/workflow": config.get("wf"),
 			"/api/a/route": config.get("b2b"),
 			// "/api/a/sec": config.get("sec"),

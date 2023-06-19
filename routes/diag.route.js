@@ -72,6 +72,7 @@ function readinessCheck(_serviceShortName) {
 	let url = `${_serviceShortName}/internal/health/ready`;
 	if (_serviceShortName == "user") url = "rbac/internal/health/ready";
 	if (_serviceShortName == "bm") url = `${_serviceShortName}/internal/health/ready`;
+	if (_serviceShortName == "cm") url = `${_serviceShortName}/internal/health/ready`;
 	url = `${config.get(_serviceShortName)}/${url}`;
 	logger.debug(`Calling readiness url for ${_serviceShortName.toUpperCase()} :: ${url}`);
 	return request({
@@ -84,6 +85,7 @@ function readinessCheck(_serviceShortName) {
 			if (_serviceShortName == "user") return Promise.resolve("User Management is connected.");
 			if (_serviceShortName == "sm") return Promise.resolve("Service Manager is connected.");
 			if (_serviceShortName == "bm") return Promise.resolve("Partner Manager is connected.");
+			if (_serviceShortName == "cm") return Promise.resolve("Configuration Manager is connected.");
 			if (_serviceShortName == "ne") return Promise.resolve("Notification Engine is connected.");
 			if (_serviceShortName == "mon") return Promise.resolve("Monitoring is connected.");
 			if (_serviceShortName == "sec") return Promise.resolve("Security module is connected.");
@@ -91,6 +93,7 @@ function readinessCheck(_serviceShortName) {
 			if (_serviceShortName == "user") return Promise.reject("Unable to reach User Management");
 			if (_serviceShortName == "sm") return Promise.reject("Unable to reach Service Manager");
 			if (_serviceShortName == "bm") return Promise.reject("Unable to reach Partner Manager");
+			if (_serviceShortName == "cm") return Promise.reject("Unable to reach Configuration Manager");
 			if (_serviceShortName == "ne") return Promise.reject("Unable to reach Notification Engine");
 			if (_serviceShortName == "mon") return Promise.reject("Unable to reach Monitoring");
 			if (_serviceShortName == "sec") return Promise.reject("Unable to reach Security module");

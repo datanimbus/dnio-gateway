@@ -124,6 +124,56 @@ function __bmSocketHander() {
 }
 
 
+function __cmSocketHander() {
+	let socketClientCM = ioClient.connect(config.get("cm"));
+
+	socketClientCM.on("connect", () => {
+		logger.info("WS :: CM :: Connected to CM");
+	});
+	socketClientCM.on("reconnect", (n) => logger.info("WS :: CM :: Reconnecting to CM " + n));
+	socketClientCM.on("reconnect_failed", (n) => logger.error("WS :: CM :: Reconnecting to CM failed " + n));
+	socketClientCM.on("connect_error", (err) => {
+		logger.error("WS :: CM :: Connection error in CM:: " + err.message);
+		socketClientCM.close();
+	});
+
+	socketClientCM.on("processFlowStatus", (data) => {
+		logger.info("WS :: CM :: Process Flow status from Configuration Manager :", JSON.stringify(data));
+		Object.keys(socketClients).forEach(key => {
+			socketClients[key].emit("processFlowStatus", data);
+		});
+	});
+
+	socketClientCM.on("processFlowCreated", (data) => {
+		logger.info("WS :: CM :: Process Flow created from Configuration Manager :", JSON.stringify(data));
+		Object.keys(socketClients).forEach(key => {
+			socketClients[key].emit("processFlowCreated", data);
+		});
+	});
+
+	socketClientCM.on("processFlowDeleted", (data) => {
+		logger.info("WS :: CM :: Process Flow deleted from Configuration Manager :", JSON.stringify(data));
+		Object.keys(socketClients).forEach(key => {
+			socketClients[key].emit("processFlowDeleted", data);
+		});
+	});
+
+	socketClientCM.on("activityCreated", (data) => {
+		logger.info("WS :: CM :: Process Flow Activity created from Configuration Manager :", JSON.stringify(data));
+		Object.keys(socketClients).forEach(key => {
+			socketClients[key].emit("activityCreated", data);
+		});
+	});
+
+	socketClientCM.on("activityUpdated", (data) => {
+		logger.info("WS :: CM :: Process Flow Activity updated from Configuration Manager :", JSON.stringify(data));
+		Object.keys(socketClients).forEach(key => {
+			socketClients[key].emit("activityUpdated", data);
+		});
+	});
+}
+
+
 module.exports = (_server) => {
 	let io = socket(_server);
 
@@ -133,6 +183,7 @@ module.exports = (_server) => {
 	// Connecting to SM and BM
 	__smSocketHandler();
 	__bmSocketHander();
+	__cmSocketHander
 
 	// Handling UI socket connections
 	io.on("connection", (socket) => {

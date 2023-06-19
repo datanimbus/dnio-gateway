@@ -7,7 +7,7 @@ e.isK8sEnv = () => {
 	return process.env.KUBERNETES_SERVICE_HOST && process.env.KUBERNETES_SERVICE_PORT;
 };
 
-e.odpNS = process.env.DATA_STACK_NAMESPACE || "appveen";
+e.dataStackNS = process.env.DATA_STACK_NAMESPACE || "appveen";
 process.env.MODE = process.env.MODE ? process.env.MODE : "PROD";
 
 e.debugDB = false;
@@ -34,24 +34,28 @@ e.mongoUrlAppcenter = process.env.MONGO_APPCENTER_URL || "mongodb://localhost";
 
 e.get = (_service) => {
 	if (e.isK8sEnv()) {
-		if (_service == "ne") return `http://ne.${e.odpNS}`;
-		if (_service == "sm") return `http://sm.${e.odpNS}`;
-		if (_service == "bm") return `http://bm.${e.odpNS}`;
-		if (_service == "user") return `http://user.${e.odpNS}`;
-		if (_service == "gw") return `http://gw.${e.odpNS}`;
-		if (_service == "mon") return `http://mon.${e.odpNS}`;
-		if (_service == "b2b") return `http://b2b.${e.odpNS}`;
-		if (_service == "de") return `http://de.${e.odpNS}`;
-		if (_service == "common") return `http://common.${e.odpNS}`;
+		if (_service == "bm") return `http://bm.${e.dataStackNS}`;
+		if (_service == "cm") return `http://cm.${e.dataStackNS}`;
+		if (_service == "common") return `http://common.${e.dataStackNS}`;
+		if (_service == "gw") return `http://gw.${e.dataStackNS}`;
+		if (_service == "mon") return `http://mon.${e.dataStackNS}`;
+		if (_service == "ne") return `http://ne.${e.dataStackNS}`;
+		if (_service == "sm") return `http://sm.${e.dataStackNS}`;
+		if (_service == "user") return `http://user.${e.dataStackNS}`;
+		if (_service == "b2b") return `http://b2b.${e.dataStackNS}`;
+		if (_service == "de") return `http://de.${e.dataStackNS}`;
+		
 	} else {
-		if (_service == "ne") return "http://localhost:10010";
-		if (_service == "sm") return "http://localhost:10003";
 		if (_service == "bm") return "http://localhost:10011";
-		if (_service == "user") return "http://localhost:10004";
+		if (_service == "cm") return "http://localhost:11011";
+		if (_service == "common") return "http://localhost:3000";
 		if (_service == "gw") return "http://localhost:9080";
 		if (_service == "mon") return "http://localhost:10005";
+		if (_service == "ne") return "http://localhost:10010";
+		if (_service == "sm") return "http://localhost:10003";
+		if (_service == "user") return "http://localhost:10004";
 		if (_service == "de") return "http://localhost:10012";
-		if (_service == "common") return "http://localhost:3000";
+		
 	}
 };
 
@@ -86,14 +90,18 @@ e.cacheKeyPrefix = {
 e.RBAC_HB_MISS_COUNT = process.env.RBAC_HB_MISS_COUNT ? parseInt(process.env.RBAC_HB_MISS_COUNT) : 1;
 e.RBAC_HB_INTERVAL = process.env.RBAC_HB_INTERVAL ? parseInt(process.env.RBAC_HB_INTERVAL) * e.RBAC_HB_MISS_COUNT : 50 * e.RBAC_HB_MISS_COUNT;
 
-e.baseUrlSM = e.get("sm") + "/sm";
-e.baseUrlNE = e.get("ne") + "/ne";
-e.baseUrlUSR = e.get("user") + "/rbac";
+e.baseUrlbm = e.get("bm") + "/bm";
+e.baseUrlCM = e.get("cm") + "/cm";
+e.baseUrlCommon = e.get("common") + "/common";
+e.baseUrlGW = e.get("gw") + "/gw";
 e.baseUrlMON = e.get("mon") + "/mon";
+e.baseUrlNE = e.get("ne") + "/ne";
+e.baseUrlSM = e.get("sm") + "/sm";
+e.baseUrlUSR = e.get("user") + "/rbac";
 e.baseUrlWF = e.get("wf") + "/workflow";
 e.baseUrlSEC = e.get("sec") + "/sec";
 e.baseUrlDM = e.get("dm") + "/dm";
-e.baseUrlbm = e.get("bm") + "/bm";
+
 
 e.TOKEN_SECRET = process.env.TOKEN_SECRET || "u?5k167v13w5fhjhuiweuyqi67621gqwdjavnbcvadjhgqyuqagsduyqtw87e187etqiasjdbabnvczmxcnkzn";
 e.RBAC_JWT_KEY = process.env.RBAC_JWT_KEY || "u?5k167v13w5fhjhuiweuyqi67621gqwdjavnbcvadjhgqyuqagsduyqtw87e187etqiasjdbabnvczmxcnkzn";
