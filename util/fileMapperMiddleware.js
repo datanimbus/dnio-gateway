@@ -441,7 +441,12 @@ function mapJson(req, res) {
 e.fileMapperHandler = async (req, res, next) => {
 	let txnId = req.get("TxnId") || req.headers.TxnId;
 	let urlSplit = req.path.split("/");
+	
 	if (urlSplit[6] && urlSplit[6] === "fileMapper") {
+
+		if (!req?.user?.isSuperAdmin && !req?.user?.allPermissions?.find(e => e.app === urlSplit[3]) && !req?.user?.apps?.includes(urlSplit[3])) {
+			return res.status(403).json({ "message": "You don't have permissions for this app." });
+		}
 
 		if (urlSplit[3] && !urlSplit[3].match(/^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]+$/)) {
 			return next(new Error('APP_NAME_ERROR :: App name must consist of alphanumeric characters or \'-\' , and must start and end with an alphanumeric character.'));
