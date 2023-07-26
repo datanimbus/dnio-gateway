@@ -1,6 +1,6 @@
 const XLSX = require("xlsx");
 const fs = require("fs");
-// const request = require("request");
+const got = require('got');
 // const authUtil = require("./authUtil");
 const _ = require("lodash");
 const mongodb = require("mongodb");
@@ -444,12 +444,30 @@ e.fileMapperHandler = async (req, res, next) => {
 	
 	if (urlSplit[6] && urlSplit[6] === "fileMapper") {
 
-		if (!req?.user?.isSuperAdmin && !req?.user?.allPermissions?.find(e => e.app === urlSplit[3]) && !req?.user?.apps?.includes(urlSplit[3])) {
-			return res.status(403).json({ "message": "You don't have permissions for this app." });
+		let serviceId = urlSplit[4];
+		let appName = urlSplit[3];
+
+		if (appName && !appName.match(/^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]+$/)) {
+			return next(new Error('APP_NAME_ERROR :: App name must consist of alphanumeric characters or \'-\' , and must start and end with an alphanumeric character.'));
 		}
 
-		if (urlSplit[3] && !urlSplit[3].match(/^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]+$/)) {
-			return next(new Error('APP_NAME_ERROR :: App name must consist of alphanumeric characters or \'-\' , and must start and end with an alphanumeric character.'));
+		let api = `${appName}/${serviceId}`;
+		let dsUrl = `${global.masterServiceRouter[api]}/${api}/utils/internal/hasAccess?type=POST`;
+		
+		let options = {};
+		options.method = 'GET';
+		options.url = dsUrl;
+		options.headers = {
+			'Content-Type': 'application/json',
+			'Authorization': req.get('Authorization') || req.cookies['Authorization']
+		}
+		try {
+			const resp = await got(options);
+			if (resp.statusCode !== 200) {
+				return res.status(resp.status).json({ message: "You don't have permissions for this data service"})
+			}
+		} catch (err) {
+			return next(new Error('Error while connecting to data service'));
 		}
 
 		if (urlSplit[7] === "upload") {
