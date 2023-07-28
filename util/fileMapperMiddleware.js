@@ -463,8 +463,8 @@ e.fileMapperHandler = async (req, res, next) => {
 		}
 		try {
 			const resp = await got(options);
-			if (resp.statusCode !== 200) {
-				return res.status(resp.status).json({ message: "You don't have permissions for this data service"})
+			if (!JSON.parse(resp.body).permission) {
+				return res.status(403).json({ message: "You don't have permissions for this data service"})
 			}
 		} catch (err) {
 			return next(new Error('Error while connecting to data service'));
