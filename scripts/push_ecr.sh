@@ -6,14 +6,14 @@ TAG=`cat CURRENT_GW`
 
 
 echo "****************************************************"
-echo "data.stack:gw :: Pushing Image to ECR :: $ECR_URL/data.stack.gw:$TAG"
+echo "datanimbus.io.gw :: Pushing Image to ECR :: $ECR_URL/datanimbus.io.gw:$TAG"
 echo "****************************************************"
 
 $(aws ecr get-login --no-include-email)
-docker tag data.stack.gw:$TAG $ECR_URL/data.stack.gw:$TAG
-docker push $ECR_URL/data.stack.gw:$TAG
+docker tag datanimbus.io.gw:$TAG $ECR_URL/datanimbus.io.gw:$TAG
+docker push $ECR_URL/datanimbus.io.gw:$TAG
 
 
 echo "****************************************************"
-echo "data.stack:gw :: Image pushed to ECR AS $ECR_URL/data.stack.gw:$TAG"
+echo "datanimbus.io.gw :: Image pushed to ECR AS $ECR_URL/datanimbus.io.gw:$TAG"
 echo "****************************************************"

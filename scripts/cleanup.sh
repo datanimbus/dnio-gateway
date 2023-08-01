@@ -5,8 +5,8 @@ set -e
 TAG=`cat CURRENT_GW`
 
 echo "****************************************************"
-echo "data.stack:gw :: Cleaning Up Local Images :: $TAG"
+echo "datanimbus.io.gw :: Cleaning Up Local Images :: $TAG"
 echo "****************************************************"
 
 
-docker rmi data.stack.gw:$TAG -f
+docker rmi datanimbus.io.gw:$TAG -f

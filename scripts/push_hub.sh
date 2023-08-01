@@ -5,12 +5,12 @@ set -e
 TAG=`cat CURRENT_GW`
 
 echo "****************************************************"
-echo "data.stack:gw :: Pushing Image to Docker Hub :: appveen/data.stack.gw:$TAG"
+echo "datanimbus.io.gw :: Pushing Image to Docker Hub :: appveen/datanimbus.io.gw:$TAG"
 echo "****************************************************"
 
-docker tag data.stack.gw:$TAG appveen/data.stack.gw:$TAG
-docker push appveen/data.stack.gw:$TAG
+docker tag datanimbus.io.gw:$TAG appveen/datanimbus.io.gw:$TAG
+docker push appveen/datanimbus.io.gw:$TAG
 
 echo "****************************************************"
-echo "data.stack:gw :: Image Pushed to Docker Hub AS appveen/data.stack.gw:$TAG"
+echo "datanimbus.io.gw :: Image Pushed to Docker Hub AS appveen/datanimbus.io.gw:$TAG"
 echo "****************************************************"

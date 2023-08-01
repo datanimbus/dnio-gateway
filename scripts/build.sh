@@ -5,20 +5,20 @@ set -e
 TAG=`cat CURRENT_GW`
 
 echo "****************************************************"
-echo "data.stack:gw :: Building GW using TAG :: $TAG"
+echo "datanimbus.io.gw :: Building GW using TAG :: $TAG"
 echo "****************************************************"
 
 sed -i.bak s#__image_tag__#$TAG# Dockerfile
 
 if $cleanBuild ; then
-    docker build --no-cache -t data.stack.gw:$TAG .
+    docker build --no-cache -t datanimbus.io.gw:$TAG .
 else 
-    docker build -t data.stack.gw:$TAG .
+    docker build -t datanimbus.io.gw:$TAG .
 fi
 
 
 echo "****************************************************"
-echo "data.stack:gw :: GW Built using TAG :: $TAG"
+echo "datanimbus.io.gw :: GW Built using TAG :: $TAG"
 echo "****************************************************"
 
 
