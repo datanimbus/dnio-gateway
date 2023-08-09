@@ -467,7 +467,7 @@ e.fileMapperHandler = async (req, res, next) => {
 				return res.status(403).json({ message: "You don't have permissions for this data service"})
 			}
 		} catch (err) {
-			return next(new Error('Error while connecting to data service'));
+			return next(new Error('Data service not found.'));
 		}
 
 		if (urlSplit[7] === "upload") {
@@ -476,6 +476,10 @@ e.fileMapperHandler = async (req, res, next) => {
 		}
 		if (req.method === "PUT" && !urlSplit[8]) {
 			logger.debug(`[${txnId}] Filemapper :: Sheet selection`);
+			if (req.body.fileId !== urlSplit[7]) {
+				res.status(400).json({ "message": "File Id in body and Url do not match." });
+				return next(new Error("FileId in body and Url do not match."));
+			}
 			if (req.body.type === "json") {
 				return mapJson(req, res);
 			} else {

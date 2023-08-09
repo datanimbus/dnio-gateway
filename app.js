@@ -240,7 +240,7 @@ function getDSApi(req, api) {
 				} else if (res.statusCode != 200) {
 					logger.debug(`[${req.headers.TxnId}] res.status code in getDSApi :: ${res.statusCode}`);
 					logger.debug(`[${req.headers.TxnId}] Error in getDSApi: ${body}`);
-					reject(body);
+					reject({ statusCode: res.statusCode, body: body });
 				} else {
 					let parsed = JSON.parse(body);
 					if (!parsed.length) {
@@ -315,7 +315,7 @@ function getFaasApi(req, api) {
 
 app.use(function (error, req, res, next) {
 	if (error) {
-		logger.error(error);
+		logger.error('Global error handler - ', error);
 		if (!res.headersSent) {
 			let statusCode = error.statusCode || 500;
 			if (error?.message?.includes('APP_NAME_ERROR') || error?.message?.includes('DATA_SERVICE_NAME_ERROR') || error?.message?.includes('FUNCTION_NAME_ERROR')) {
