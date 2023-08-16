@@ -151,8 +151,25 @@ e.getRouterMiddleware = (config) => {
 				}
 			})
 			.catch(err => {
-				logger.error(`[${txnId}] Routing MW :: ${JSON.parse(err.body).message}`);
-				if (!res.headersSent) res.status(err.statusCode || 500).json({ "message": JSON.parse(err.body)?.message || err.message });
+				let msg;
+				if (err.body) {
+					if (typeof err.body == 'object') {
+						msg = err.body.message || err.body;
+					} else if (typeof err.body == 'string') {
+						try {
+							err.body = JSON.parse(err.body);
+							msg = err.body.message || err.body;
+						} catch (e) {
+							msg = err.body;
+						}
+					} else {
+						msg = err.body.message || err.body;
+					}
+				} else {
+					meg = err;
+				}
+				logger.error(`[${txnId}] Routing MW :: ${msg}`);
+				if (!res.headersSent) res.status(err.statusCode || 500).json({ "message": msg });
 			});
 	};
 };
