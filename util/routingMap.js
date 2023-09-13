@@ -55,7 +55,7 @@ e.createServiceList = async () => {
 	}
 	try {
 		logger.debug("Quering DB and creating the DS routing map");
-		let services = await global.mongoConnectionAuthor.collection("services").find({ status: "Active" }).project({ port: 1, api: 1, app: 1, namespace: 1, deploymentName: 1 }).toArray();
+		let services = await global.mongoConnectionAuthor.collection("services").find({ status: "Active" }).project({ port: 1, api: 1, url: 1, app: 1, namespace: 1, deploymentName: 1 }).toArray();
 		let serviceRoutingMap = {};
 		let serviceIdMap = {};
 		// let services = await request(options);
@@ -125,7 +125,7 @@ e.createFaasList = async () => {
 	}
 	try {
 		logger.debug("Quering DB and creating the FaaS routing map");
-		let functions = await global.mongoConnectionAuthor.collection("b2b.faas").find({ status: "Active" }).project({ port: 1, api: 1, app: 1, namespace: 1, deploymentName: 1 }).toArray();
+		let functions = await global.mongoConnectionAuthor.collection("b2b.faas").find({ status: "Active" }).project({ port: 1, api: 1, url: 1, app: 1, namespace: 1, deploymentName: 1 }).toArray();
 		let faasRoutingMap = {};
 		let faasIdMap = {};
 		// let functions = await request(options);
