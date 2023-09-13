@@ -36,23 +36,29 @@ function getFaasHashMapValues(_data) {
 }
 
 e.createServiceList = async () => {
-	logger.debug("Calling SM and creating the DS routing map");
-	let options = {
-		url: `${config.get("sm")}/sm/service/fetchAll`,
-		qs: {
-			select: "_id,port,api,app,name",
-			count: -1,
-		},
-		headers: {
-			"TxnId": `GW_${sh.unique(crypto.createHash("md5").update(Date.now().toString()).digest("hex"))}`,
-			"Authorization": `JWT ${global.GW_TOKEN}`
-		},
-		json: true
-	};
+	// logger.debug("Calling SM and creating the DS routing map");
+	// let options = {
+	// 	url: `${config.get("sm")}/sm/service/fetchAll`,
+	// 	qs: {
+	// 		select: "_id,port,api,app,name",
+	// 		count: -1,
+	// 	},
+	// 	headers: {
+	// 		"TxnId": `GW_${sh.unique(crypto.createHash("md5").update(Date.now().toString()).digest("hex"))}`,
+	// 		"Authorization": `JWT ${global.GW_TOKEN}`
+	// 	},
+	// 	json: true
+	// };
+	if (!global.mongoConnectionAuthor) {
+		logger.info("[Router Map] DB Not Yet Connected");
+		return;
+	}
 	try {
+		logger.debug("Quering DB and creating the DS routing map");
+		let services = await global.mongoConnectionAuthor.collection("services").find({ status: "Active" }).project({ port: 1, api: 1, app: 1, namespace: 1, deploymentName: 1 }).toArray();
 		let serviceRoutingMap = {};
 		let serviceIdMap = {};
-		let services = await request(options);
+		// let services = await request(options);
 		services.forEach(_service => {
 			let hashMapValues = getDSHashMapValues(_service);
 			serviceRoutingMap[hashMapValues[0]] = hashMapValues[1];
@@ -100,23 +106,29 @@ e.deleteServiceList = _data => {
 };
 
 e.createFaasList = async () => {
-	logger.debug("Calling PM and creating the faas routing map");
-	let options = {
-		url: `${config.get("bm")}/bm/faas/fetchAll`,
-		// qs: {
-		// 	select: "_id,url,app,name,deploymentName,namespace",
-		// 	count: -1,
-		// },
-		headers: {
-			"TxnId": `GW_${sh.unique(crypto.createHash("md5").update(Date.now().toString()).digest("hex"))}`,
-			"Authorization": `JWT ${global.GW_TOKEN}`
-		},
-		json: true
-	};
+	// logger.debug("Calling PM and creating the faas routing map");
+	// let options = {
+	// 	url: `${config.get("bm")}/bm/faas/fetchAll`,
+	// 	// qs: {
+	// 	// 	select: "_id,url,app,name,deploymentName,namespace",
+	// 	// 	count: -1,
+	// 	// },
+	// 	headers: {
+	// 		"TxnId": `GW_${sh.unique(crypto.createHash("md5").update(Date.now().toString()).digest("hex"))}`,
+	// 		"Authorization": `JWT ${global.GW_TOKEN}`
+	// 	},
+	// 	json: true
+	// };
+	if (!global.mongoConnectionAuthor) {
+		logger.info("[Router Map] DB Not Yet Connected");
+		return;
+	}
 	try {
+		logger.debug("Quering DB and creating the FaaS routing map");
+		let functions = await global.mongoConnectionAuthor.collection("b2b.faas").find({ status: "Active" }).project({ port: 1, api: 1, app: 1, namespace: 1, deploymentName: 1 }).toArray();
 		let faasRoutingMap = {};
 		let faasIdMap = {};
-		let functions = await request(options);
+		// let functions = await request(options);
 		logger.trace("Functions from BM :: ", JSON.stringify(functions));
 		functions.forEach(_function => {
 			let hashMapValues = getFaasHashMapValues(_function);

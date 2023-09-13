@@ -5,6 +5,7 @@ const crypto = require("crypto");
 const express = require("express");
 
 const config = require("../config/config.js");
+const routeMap = require("../util/routingMap.js");
 
 let logger = global.logger;
 
@@ -21,7 +22,11 @@ function healthReadyHandler(req, res) {
 }
 
 function healthLiveHandler(req, res) {
-	if (global.mongoAppCenterConnected && global.mongoAuthorConnected) return res.status(200).end();
+	if (global.mongoAppCenterConnected && global.mongoAuthorConnected) {
+		routeMap.createServiceList();
+		routeMap.createFaasList();
+		return res.status(200).end();
+	}
 	return res.status(400).end();
 }
 
