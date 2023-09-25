@@ -103,7 +103,6 @@ e.baseUrlSEC = e.get("sec") + "/sec";
 e.baseUrlDM = e.get("dm") + "/dm";
 
 
-e.TOKEN_SECRET = process.env.TOKEN_SECRET || "u?5k167v13w5fhjhuiweuyqi67621gqwdjavnbcvadjhgqyuqagsduyqtw87e187etqiasjdbabnvczmxcnkzn";
 e.RBAC_JWT_KEY = process.env.RBAC_JWT_KEY || "u?5k167v13w5fhjhuiweuyqi67621gqwdjavnbcvadjhgqyuqagsduyqtw87e187etqiasjdbabnvczmxcnkzn";
 
 module.exports = e;
