@@ -164,11 +164,11 @@ app.use(router.getRouterMiddleware({
 			if (urlSplit[4] && !urlSplit[4].match(/^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]+$/)) {
 				throw new Error('APP_NAME_ERROR :: App name must consist of alphanumeric characters or \'-\' , and must start and end with an alphanumeric character.');
 			}
-			if (urlSplit[4] && !urlSplit[4].match(/^[a-zA-Z][a-zA-Z0-9]*$/)) {
+			if (urlSplit[5] && !urlSplit[5].match(/^[a-zA-Z][a-zA-Z0-9]*$/)) {
 				throw new Error('FUNCTION_NAME_ERROR :: Function name must consist of alphanumeric characters, and must start with an alphabet.');
 			}
 			let faasApi = urlSplit[3] + "/" + urlSplit[4] + "/" + urlSplit[5];
-			logger.info(`[${req.headers.TxnId}] Master service router API :: ${faasApi}`);
+			logger.info(`[${req.headers.TxnId}] Master Faas router API :: ${faasApi}`);
 			return getFaasApi(req, faasApi);
 		} else {
 			if (urlSplit[3] && !urlSplit[3].match(/^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]+$/)) {
@@ -216,7 +216,7 @@ app.use(router.getRouterMiddleware({
 
 function getDSApi(req, api) {
 	return new Promise((resolve, reject) => {
-		if (global.masterServiceRouter[api]) {
+		if (global.masterServiceRouter && global.masterServiceRouter[api]) {
 			logger.debug(`[${req.headers.TxnId}] Routing to :: ${global.masterServiceRouter[api]}`);
 			resolve(global.masterServiceRouter[api]);
 		} else {
@@ -252,6 +252,9 @@ function getDSApi(req, api) {
 					if (process.env.GW_ENV == "K8s") {
 						URL = "http://" + dsDetails.api.split("/")[1] + "." + config.dataStackNS + "-" + dsDetails.app.toLowerCase().replace(/ /g, "");
 					}
+					if (!global.masterServiceRouter) {
+						global.masterServiceRouter = {};
+					}
 					global.masterServiceRouter[escape(dsDetails.app) + dsDetails.api] = URL;
 					resolve(global.masterServiceRouter[api]);
 				}
@@ -267,7 +270,7 @@ function getFaasApi(req, api) {
 		let apiPath = `/api/a/${api}`;
 		logger.debug(`[${req.headers.TxnId}] getFaasApi :: ApiPath :: ${apiPath}`);
 		logger.trace(`[${req.headers.TxnId}] Global Master Faas Router :: ${JSON.stringify(global.masterFaasRouter)}`);
-		if (global.masterFaasRouter[apiPath]) {
+		if (global.masterFaasRouter && global.masterFaasRouter[apiPath]) {
 			logger.debug(`[${req.headers.TxnId}] Routing to :: ${global.masterFaasRouter[apiPath]}`);
 			resolve(global.masterFaasRouter[apiPath]);
 		} else {
@@ -302,6 +305,9 @@ function getFaasApi(req, api) {
 					let URL = "http://localhost:" + (faasDetails.port || 30010);
 					if (process.env.GW_ENV == "K8s") {
 						URL = "http://" + faasDetails.deploymentName + "." + faasDetails.namespace; // + faasDetails.port
+					}
+					if (!global.masterFaasRouter) {
+						global.masterFaasRouter = {};
 					}
 					global.masterFaasRouter[apiPath] = URL;
 					resolve(global.masterFaasRouter[apiPath]);
