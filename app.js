@@ -223,7 +223,7 @@ function getDSApi(req, api) {
 			let apiSplit = api.split("/");
 			let filter = { app: apiSplit[0], api: "/" + apiSplit[1] };
 			logger.debug(`${req.headers.TxnId} Calling getDSApi`);
-			request(config.get("sm") + "/sm/service", {
+			request(`${config.get("sm")}/sm/${apiSplit[0]}/service`, {
 				headers: {
 					"content-type": "application/json",
 					"Authorization": req.get("Authorization"),
