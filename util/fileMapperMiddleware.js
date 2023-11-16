@@ -383,9 +383,13 @@ function sheetSelect(_req, _res) {
 				// removeFiles(dir);
 			}
 		})
-		.then(() => {
+		.then(async() => {
 			let dbGFS = global.appcenterDbo.db(db);
+			let file = await dbGFS.collection(`${collectionName}.fileImport.files`).findOne({ filename: fileName })
+			
 			let gfsBucket = new mongodb.GridFSBucket(dbGFS, { bucketName: `${collectionName}.fileImport` });
+			await gfsBucket.delete(file._id);
+			
 			let uploadStream = gfsBucket.openUploadStream(fileName, {
 				contentType: "text/csv",
 				metadata: {
