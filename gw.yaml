@@ -7,7 +7,6 @@ spec:
   type: ClusterIP
   selector:
     app: gw
-    release: __release_tag__
   ports:
     - protocol: TCP
       port: 80
@@ -23,16 +22,14 @@ spec:
   selector:
     matchLabels:
       app: gw
-      release: __release_tag__
   template:
     metadata:
       labels:
         app: gw
-        release: __release_tag__
     spec:
       containers:
         - name: gw
-          image: '__docker_registry_server__/data.stack:gw.__release__'
+          image: '__docker_registry_server__/datanimbus.io.gw:__release__'
           ports:
             - containerPort: 9080
           livenessProbe:
