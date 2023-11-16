@@ -1,8 +1,9 @@
 "use strict";
 
 const mongo = require("mongodb").MongoClient;
+const mongoose = require("mongoose");
 const config = require("../config/config");
-
+const { fetchEnvironmentVariablesFromDB } = require("../config/config");
 let logger = global.logger;
 
 let authorDB = process.env.MONGO_AUTHOR_DBNAME || "datastackConfig";
@@ -13,7 +14,25 @@ let e = {};
 /** 
  * Init mongo connections and report on status
  */
-e.init = () => {
+e.init = async () => {
+	try {
+		const datastackConfigConnection = await mongoose.connect(config.mongoUrlAuthor, {
+			useNewUrlParser: true,
+			dbName: process.env.MONGO_AUTHOR_DBNAME || "datastackConfig",
+		});
+	
+		global.mongoDatastackConfigConnection = datastackConfigConnection.connection;
+		global.mongoDatastackConfigConnected = true;
+		logger.info("DB :: DatastackConfig :: Connected");
+	
+		// Now that datastackConfig connection is established, fetch environment variables
+		const envVariables = await fetchEnvironmentVariablesFromDB();
+		return envVariables;
+	} catch (error) {
+		logger.error("Error connecting to DatastackConfig database:", error.message);
+	}
+	
+
 	mongo.connect(config.mongoUrlAuthor, config.mongoOptions, (error, db) => {
 		if (error) logger.error(error.message);
 		if (db) {
