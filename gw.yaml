@@ -34,14 +34,14 @@ spec:
             - containerPort: 9080
           livenessProbe:
             httpGet:
-              path: /gw/health/live
+              path: /gw/internal/health/live
               port: 9080
             initialDelaySeconds: 10
             periodSeconds: 10
             timeoutSeconds: 60
           readinessProbe:
             httpGet:
-              path: /gw/health/ready
+              path: /gw/internal/health/ready
               port: 9080
             initialDelaySeconds: 10
             periodSeconds: 10
