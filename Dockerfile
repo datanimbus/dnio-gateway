@@ -16,17 +16,7 @@ RUN npm audit fix --production
 
 RUN rm -rf /usr/local/lib/node_modules/npm/node_modules/node-gyp/test
 
-COPY app.js /app
-
-COPY config /app/config
-
-COPY util /app/util
-
-COPY routes /app/routes
-
-COPY auth /app/auth
-
-COPY sockets /app/sockets
+COPY . .
 
 RUN mkdir /app/uploads
 
