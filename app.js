@@ -2,7 +2,7 @@
 
 const os = require("os");
 const path = require("path");
-const request = require("request");
+const { request } = require("./util/got-request-wrapper.js");
 const express = require("express");
 const multer = require("multer");
 const cookieParser = require("cookie-parser");
@@ -326,7 +326,7 @@ app.use(function (error, req, res, next) {
 			let statusCode = error.statusCode || 500;
 			if (error?.message?.includes('APP_NAME_ERROR') || error?.message?.includes('DATA_SERVICE_NAME_ERROR') || error?.message?.includes('FUNCTION_NAME_ERROR')) {
 				statusCode = 400;
-			} 
+			}
 			res.status(statusCode).json({
 				message: error.message
 			});

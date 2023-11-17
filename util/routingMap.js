@@ -1,9 +1,5 @@
 "use stict";
 
-const request = require("request-promise");
-const sh = require("shorthash");
-const crypto = require("crypto");
-
 const config = require("../config/config");
 
 let logger = global.logger;

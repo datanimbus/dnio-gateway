@@ -1,6 +1,6 @@
 let e = {};
 const _ = require("lodash");
-const request = require("request");
+const request = require("./got-request-wrapper");
 const { v1: uuid } = require("uuid");
 const config = require("../config/config");
 const cacheUtil = require("./cacheUtil");
@@ -1278,7 +1278,7 @@ module.exports = e;
 
 function httpRequest(options) {
 	return new Promise((resolve, reject) => {
-		request(options, function (err, res, body) {
+		request.request(options, function (err, res, body) {
 			if (err) {
 				reject(err);
 			} else if (!res) {

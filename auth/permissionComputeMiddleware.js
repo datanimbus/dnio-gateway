@@ -1,9 +1,5 @@
 'use strict'
 
-const request = require("request-promise")
-
-const gwUtil = require("../util/gwUtil")
-const urlConfig = require("../config/urlConfig")
 const cacheUtil = require("../util/cacheUtil")
 const db = require("../util/mongoUtils")
 

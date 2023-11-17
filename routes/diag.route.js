@@ -1,4 +1,4 @@
-const request = require("request-promise");
+const got = require("got");
 const sh = require("shorthash");
 const crypto = require("crypto");
 
@@ -80,7 +80,8 @@ function readinessCheck(_serviceShortName) {
 	if (_serviceShortName == "cm") url = `${_serviceShortName}/internal/health/ready`;
 	url = `${config.get(_serviceShortName)}/${url}`;
 	logger.debug(`Calling readiness url for ${_serviceShortName.toUpperCase()} :: ${url}`);
-	return request({
+	return got({
+		"method": "GET",
 		"uri": url,
 		"headers": {
 			"TxnId": `GW_${sh.unique(crypto.createHash("md5").update(Date.now().toString()).digest("hex"))}`

@@ -1,5 +1,5 @@
 let e = {};
-let request = require("request");
+let request = require("./got-request-wrapper");
 const _ = require("lodash");
 let logger = global.logger;
 let authUtil = require("../util/authUtil");
@@ -74,7 +74,7 @@ e.getRouterMiddleware = (config) => {
 
 		// Nothing to do with OPTIONS
 		if (req.method === "OPTIONS") return next();
-		
+
 		logger.debug(`[${txnId}] Routing MW :: ${JSON.stringify(config)}`);
 		let reqConfig = {};
 		let router = config.router;
@@ -100,7 +100,7 @@ e.getRouterMiddleware = (config) => {
 		delete headers["accept-encoding"];
 		delete headers["if-none-match"];
 		headers.user = req.user ? req.user._id : null;
-		headers.isSuperAdmin = req.user ? req.user.isSuperAdmin: false;
+		headers.isSuperAdmin = req.user ? req.user.isSuperAdmin : false;
 		reqConfig.headers = headers;
 		reqConfig.method = req.method;
 		reqConfig.path = getPath(req.path, config.pathRewrite);
@@ -129,13 +129,13 @@ e.getRouterMiddleware = (config) => {
 					let resBody;
 					try {
 						logger.trace(`[${txnId}] Routing MW :: Body ::  ${JSON.stringify(result.body)}`);
-						if(result.statusCode == 302 && result.headers) {
-							if(result.headers.location) {
+						if (result.statusCode == 302 && result.headers) {
+							if (result.headers.location) {
 								res.setHeader("Location", result.headers.location
 								);
 							}
 							logger.info(`[${txnId}] Routing MW :: Set-Cookie :: ${result.headers["set-cookie"] || "NIL"}`);
-							if(result.headers["set-cookie"]) res.setHeader("set-cookie", result.headers["set-cookie"]); 
+							if (result.headers["set-cookie"]) res.setHeader("set-cookie", result.headers["set-cookie"]);
 						}
 						resBody = typeof result.body === "object" ? result.body : (result.body ? JSON.parse(result.body) : "");
 					} catch (err) {
@@ -153,9 +153,9 @@ e.getRouterMiddleware = (config) => {
 			.catch(err => {
 				let msg;
 				if (err.body) {
-					if (typeof err.body == 'object') {
+					if (typeof err.body == "object") {
 						msg = err.body.message || err.body;
-					} else if (typeof err.body == 'string') {
+					} else if (typeof err.body == "string") {
 						try {
 							err.body = JSON.parse(err.body);
 							msg = err.body.message || err.body;
@@ -166,7 +166,7 @@ e.getRouterMiddleware = (config) => {
 						msg = err.body.message || err.body;
 					}
 				} else {
-					meg = err;
+					msg = err;
 				}
 				logger.error(`[${txnId}] Routing MW :: ${msg}`);
 				if (!res.headersSent) res.status(err.statusCode || 500).json({ "message": msg });
