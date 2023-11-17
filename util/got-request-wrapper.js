@@ -6,6 +6,11 @@ function getGOTOptions(options) {
 	gotOptions.url = options.url;
 	gotOptions.method = options.method;
 	gotOptions.headers = options.headers;
+	Object.keys(gotOptions.headers).forEach(key => {
+		if (!gotOptions.headers[key]) {
+			delete gotOptions.headers[key];
+		}
+	});
 	if (options.json) {
 		gotOptions.responseType = "json";
 	}
