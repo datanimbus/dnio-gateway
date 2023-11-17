@@ -16,7 +16,7 @@
     "license": "ISC",
     "homepage": "https://bitbucket.org/appveen/ds-gateway#readme",
     "dependencies": {
-        "@appveen/data.stack-utils": "^1.0.22",
+        "@appveen/data.stack-utils": "github:appveen/data.stack-utils",
         "@appveen/ds-auth-cache": "^1.0.8",
         "@appveen/utils": "^2.2.1",
         "bluebird": "^3.7.2",
