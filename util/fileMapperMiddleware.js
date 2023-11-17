@@ -1,5 +1,5 @@
 const fs = require("fs");
-const got = require('got');
+const got = require("got");
 const _ = require("lodash");
 const Excel = require("exceljs");
 const mongodb = require("mongodb");
@@ -203,7 +203,7 @@ function sheet_to_json(ws, range) {
 		}
 		const rowJson = [];
 
-		row.eachCell(function (cell, colNumber) {
+		row.eachCell(function (cell, _colNumber) {
 			rowJson.push(cell.value);
 		});
 		json.push(rowJson);
@@ -213,11 +213,11 @@ function sheet_to_json(ws, range) {
 }
 
 function aoa_to_csv(json) {
-	let str = '';
+	let str = "";
 	let len = json.length;
 	json.map((o, i) => {
-		str = str + o.join(',');
-		if (i < len-1) str = str + '\n';
+		str = str + o.join(",");
+		if (i < len-1) str = str + "\n";
 	});
 	return str;
 }
@@ -241,9 +241,9 @@ function sheetSelect(_req, _res) {
 
 	getSheetDataFromGridFS(fileName, db, collectionName)
 		.then(async (bufferData) => {
+			let originalFileId = fileName;
 			let wb = new Excel.Workbook();
 			wb = await wb.xlsx.load(bufferData);
-
 			logger.debug("File read completed");
 			sheetId = type === "csv" ? wb.worksheets[0] : sheetId;
 			let ws = wb.getWorksheet(sheetId);
@@ -256,13 +256,13 @@ function sheetSelect(_req, _res) {
 			}
 			if (Object.entries(ws).length > 0 && ws.columnCount > 0) {
 				var range = {
-					's': {
-						'r': 0,
-						'c': 0
+					"s": {
+						"r": 0,
+						"c": 0
 					},
-					'e': {
-						'r': ws.rowCount - 1,
-						'c': ws.columnCount - 1
+					"e": {
+						"r": ws.rowCount - 1,
+						"c": ws.columnCount - 1
 					}
 				};
 			} else {
@@ -282,7 +282,7 @@ function sheetSelect(_req, _res) {
 
 			try {
 				logger.debug("Converting sheet to json");
-				let parsedData = sheet_to_json(ws, range, isHeaderProvided)
+				let parsedData = sheet_to_json(ws, range, isHeaderProvided);
 				logger.debug("Converted sheet to json");
 
 				parsedData = parsedData.map(arr => arr.map(key => typeof key === "string" ? key.trim().replace(/[^ -~]/g, "") : key));
@@ -366,7 +366,7 @@ function sheetSelect(_req, _res) {
 					});
 					logger.debug(JSON.stringify({ db, collectionName, fileName }));
 
-					global.appcenterDbo.db(db).collection(`${collectionName}.fileTransfers`).updateOne({ _id: originalFileId }, { $set: { status: "SheetSelect", headers, fileId: fileName, "_metadata.lastUpdated": new Date() } }).then(_d => logger.trace('Filetransfer update result :: ', _d));
+					global.appcenterDbo.db(db).collection(`${collectionName}.fileTransfers`).updateOne({ _id: originalFileId }, { $set: { status: "SheetSelect", headers, fileId: fileName, "_metadata.lastUpdated": new Date() } }).then(_d => logger.trace("Filetransfer update result :: ", _d));
 				} else {
 					_res.status(400).json({
 						message: "File is empty"
@@ -385,7 +385,7 @@ function sheetSelect(_req, _res) {
 		})
 		.then(async() => {
 			let dbGFS = global.appcenterDbo.db(db);
-			let file = await dbGFS.collection(`${collectionName}.fileImport.files`).findOne({ filename: fileName })
+			let file = await dbGFS.collection(`${collectionName}.fileImport.files`).findOne({ filename: fileName });
 			
 			let gfsBucket = new mongodb.GridFSBucket(dbGFS, { bucketName: `${collectionName}.fileImport` });
 			await gfsBucket.delete(file._id);
@@ -498,27 +498,27 @@ e.fileMapperHandler = async (req, res, next) => {
 		let appName = urlSplit[3];
 
 		if (appName && !appName.match(/^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]+$/)) {
-			return next(new Error('APP_NAME_ERROR :: App name must consist of alphanumeric characters or \'-\' , and must start and end with an alphanumeric character.'));
+			return next(new Error("APP_NAME_ERROR :: App name must consist of alphanumeric characters or '-' , and must start and end with an alphanumeric character."));
 		}
 
 		let api = `${appName}/${serviceId}`;
 		let dsUrl = `${global.masterServiceRouter[api]}/${api}/utils/internal/hasAccess?type=POST`;
 
 		let options = {};
-		options.method = 'GET';
+		options.method = "GET";
 		options.url = dsUrl;
 		options.headers = {
-			'Content-Type': 'application/json',
-			'Authorization': req.get('Authorization') || req.cookies['Authorization']
-		}
+			"Content-Type": "application/json",
+			"Authorization": req.get("Authorization") || req.cookies["Authorization"]
+		};
 		try {
 			const resp = await got(options);
 			if (!JSON.parse(resp.body).permission) {
-				return res.status(403).json({ message: "You don't have permissions for this data service" })
+				return res.status(403).json({ message: "You don't have permissions for this data service" });
 			}
 		} catch (err) {
 			logger.error(err);
-			return next(new Error('Data service not found.'));
+			return next(new Error("Data service not found."));
 		}
 
 		if (urlSplit[7] === "upload") {

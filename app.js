@@ -26,14 +26,9 @@ const utilMiddleware = require("./util/utilMiddleware");
 const authUtil = require("./util/authUtil");
 const fileMapper = require("./util/fileMapperMiddleware");
 const router = require("./util/router.js");
-// const gwUtil = require("./util/gwUtil");
 const cacheUtil = require("./util/cacheUtil");
 const diagRouter = require("./routes/diag.route");
 const userHBRouter = require("./routes/userHB.route");
-const authenticationMiddleware = require("./auth/authenticationMiddleware");
-// const authorizationMiddleware = require("./auth/authorizationMiddleware");
-// const requestDetailsMiddelware = require("./auth/requestDetailsMiddelware");
-// const bulkImportUser = require("./util/bulk-import-user.utils");
 
 
 config.init();
@@ -134,7 +129,13 @@ app.post("/api/a/gw/socket-emit", async (req, res) => {
 });
 
 
-app.use(authenticationMiddleware.diagnosticAPIHandler);
+app.use((req, res, next) => {
+	if (req.path.startsWith("/api/a/gw/diag")) {
+		diagRouter.e.diagnosticHandler(req, res);
+	} else {
+		next();
+	}
+});
 app.use(fileMapper.fileMapperHandler);
 // app.use(bulkImportUser);
 
@@ -162,20 +163,20 @@ app.use(router.getRouterMiddleware({
 
 		if (req.path.startsWith("/api/a/faas")) {
 			if (urlSplit[4] && !urlSplit[4].match(/^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]+$/)) {
-				throw new Error('APP_NAME_ERROR :: App name must consist of alphanumeric characters or \'-\' , and must start and end with an alphanumeric character.');
+				throw new Error("APP_NAME_ERROR :: App name must consist of alphanumeric characters or '-' , and must start and end with an alphanumeric character.");
 			}
 			if (urlSplit[5] && !urlSplit[5].match(/^[a-zA-Z][a-zA-Z0-9]*$/)) {
-				throw new Error('FUNCTION_NAME_ERROR :: Function name must consist of alphanumeric characters, and must start with an alphabet.');
+				throw new Error("FUNCTION_NAME_ERROR :: Function name must consist of alphanumeric characters, and must start with an alphabet.");
 			}
 			let faasApi = urlSplit[3] + "/" + urlSplit[4] + "/" + urlSplit[5];
 			logger.info(`[${req.headers.TxnId}] Master Faas router API :: ${faasApi}`);
 			return getFaasApi(req, faasApi);
 		} else {
 			if (urlSplit[3] && !urlSplit[3].match(/^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]+$/)) {
-				throw new Error('APP_NAME_ERROR :: App name must consist of alphanumeric characters or \'-\' , and must start and end with an alphanumeric character.');
+				throw new Error("APP_NAME_ERROR :: App name must consist of alphanumeric characters or '-' , and must start and end with an alphanumeric character.");
 			}
 			if (urlSplit[4] && !urlSplit[4].match(/^[a-zA-Z][a-zA-Z0-9]*$/)) {
-				throw new Error('DATA_SERVICE_NAME_ERROR :: Data Service name must consist of alphanumeric characters, and must start with an alphabet.');
+				throw new Error("DATA_SERVICE_NAME_ERROR :: Data Service name must consist of alphanumeric characters, and must start with an alphabet.");
 			}
 			let api = urlSplit[3] + "/" + urlSplit[4];
 			logger.info(`[${req.headers.TxnId}] Master service router API :: ${api}`);
@@ -321,10 +322,10 @@ function getFaasApi(req, api) {
 
 app.use(function (error, req, res, next) {
 	if (error) {
-		logger.error('Global error handler - ', error);
+		logger.error("Global error handler - ", error);
 		if (!res.headersSent) {
 			let statusCode = error.statusCode || 500;
-			if (error?.message?.includes('APP_NAME_ERROR') || error?.message?.includes('DATA_SERVICE_NAME_ERROR') || error?.message?.includes('FUNCTION_NAME_ERROR')) {
+			if (error?.message?.includes("APP_NAME_ERROR") || error?.message?.includes("DATA_SERVICE_NAME_ERROR") || error?.message?.includes("FUNCTION_NAME_ERROR")) {
 				statusCode = 400;
 			}
 			res.status(statusCode).json({
