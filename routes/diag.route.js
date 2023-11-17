@@ -82,7 +82,7 @@ function readinessCheck(_serviceShortName) {
 	logger.debug(`Calling readiness url for ${_serviceShortName.toUpperCase()} :: ${url}`);
 	return got({
 		"method": "GET",
-		"uri": url,
+		"url": url,
 		"headers": {
 			"TxnId": `GW_${sh.unique(crypto.createHash("md5").update(Date.now().toString()).digest("hex"))}`
 		}
