@@ -116,7 +116,7 @@ app.use(utilMiddleware.corsMiddleware);
 
 diagRouter.e.dependencyCheck().catch(_e => logger.error(_e));
 
-app.use("/gw", diagRouter.router);
+app.use(["/gw", "/api/a/gw"], diagRouter.router);
 app.put("/api/a/rbac/usr/hb", userHBRouter);
 app.get("/api/a/workflow/:app/serviceList", authUtil.workflowServiceList);
 app.post("/api/a/gw/socket-emit", async (req, res) => {
@@ -129,13 +129,6 @@ app.post("/api/a/gw/socket-emit", async (req, res) => {
 });
 
 
-app.use((req, res, next) => {
-	if (req.path.startsWith("/api/a/gw/diag")) {
-		diagRouter.e.diagnosticHandler(req, res);
-	} else {
-		next();
-	}
-});
 app.use(fileMapper.fileMapperHandler);
 // app.use(bulkImportUser);
 
