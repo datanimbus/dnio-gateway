@@ -16,65 +16,88 @@ let e = {};
  */
 e.init = async () => {
 	try {
-		const datastackConfigConnection = await mongoose.connect(config.mongoUrlAuthor, {
-			useNewUrlParser: true,
-			dbName: process.env.MONGO_AUTHOR_DBNAME || "datastackConfig",
-		});
-	
-		global.mongoDatastackConfigConnection = datastackConfigConnection.connection;
-		global.mongoDatastackConfigConnected = true;
-		logger.info("DB :: DatastackConfig :: Connected");
-	
-		// Now that datastackConfig connection is established, fetch environment variables
-		const envVariables = await fetchEnvironmentVariablesFromDB();
-		return envVariables;
-	} catch (error) {
-		logger.error("Error connecting to DatastackConfig database:", error.message);
-	}
-	
+        // Establish mongoose connection for datastackConfig
+        const datastackConfigConnection = await mongoose.connect(config.mongoUrlAuthor, {
+            useNewUrlParser: true,
+            dbName: process.env.MONGO_AUTHOR_DBNAME || "datastackConfig",
+        });
+    
+        global.mongoDatastackConfigConnection = datastackConfigConnection.connection;
+        global.mongoDatastackConfigConnected = true;
+        logger.info("DB :: DatastackConfig :: Connected");
+    
+        // Now that datastackConfig connection is established, fetch environment variables
+        const envVariables = await fetchEnvironmentVariablesFromDB();
 
-	mongo.connect(config.mongoUrlAuthor, config.mongoOptions, (error, db) => {
-		if (error) logger.error(error.message);
-		if (db) {
-			global.mongoConnectionAuthor = db.db(authorDB);
-			global.mongoAuthorConnected = true;
-			logger.info("DB :: Author :: Connected");
-			db.on("connecting", () => {
-				global.mongoAuthorConnected = false;
-				logger.info("DB :: Author :: Connecting");
-			});
-			db.on("close", () => {
-				global.mongoAuthorConnected = false;
-				logger.error("DB :: Author :: Lost Connection");
-			});
-			db.on("connected", () => {
-				global.mongoAuthorConnected = true;
-				logger.info("DB :: Author :: Connected");
-			});
-		}
-	});
+        // Establish native MongoDB driver connections
+        await connectToAuthorDatabase();
+        await connectToAppcenterDatabase();
 
-	mongo.connect(config.mongoUrlAppcenter, config.mongoOptions, (error, db) => {
-		if (error) logger.error(error.message);
-		if (db) {
-			global.appcenterDbo = db;
-			global.mongoAppCenterConnected = true;
-			logger.info("DB :: Appcenter :: Connected");
-			db.on("connecting", () => {
-				global.mongoAppCenterConnected = false;
-				logger.info("DB :: AppCenter :: Connecting");
-			});
-			db.on("close", () => {
-				global.mongoAppCenterConnected = false;
-				logger.error("DB :: AppCenter :: Lost Connection");
-			});
-			db.on("connected", () => {
-				global.mongoAppCenterConnected = true;
-				logger.info("DB :: AppCenter :: Connected");
-			});
-		}
-	});
+        return envVariables;
+    } catch (error) {
+        logger.error("Error initializing:", error.message);
+    }
 };
+
+async function connectToAuthorDatabase() {
+    return new Promise((resolve, reject) => {
+        mongo.connect(config.mongoUrlAuthor, config.mongoOptions, (error, db) => {
+            if (error) {
+                logger.error("Error connecting to Author database:", error.message);
+                reject(error);
+            } else {
+                global.mongoConnectionAuthor = db.db(authorDB);
+                global.mongoAuthorConnected = true;
+                logger.info("DB :: Author :: Connected");
+
+                db.on("connecting", () => {
+                    global.mongoAuthorConnected = false;
+                    logger.info("DB :: Author :: Connecting");
+                });
+                db.on("close", () => {
+                    global.mongoAuthorConnected = false;
+                    logger.error("DB :: Author :: Lost Connection");
+                });
+                db.on("connected", () => {
+                    global.mongoAuthorConnected = true;
+                    logger.info("DB :: Author :: Connected");
+                });
+
+                resolve();
+            }
+        });
+    });
+}
+
+async function connectToAppcenterDatabase() {
+    return new Promise((resolve, reject) => {
+        mongo.connect(config.mongoUrlAppcenter, config.mongoOptions, (error, db) => {
+            if (error) {
+                logger.error("Error connecting to Appcenter database:", error.message);
+                reject(error);
+            } else {
+                global.appcenterDbo = db;
+                global.mongoAppCenterConnected = true;
+                logger.info("DB :: Appcenter :: Connected");
+
+                db.on("connecting", () => {
+                    global.mongoAppCenterConnected = false;
+                    logger.info("DB :: AppCenter :: Connecting");
+                });
+                db.on("close", () => {
+                    global.mongoAppCenterConnected = false;
+                    logger.error("DB :: AppCenter :: Lost Connection");
+                });
+                db.on("connected", () => {
+                    global.mongoAppCenterConnected = true;
+                    logger.info("DB :: AppCenter :: Connected");
+                });
+
+                resolve();
+            }
+        });
+    });
+}
 
 /**
  * Find in the DB
