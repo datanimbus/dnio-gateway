@@ -52,7 +52,7 @@ let timeOut, maxFileSize, maxJSONSize, allowedFileTypes;
 		maxJSONSize = envVariables.MAX_JSON_SIZE;
 		logger.info(`Data service max JSON size :: ${maxJSONSize}`);
 
-		let maxFileSize = envVariables.MAX_FILE_SIZE || "5MB";
+		maxFileSize = envVariables.MAX_FILE_SIZE || "5MB";
 		logger.info(`Data service max file upload size :: ${maxFileSize}`);
 
 		// FILE UPLOAD CONFIGURATIONS
