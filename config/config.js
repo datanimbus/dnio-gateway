@@ -1,5 +1,7 @@
 "use strict";
 const fs = require("fs");
+const dataStackUtils = require("@appveen/data.stack-utils");
+let envVariables = {};
 
 var e = {};
 
@@ -72,6 +74,17 @@ e.init = () => {
 	}
 };
 
+e.fetchEnvironmentVariablesFromDB = async () => {
+	try {
+		envVariables = await dataStackUtils.database.fetchEnvVariables();
+		return envVariables;
+	} catch (error) {
+		let logger = global.logger;
+		logger.error(error);
+		logger.error("Fetching environment variables failed. Crashing the component.");
+		process.exit(1);
+	}
+};
 e.mongoOptions = {
 	useNewUrlParser: true,
 	useUnifiedTopology: true
@@ -80,7 +93,7 @@ e.mongoOptions = {
 	// reconnectInterval: process.env.MONGO_RECONN_TIME_MILLI,
 };
 
-e.apiTimeout = process.env.API_REQUEST_TIMEOUT || 60;
+e.apiTimeout = envVariables.API_REQUEST_TIMEOUT || 60;
 e.roleCacheExpiry = 60 * 60 * 8;
 e.validationCacheExpiry = 60 * 60 * 8;
 e.cacheKeyPrefix = {
@@ -103,6 +116,5 @@ e.baseUrlSEC = e.get("sec") + "/sec";
 e.baseUrlDM = e.get("dm") + "/dm";
 
 
-e.RBAC_JWT_KEY = process.env.RBAC_JWT_KEY || "u?5k167v13w5fhjhuiweuyqi67621gqwdjavnbcvadjhgqyuqagsduyqtw87e187etqiasjdbabnvczmxcnkzn";
-
+e.RBAC_JWT_KEY = envVariables.RBAC_JWT_KEY || "u?5k167v13w5fhjhuiweuyqi67621gqwdjavnbcvadjhgqyuqagsduyqtw87e187etqiasjdbabnvczmxcnkzn";
 module.exports = e;
