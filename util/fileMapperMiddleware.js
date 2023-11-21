@@ -2,6 +2,7 @@ const fs = require("fs");
 const got = require("got");
 const _ = require("lodash");
 const Excel = require("exceljs");
+const fastcsv = require('fast-csv');
 const mongodb = require("mongodb");
 const FileType = require("file-type");
 let levenshtein = require("fast-levenshtein");
@@ -55,14 +56,14 @@ function addFileToGridFS(_file, _db, _collectionName) {
 async function upload(_req, _res) {
 	logger.debug("File upload hander :: upload()", _req.path);
 	logger.debug(`File metadata :: ${JSON.stringify(_req.file)}`);
-	
+
 	if (!_req.file) return _res.status(400).send("No files were uploaded.");
 
 	let extensionType = ["ods", "xlsx"];
 	let fileId = `tmp-${Date.now()}`;
 
 	_req.file.fileId = fileId;
-	
+
 	logger.debug(`File id of ${_req.file.originalname} :: ${_req.file.fileId}`);
 
 	let fileExtn = _req.file.originalname.split(".").pop();
@@ -83,10 +84,10 @@ async function upload(_req, _res) {
 				if (_fileExtn.ext == "cfb" && fileExtn == "xls") return "excel";
 				if (extensionType.indexOf(_fileExtn.ext) != -1) return "excel";
 			}
-	
+
 			logger.debug(`FileType : ${_fileExtn}`);
 			logger.info(dsDetails.schemaFree && !_fileExtn && fileExtn == "json");
-	
+
 			if (!_fileExtn && fileExtn == "csv") return "csv";
 			if (dsDetails.schemaFree && !_fileExtn && fileExtn == "json") return "json";
 			throw { message: "Unsupported FileType" };
@@ -216,8 +217,8 @@ function aoa_to_csv(json) {
 	let str = "";
 	let len = json.length;
 	json.map((o, i) => {
-		str = str + o.join(",");
-		if (i < len-1) str = str + "\n";
+		str = str + o.join(',');
+		if (i < len - 1) str = str + '\n';
 	});
 	return str;
 }
@@ -241,65 +242,79 @@ function sheetSelect(_req, _res) {
 
 	getSheetDataFromGridFS(fileName, db, collectionName)
 		.then(async (bufferData) => {
-			let originalFileId = fileName;
-			let wb = new Excel.Workbook();
-			wb = await wb.xlsx.load(bufferData);
-			logger.debug("File read completed");
-			sheetId = type === "csv" ? wb.worksheets[0] : sheetId;
-			let ws = wb.getWorksheet(sheetId);
-
-			if (!Object.entries(ws) || _.isEmpty(Object.entries(ws))) {
-				_res.status(400).json({
-					message: "File is empty"
+			let parsedData;
+			if (type === 'csv') {
+				csv = bufferData.toString();
+				let promise = await new Promise((resolve, reject) => {
+					let sheetArr = [];
+					fastcsv.parseString(csv, { headers: false })
+						.on('data', data => sheetArr.push(data))
+						.on('error', error => reject(error))
+						.on('end', () => resolve(sheetArr));
 				});
-				return Promise.reject(new Error("File is empty"));
-			}
-			if (Object.entries(ws).length > 0 && ws.columnCount > 0) {
-				var range = {
-					"s": {
-						"r": 0,
-						"c": 0
-					},
-					"e": {
-						"r": ws.rowCount - 1,
-						"c": ws.columnCount - 1
-					}
-				};
+				parsedData = await Promise.all(promise);
+
 			} else {
-				_res.status(400).json({
-					message: "File is empty"
-				});
-				return Promise.reject(new Error("File is empty"));
-			}
+				let wb = new Excel.Workbook();
+				wb = await wb.xlsx.load(bufferData);
 
-			logger.debug("Calculated range");
-			if (topDelete != undefined) {
-				range.s.r = range.s.r + topDelete;
-			}
-			if (bottomDelete != undefined) {
-				range.e.r = range.e.r - bottomDelete;
-			}
+				logger.debug("File read completed");
+				sheetId = type === "csv" ? wb.worksheets[0] : sheetId;
+				let ws = wb.getWorksheet(sheetId);
 
-			try {
+				if (!Object.entries(ws) || _.isEmpty(Object.entries(ws))) {
+					_res.status(400).json({
+						message: "File is empty"
+					});
+					return Promise.reject(new Error("File is empty"));
+				}
+				if (Object.entries(ws).length > 0 && ws.columnCount > 0) {
+					var range = {
+						's': {
+							'r': 0,
+							'c': 0
+						},
+						'e': {
+							'r': ws.rowCount - 1,
+							'c': ws.columnCount - 1
+						}
+					};
+				} else {
+					_res.status(400).json({
+						message: "File is empty"
+					});
+					return Promise.reject(new Error("File is empty"));
+				}
+
+				logger.debug("Calculated range");
+				if (topDelete != undefined) {
+					range.s.r = range.s.r + topDelete;
+				}
+				if (bottomDelete != undefined) {
+					range.e.r = range.e.r - bottomDelete;
+				}
+
 				logger.debug("Converting sheet to json");
-				let parsedData = sheet_to_json(ws, range, isHeaderProvided);
+				parsedData = sheet_to_json(ws, range)
 				logger.debug("Converted sheet to json");
-
-				parsedData = parsedData.map(arr => arr.map(key => typeof key === "string" ? key.trim().replace(/[^ -~]/g, "") : key));
-				let maxCol = 0;
+			}
+			try {
 				if (parsedData.length == 0 || (isHeaderProvided && parsedData.length == 1)) {
 					_res.status(400).json({
 						message: "File is empty"
 					});
 					return Promise.reject(new Error("File is empty"));
 				}
+
+				parsedData = parsedData.map(arr => arr.map(key => typeof key === "string" ? key.trim().replace(/[^ -~]/g, "") : key));
+
+				let maxCol = 0;
 				parsedData.forEach(arr => {
 					if (arr.length > maxCol) maxCol = arr.length;
 				});
-
 				if (!isHeaderProvided)
 					parsedData.splice(0, 0, getColumns(maxCol));
-				
+
 
 				logger.debug("Converting array to sheet");
 				if (isHeaderProvided && gwUtil.hasDuplicate(parsedData[0])) {
@@ -380,16 +395,15 @@ function sheetSelect(_req, _res) {
 					});
 					return Promise.reject(err.message);
 				}
-				// removeFiles(dir);
 			}
 		})
-		.then(async() => {
+		.then(async () => {
 			let dbGFS = global.appcenterDbo.db(db);
 			let file = await dbGFS.collection(`${collectionName}.fileImport.files`).findOne({ filename: fileName });
 			
 			let gfsBucket = new mongodb.GridFSBucket(dbGFS, { bucketName: `${collectionName}.fileImport` });
 			await gfsBucket.delete(file._id);
-			
+
 			let uploadStream = gfsBucket.openUploadStream(fileName, {
 				contentType: "text/csv",
 				metadata: {

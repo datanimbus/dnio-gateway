@@ -221,7 +221,8 @@ let timeOut, maxFileSize, maxJSONSize, allowedFileTypes;
 				let apiSplit = api.split("/");
 				let filter = { app: apiSplit[0], api: "/" + apiSplit[1] };
 				logger.debug(`${req.headers.TxnId} Calling getDSApi`);
-				request(`${config.get("sm")}/sm/${apiSplit[0]}/service`, {
+				request({
+					url: `${config.get("sm")}/sm/${apiSplit[0]}/service`, 
 					headers: {
 						"content-type": "application/json",
 						"Authorization": req.get("Authorization"),
@@ -274,7 +275,8 @@ let timeOut, maxFileSize, maxJSONSize, allowedFileTypes;
 				let apiSplit = api.split("/");
 				let filter = { app: apiSplit[1], url: apiPath };
 				logger.debug(`[${req.headers.TxnId}] Calling getFaasApi :: ${config.get("bm") + "/bm/" + apiSplit[1] + "/faas"}`);
-				request(config.get("bm") + "/bm/" + apiSplit[1] + "/faas", {
+				request({
+					url: config.get("bm") + "/bm/" + apiSplit[1] + "/faas",
 					headers: {
 						"content-type": "application/json",
 						"Authorization": req.get("Authorization"),
