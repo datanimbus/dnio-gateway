@@ -22,36 +22,44 @@ function sendRequest(txnId, config, res) {
 		options.body = config.body;
 	}
 	let errMessage = "Error connecting to data service";
-	return new Promise((resolve, reject) => {
-		let newRes = request[config.method.toLowerCase()](options, function (err, resp) {
-			if (err) {
-				logger.error(`[${txnId}] Send request :: ${err.message}`);
-				reject(new Error(errMessage));
-			} else if (!resp) {
-				logger.error(`[${txnId}] Send request :: ${config.host} DOWN`);
-				reject(new Error(errMessage));
-			} else resolve(resp);
+	return new Promise(async (resolve, reject) => {
+		try {
+			let newRes = await new Promise((resol, rej) => {
+				request[config.method.toLowerCase()](options, function (err, resp) {
+					if (err) {
+						logger.error(`[${txnId}] Send request :: ${err.message}`);
+						rej(new Error(errMessage));
+					} else if (!resp) {
+						logger.error(`[${txnId}] Send request :: ${config.host} DOWN`);
+						rej(new Error(errMessage));
+					} else resol(resp);
+					if (config.files) {
+						Object.keys(config.files).forEach(file => {
+							fs.unlinkSync(config.files[file].tempFilePath);
+						});
+					}
+				})
+			});
+
+			let pathSplit = config.path.split("/");
+			let pathArray = ["/rbac/{app}/user/utils/bulkCreate/{id}/download", "/bm/{app}/agent/utils/{id}/download/exec"];
+			if (pathArray.some((url) => authUtil.compareUrl(url, config.path))) newRes.pipe(res);
+			else if ((pathSplit[4] == "file" && pathSplit[5] == "download") || (config.path.indexOf('/export/download') > -1) || pathSplit[5] == "callback") {
+				
+				newRes.pipe(res);
+			}
 			if (config.files) {
+				let form = newRes.form();
 				Object.keys(config.files).forEach(file => {
-					fs.unlinkSync(config.files[file].tempFilePath);
+					form.append(file, fs.createReadStream(config.files[file].tempFilePath), {
+						filename: config.files[file].name,
+						contentType: config.files[file].mimetype
+					});
 				});
 			}
-		});
-
-		let pathSplit = config.path.split("/");
-		let pathArray = ["/rbac/{app}/user/utils/bulkCreate/{id}/download", "/bm/{app}/agent/utils/{id}/download/exec"];
-		if (pathArray.some((url) => authUtil.compareUrl(url, config.path))) newRes.pipe(res);
-		else if ((pathSplit[4] == "file" && pathSplit[5] == "download") || (pathSplit[4] && pathSplit[4].split("?")[0] == "export") || pathSplit[5] == "callback") {
-			newRes.pipe(res);
-		}
-		if (config.files) {
-			let form = newRes.form();
-			Object.keys(config.files).forEach(file => {
-				form.append(file, fs.createReadStream(config.files[file].tempFilePath), {
-					filename: config.files[file].name,
-					contentType: config.files[file].mimetype
-				});
-			});
+			resolve(newRes);
+		} catch (err) {
+			reject(err.message);
 		}
 	});
 }
@@ -151,6 +159,7 @@ e.getRouterMiddleware = (config) => {
 				}
 			})
 			.catch(err => {
+				logger.error(err);
 				let msg;
 				if (err.body) {
 					if (typeof err.body == "object") {

@@ -143,6 +143,12 @@ e.updateFaasList = _data => {
 	logger.info("Updating Faas routing map");
 	let hashMapValues = getFaasHashMapValues(_data);
 	if (hashMapValues) {
+		if (!global.masterFaasRouter) {
+			global.masterFaasRouter = {};
+		}
+		if (!global.faasIdMap) {
+			global.faasIdMap = {};
+		}
 		global.masterFaasRouter[hashMapValues[0]] = hashMapValues[1];
 		global.faasIdMap[hashMapValues[0]] = _data._id;
 	}
