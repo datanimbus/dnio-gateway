@@ -244,7 +244,7 @@ let timeOut, maxFileSize, maxJSONSize, allowedFileTypes;
 						let parsed = JSON.parse(body);
 						if (!parsed.length) {
 							logger.error(`[${req.headers.TxnId}] Response length in getDSApi : ${parsed.length}`);
-							return reject(new Error(`Data Service with ${api} api doesn't exist.`));
+							return reject({ statusCode: 404, body: `{"message": "Data Service with ${api} api doesn't exist."}`});
 						}
 						let dsDetails = parsed[0];
 						let URL = "http://localhost:" + dsDetails.port;
