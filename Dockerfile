@@ -4,9 +4,9 @@ RUN apk update
 RUN apk upgrade
 RUN set -ex; apk add --no-cache --virtual .fetch-deps curl tar git ;
 
-WORKDIR /app
+WORKDIR /tmp/app
 
-COPY package.json /app
+COPY package.json package.json
 
 RUN npm install -g npm
 RUN npm install --production
@@ -16,16 +16,14 @@ RUN npm audit fix --production
 
 RUN rm -rf /usr/local/lib/node_modules/npm/node_modules/node-gyp/test
 
-COPY . .
+RUN mkdir uploads
 
-RUN mkdir /app/uploads
+COPY . .
 
 ENV IMAGE_TAG=__image_tag__
 
 EXPOSE 9080
 
-RUN chmod 777 /app
-
-RUN chmod 777 /app/uploads
+RUN chmod -R 777 /tmp/app
 
 CMD node app.js
