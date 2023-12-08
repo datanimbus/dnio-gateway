@@ -6,8 +6,9 @@ let authUtil = require("../util/authUtil");
 let envConfig = require("../config/config");
 let fileValidator = require("@appveen/utils").fileValidator;
 const fs = require("fs");
+let FormData = require('form-data');
 
-function sendRequest(txnId, config, res) {
+async function sendRequest(txnId, config, res) {
 	let url = config.host + config.path;
 	logger.debug(`[${txnId}] Send request :: URL :: ${url}`);
 	let options = {
@@ -21,8 +22,15 @@ function sendRequest(txnId, config, res) {
 		options.json = true;
 		options.body = config.body;
 	}
+	if (config.files && !_.isEmpty(config.files)) {
+		delete options.headers['content-type'];
+		delete options.headers['content-length'];
+		const form = new FormData();
+		form.append('file', fs.createReadStream(config.files.file.tempFilePath), { filename: config.files.file.name })
+		options.body = form
+	}
 	let errMessage = "Error connecting to data service";
-	return new Promise(async (resolve, reject) => {
+	return  await new Promise(async (resolve, reject) => {
 		try {
 			let newRes = await new Promise((resol, rej) => {
 				request[config.method.toLowerCase()](options, function (err, resp) {
@@ -32,7 +40,13 @@ function sendRequest(txnId, config, res) {
 					} else if (!resp) {
 						logger.error(`[${txnId}] Send request :: ${config.host} DOWN`);
 						rej(new Error(errMessage));
-					} else resol(resp);
+					} else {
+						if (resp.statusCode < 200 || resp.statusCode > 209) {
+							rej(new Error(resp.body));
+						} else {
+							resol(resp);
+						}
+					}
 					if (config.files) {
 						Object.keys(config.files).forEach(file => {
 							fs.unlinkSync(config.files[file].tempFilePath);
@@ -48,15 +62,15 @@ function sendRequest(txnId, config, res) {
 				
 				newRes.pipe(res);
 			}
-			if (config.files) {
-				let form = newRes.form();
-				Object.keys(config.files).forEach(file => {
-					form.append(file, fs.createReadStream(config.files[file].tempFilePath), {
-						filename: config.files[file].name,
-						contentType: config.files[file].mimetype
-					});
-				});
-			}
+			// if (config.files) {
+			// 	let form = newRes.form();
+			// 	Object.keys(config.files).forEach(file => {
+			// 		form.push(file, fs.createReadStream(config.files[file].tempFilePath), {
+			// 			filename: config.files[file].name,
+			// 			contentType: config.files[file].mimetype
+			// 		});
+			// 	});
+			// }
 			resolve(newRes);
 		} catch (err) {
 			reject(err.message);
