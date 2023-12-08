@@ -1,4 +1,5 @@
 const got = require("got");
+let FormData = require('form-data');
 
 function getGOTOptions(options) {
 	let gotOptions = {};
@@ -17,7 +18,11 @@ function getGOTOptions(options) {
 		gotOptions.responseType = "json";
 	}
 	if (options.body) {
-		gotOptions.json = options.body;
+		if (options.body instanceof FormData) {
+			gotOptions.body = options.body;
+		} else {
+			gotOptions.json = options.body;
+		}
 	}
 	if (options.qs) {
 		gotOptions.searchParams = options.qs;
