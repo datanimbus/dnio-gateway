@@ -42,7 +42,7 @@ async function sendRequest(txnId, config, res) {
 						rej(new Error(errMessage));
 					} else {
 						if (resp.statusCode < 200 || resp.statusCode > 209) {
-							rej(new Error(resp.body));
+							rej({ body: resp.body, statusCode: resp.statusCode });
 						} else {
 							resol(resp);
 						}
@@ -73,7 +73,7 @@ async function sendRequest(txnId, config, res) {
 			// }
 			resolve(newRes);
 		} catch (err) {
-			reject(err.message);
+			reject(err);
 		}
 	});
 }
