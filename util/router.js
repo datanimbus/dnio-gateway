@@ -42,7 +42,7 @@ async function sendRequest(txnId, config, res) {
 						rej(new Error(errMessage));
 					} else {
 						if (resp.statusCode < 200 || resp.statusCode > 209) {
-							rej(new Error(resp.body));
+							rej(new Error(resp.body.message || res.body));
 						} else {
 							resol(resp);
 						}
