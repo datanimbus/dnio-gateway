@@ -133,6 +133,8 @@ let timeOut, maxFileSize, maxJSONSize, allowedFileTypes;
 		res.status(202).end();
 	});
 
+	app.use(fileMapper.fileMapperHandler);
+
 	app.use(router.getRouterMiddleware({
 		target: config.get("gw"),
 		router: function (req) {
@@ -207,8 +209,6 @@ let timeOut, maxFileSize, maxJSONSize, allowedFileTypes;
 		}
 		// onRes: authUtil.getProxyResHandler(["/api/a/rbac", "/api/a/workflow"])
 	}));
-
-	app.use(fileMapper.fileMapperHandler);
 
 	
 	function getDSApi(req, api) {
