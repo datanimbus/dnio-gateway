@@ -6,7 +6,7 @@ let authUtil = require("../util/authUtil");
 let envConfig = require("../config/config");
 let fileValidator = require("@appveen/utils").fileValidator;
 const fs = require("fs");
-let FormData = require('form-data');
+let FormData = require("form-data");
 
 async function sendRequest(txnId, config, res) {
 	let url = config.host + config.path;
@@ -23,14 +23,14 @@ async function sendRequest(txnId, config, res) {
 		options.body = config.body;
 	}
 	if (config.files && !_.isEmpty(config.files)) {
-		delete options.headers['content-type'];
-		delete options.headers['content-length'];
+		delete options.headers["content-type"];
+		delete options.headers["content-length"];
 		const form = new FormData();
-		form.append('file', fs.createReadStream(config.files.file.tempFilePath), { filename: config.files.file.name })
-		options.body = form
+		form.append("file", fs.createReadStream(config.files.file.tempFilePath), { filename: config.files.file.name });
+		options.body = form;
 	}
 	let errMessage = "Error connecting to data service";
-	return  await new Promise(async (resolve, reject) => {
+	return await new Promise(async (resolve, reject) => {
 		try {
 			let newRes = await new Promise((resol, rej) => {
 				request[config.method.toLowerCase()](options, function (err, resp) {
@@ -52,25 +52,21 @@ async function sendRequest(txnId, config, res) {
 							fs.unlinkSync(config.files[file].tempFilePath);
 						});
 					}
-				})
+				});
 			});
 
 			let pathSplit = config.path.split("/");
 			let pathArray = ["/rbac/{app}/user/utils/bulkCreate/{id}/download", "/bm/{app}/agent/utils/{id}/download/exec"];
 			if (pathArray.some((url) => authUtil.compareUrl(url, config.path))) newRes.pipe(res);
-			else if ((pathSplit[4] == "file" && pathSplit[5] == "download") || (config.path.indexOf('/export/download') > -1) || pathSplit[5] == "callback") {
-				
-				newRes.pipe(res);
+			else if ((pathSplit[4] == "file" && pathSplit[5] == "download") || (config.path.indexOf("/export/download") > -1) || pathSplit[5] == "callback") {
+				Object.keys(newRes.headers).forEach(key => {
+					res.setHeader(key, newRes.headers[key]);
+				});
+
+				res.write(newRes.rawBody);
+				res.end();
+				return resolve(null);
 			}
-			// if (config.files) {
-			// 	let form = newRes.form();
-			// 	Object.keys(config.files).forEach(file => {
-			// 		form.push(file, fs.createReadStream(config.files[file].tempFilePath), {
-			// 			filename: config.files[file].name,
-			// 			contentType: config.files[file].mimetype
-			// 		});
-			// 	});
-			// }
 			resolve(newRes);
 		} catch (err) {
 			reject(err);
