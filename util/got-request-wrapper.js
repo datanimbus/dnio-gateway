@@ -1,5 +1,5 @@
 const got = require("got");
-let FormData = require('form-data');
+let FormData = require("form-data");
 
 function getGOTOptions(options) {
 	let gotOptions = {};

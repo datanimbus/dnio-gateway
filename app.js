@@ -2,23 +2,25 @@
 
 const os = require("os");
 const path = require("path");
-const { request } = require("./util/got-request-wrapper.js");
 const express = require("express");
 const multer = require("multer");
 const cookieParser = require("cookie-parser");
-const avUtils = require("@appveen/utils");
 const fileUpload = require("express-fileupload");
 const fileSizeParser = require("filesize-parser");
+
+const avUtils = require("@appveen/utils");
+
+const { request } = require("./util/got-request-wrapper.js");
+let version = require("./package.json").version;
 
 
 const port = process.env.PORT || 9080;
 
 const log4js = avUtils.logger.getLogger;
-let version = require("./package.json").version;
 const loggerName = (process.env.KUBERNETES_SERVICE_HOST && process.env.KUBERNETES_SERVICE_PORT) ? `[${process.env.DATA_STACK_NAMESPACE}] [${process.env.HOSTNAME}] [GW ${version}]` : `[GW ${version}]`;
-
 const logger = log4js.getLogger(loggerName);
 global.logger = logger;
+
 
 const config = require("./config/config.js");
 const utilMiddleware = require("./util/utilMiddleware");
@@ -29,8 +31,9 @@ const cacheUtil = require("./util/cacheUtil");
 const diagRouter = require("./routes/diag.route");
 const userHBRouter = require("./routes/userHB.route");
 
-
 config.init();
+
+logger.level = process.env.LOG_LEVEL ? process.env.LOG_LEVEL : 'info';
 
 global.mongoAppCenterConnected = false;
 global.mongoAuthorConnected = false;

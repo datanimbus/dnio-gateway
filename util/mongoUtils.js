@@ -1,13 +1,12 @@
 "use strict";
 
-const mongo = require("mongodb").MongoClient;
 const mongoose = require("mongoose");
+
 const config = require("../config/config");
 const { fetchEnvironmentVariablesFromDB } = require("../config/config");
+
 let logger = global.logger;
 
-let authorDB = process.env.MONGO_AUTHOR_DBNAME || "datastackConfig";
-logger.debug(`AuthorDB :: ${authorDB}`);
 
 let e = {};
 
@@ -16,87 +15,63 @@ let e = {};
  */
 e.init = async () => {
 	try {
-		// Establish mongoose connection for datastackConfig
-		const datastackConfigConnection = await mongoose.connect(config.mongoUrlAuthor, {
-			useNewUrlParser: true,
-			dbName: process.env.MONGO_AUTHOR_DBNAME || "datastackConfig",
-		});
-    
-		global.mongoDatastackConfigConnection = datastackConfigConnection.connection;
-		global.mongoDatastackConfigConnected = true;
-		logger.info("DB :: DatastackConfig :: Connected");
-    
-		// Now that datastackConfig connection is established, fetch environment variables
-		const envVariables = await fetchEnvironmentVariablesFromDB();
-
-		// Establish native MongoDB driver connections
 		await connectToAuthorDatabase();
 		await connectToAppcenterDatabase();
 
-		return envVariables;
+		// Now that datastackConfig connection is established, fetch environment variables
+		return await fetchEnvironmentVariablesFromDB();
 	} catch (error) {
 		logger.error("Error initializing:", error.message);
 	}
 };
 
 async function connectToAuthorDatabase() {
-	return new Promise((resolve, reject) => {
-		mongo.connect(config.mongoUrlAuthor, config.mongoOptions, (error, db) => {
-			if (error) {
-				logger.error("Error connecting to Author database:", error.message);
-				reject(error);
-			} else {
-				global.mongoConnectionAuthor = db.db(authorDB);
-				global.mongoAuthorConnected = true;
-				logger.info("DB :: Author :: Connected");
-
-				db.on("connecting", () => {
-					global.mongoAuthorConnected = false;
-					logger.info("DB :: Author :: Connecting");
-				});
-				db.on("close", () => {
-					global.mongoAuthorConnected = false;
-					logger.error("DB :: Author :: Lost Connection");
-				});
-				db.on("connected", () => {
-					global.mongoAuthorConnected = true;
-					logger.info("DB :: Author :: Connected");
-				});
-
-				resolve();
-			}
-		});
-	});
+	try {
+		logger.debug('DB Author Type', config.dbAuthorType);
+		logger.debug('DB Author URL', config.dbAuthorUrl);
+		logger.debug('DB Author Options', config.dbAuthorOptions);
+	
+		await mongoose.connect(config.dbAuthorUrl, config.dbAuthorOptions);
+		mongoose.connection.on('connecting', () => logger.info(' *** Author DB :: Connecting'));
+		mongoose.connection.on('disconnected', () => logger.error(' *** Author DB :: connection lost'));
+		mongoose.connection.on('reconnect', () => logger.info(' *** Author DB :: Reconnected'));
+		mongoose.connection.on('reconnectFailed', () => logger.error(' *** Author DB :: Reconnect attempt failed'));
+	
+		logger.info('Connected to Author DB');
+		logger.trace(`Connected to URL: ${mongoose.connection.host}`);
+		logger.trace(`Connected to DB: ${mongoose.connection.name}`);
+		logger.trace(`Connected via User: ${mongoose.connection.user}`);
+	
+		global.dbAuthorConnection = mongoose.connection;
+		global.mongoConnectionAuthor = mongoose.connection;
+	
+		global.dbAuthorConnected = true;
+		global.mongoAuthorConnected = true;
+	} catch (err) {
+		logger.error(err);
+		throw err;
+	}
 }
 
 async function connectToAppcenterDatabase() {
-	return new Promise((resolve, reject) => {
-		mongo.connect(config.mongoUrlAppcenter, config.mongoOptions, (error, db) => {
-			if (error) {
-				logger.error("Error connecting to Appcenter database:", error.message);
-				reject(error);
-			} else {
-				global.appcenterDbo = db;
-				global.mongoAppCenterConnected = true;
-				logger.info("DB :: Appcenter :: Connected");
-
-				db.on("connecting", () => {
-					global.mongoAppCenterConnected = false;
-					logger.info("DB :: AppCenter :: Connecting");
-				});
-				db.on("close", () => {
-					global.mongoAppCenterConnected = false;
-					logger.error("DB :: AppCenter :: Lost Connection");
-				});
-				db.on("connected", () => {
-					global.mongoAppCenterConnected = true;
-					logger.info("DB :: AppCenter :: Connected");
-				});
-
-				resolve();
-			}
-		});
-	});
+	try {
+		logger.info('DB Appcenter Type', config.dbAppcenterType);
+		logger.info('DB Appcenter URL', config.dbAppcenterUrl);
+		logger.debug('DB Appcenter Options', config.dbAppcenterOptions);
+	
+		await mongoose.createConnection(config.dbAppcenterUrl, config.dbAppcenterOptions);
+	
+		global.appcenterDbo = mongoose.connections[1];
+		global.dbAppcenterConnection = mongoose.connections[1];
+	
+		global.mongoAppCenterConnected = true;
+		global.dbAppcenterConnected = true;
+	
+		logger.info('Connected to Appcenter DB');
+	} catch (err) {
+		logger.error(err);
+		throw err;
+	}
 }
 
 /**
@@ -106,7 +81,7 @@ async function connectToAppcenterDatabase() {
  * @param  {object} _filter
  * @param  {object} _select
  */
-e.find = async(_isAppCenter, _collection, _filter, _select) => {
+e.find = async (_isAppCenter, _collection, _filter, _select) => {
 	if (_isAppCenter) logger.trace("MongoDB find() on appcenter DB");
 	else logger.trace("MongoDB find() on author DB");
 	logger.trace(`MongoDB find() : collection : ${_collection}`);
@@ -178,9 +153,9 @@ e.getAppCenterDataServicesList = async (_id) => {
 		}, {
 			"$project": { "roles": 1 }
 		}, {
-			"$unwind": { "path": "$roles",  "preserveNullAndEmptyArrays": false }
+			"$unwind": { "path": "$roles", "preserveNullAndEmptyArrays": false }
 		}, {
-			"$match": { "roles.entity": new RegExp("^SRVC"),  "roles.type": "appcenter" }
+			"$match": { "roles.entity": new RegExp("^SRVC"), "roles.type": "appcenter" }
 		}, {
 			"$group": { "_id": null, "entities": { "$addToSet": "$roles.entity" } }
 		}
@@ -194,13 +169,13 @@ e.getAppCenterDataServiceRolesList = async (_serviceIds) => {
 		{
 			"$match": { "_id": { "$in": _serviceIds } }
 		}, {
-			"$project": { "roles": 1,  "app": 1,  "entity": 1 }
+			"$project": { "roles": 1, "app": 1, "entity": 1 }
 		}, {
 			"$unwind": { "path": "$roles", "preserveNullAndEmptyArrays": false }
 		}, {
-			"$match": { "roles.operations.method": { "$in": [ "POST", "PUT", "DELETE", "REVIEW" ] } }
+			"$match": { "roles.operations.method": { "$in": ["POST", "PUT", "DELETE", "REVIEW"] } }
 		}, {
-			"$group": { "_id": null,  "roles": { "$addToSet": "$roles.id" } }
+			"$group": { "_id": null, "roles": { "$addToSet": "$roles.id" } }
 		}
 	];
 	return await e.aggregateQuery(false, "userMgmt.roles", aggregationPipeline);
@@ -214,7 +189,7 @@ e.getRolesForAppandEntity = async (_userId, _app, _entity) => {
 		}, {
 			"$project": { "roles": 1 }
 		}, {
-			"$unwind": { "path": "$roles",  "preserveNullAndEmptyArrays": false }
+			"$unwind": { "path": "$roles", "preserveNullAndEmptyArrays": false }
 		}, {
 			"$match": { "roles.entity": _entity }
 		}
