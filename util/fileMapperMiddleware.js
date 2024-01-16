@@ -2,7 +2,7 @@ const fs = require("fs");
 const got = require("got");
 const _ = require("lodash");
 const Excel = require("exceljs");
-const fastcsv = require('fast-csv');
+const fastcsv = require("fast-csv");
 const mongodb = require("mongodb");
 const FileType = require("file-type");
 let levenshtein = require("fast-levenshtein");
@@ -217,8 +217,8 @@ function aoa_to_csv(json) {
 	let str = "";
 	let len = json.length;
 	json.map((o, i) => {
-		str = str + o.join(',');
-		if (i < len - 1) str = str + '\n';
+		str = str + o.join(",");
+		if (i < len - 1) str = str + "\n";
 	});
 	return str;
 }
@@ -243,14 +243,14 @@ function sheetSelect(_req, _res) {
 	getSheetDataFromGridFS(fileName, db, collectionName)
 		.then(async (bufferData) => {
 			let parsedData;
-			if (type === 'csv') {
+			if (type === "csv") {
 				csv = bufferData.toString();
 				let promise = await new Promise((resolve, reject) => {
 					let sheetArr = [];
 					fastcsv.parseString(csv, { headers: false })
-						.on('data', data => sheetArr.push(data))
-						.on('error', error => reject(error))
-						.on('end', () => resolve(sheetArr));
+						.on("data", data => sheetArr.push(data))
+						.on("error", error => reject(error))
+						.on("end", () => resolve(sheetArr));
 				});
 				parsedData = await Promise.all(promise);
 
@@ -270,13 +270,13 @@ function sheetSelect(_req, _res) {
 				}
 				if (Object.entries(ws).length > 0 && ws.columnCount > 0) {
 					var range = {
-						's': {
-							'r': 0,
-							'c': 0
+						"s": {
+							"r": 0,
+							"c": 0
 						},
-						'e': {
-							'r': ws.rowCount - 1,
-							'c': ws.columnCount - 1
+						"e": {
+							"r": ws.rowCount - 1,
+							"c": ws.columnCount - 1
 						}
 					};
 				} else {
@@ -295,7 +295,7 @@ function sheetSelect(_req, _res) {
 				}
 
 				logger.debug("Converting sheet to json");
-				parsedData = sheet_to_json(ws, range)
+				parsedData = sheet_to_json(ws, range);
 				logger.debug("Converted sheet to json");
 			}
 			try {

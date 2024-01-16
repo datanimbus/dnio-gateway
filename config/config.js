@@ -34,6 +34,13 @@ if (e.isK8sEnv()) {
 e.mongoUrlAuthor = process.env.MONGO_AUTHOR_URL || "mongodb://localhost";
 e.mongoUrlAppcenter = process.env.MONGO_APPCENTER_URL || "mongodb://localhost";
 
+e.dbAuthorType = process.env.DB_AUTHOR_TYPE;
+e.dbAuthorUrl = process.env.DB_AUTHOR_URL || process.env.MONGO_AUTHOR_URL || "mongodb://localhost";
+e.dbAuthorDB = process.env.DB_AUTHOR_DBNAME || process.env.MONGO_AUTHOR_DBNAME || "datastackConfig";
+
+e.dbAppcenterType = process.env.DB_APPCENTER_TYPE;
+e.dbAppcenterUrl = process.env.DB_APPCENTER_URL || process.env.MONGO_APPCENTER_URL || "mongodb://localhost";
+
 e.get = (_service) => {
 	if (e.isK8sEnv()) {
 		if (_service == "bm") return `http://bm.${e.dataStackNS}`;
@@ -91,6 +98,17 @@ e.mongoOptions = {
 	// TBD
 	// reconnectTries: process.env.MONGO_RECONN_TRIES,
 	// reconnectInterval: process.env.MONGO_RECONN_TIME_MILLI,
+};
+
+e.dbAuthorOptions = {
+	dbName: process.env.DB_AUTHOR_DBNAME || process.env.MONGO_AUTHOR_DBNAME || 'datastackConfig',
+	useNewUrlParser: true,
+	useUnifiedTopology: true
+};
+
+e.dbAppcenterOptions = {
+	useNewUrlParser: true,
+	useUnifiedTopology: true
 };
 
 e.apiTimeout = envVariables.API_REQUEST_TIMEOUT || 60;
