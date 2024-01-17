@@ -114,6 +114,7 @@ e.ProxyRoute = (config) => {
 			routerPromise = Promise.resolve(router ? getHost(req.path, router, config.target) : config.target);
 		}
 
+		let proxyPath = getPath(req.path, config.pathRewrite);
 		let proxyHost = await routerPromise;
 		if (proxyHost == 'next') {
 			return next();
@@ -121,8 +122,8 @@ e.ProxyRoute = (config) => {
 
 		let proxyOptions = {};
 		proxyOptions.headers = getHeaders(req);
-		proxyOptions.path = getPath(req.path, config.pathRewrite);
 		proxyOptions.host = proxyHost;
+		proxyOptions.path = proxyPath;
 		proxyOptions.method = req.method;
 		proxyOptions.searchParams = req.query;
 		proxyOptions.body = req.body;
@@ -151,10 +152,7 @@ e.ProxyRoute = (config) => {
 			}
 
 			//Check if response is file data stream
-			let pathSplit = proxyOptions.split('/');
-			if (global.DOWNLOAD_URLS.some((url) => commonUtils.compareUrl(url, proxyOptions))) {
-				safeResponse.pipe(res);
-			} else if ((pathSplit[4] == 'file' && pathSplit[5] == 'download') || (proxyOptions.indexOf('/export/download') > -1) || pathSplit[5] == 'callback') {
+			if (global.DOWNLOAD_URLS.some((url) => commonUtils.compareUrl(url, proxyPath))) {
 				safeResponse.pipe(res);
 			} else {
 				//Check if response is handled
