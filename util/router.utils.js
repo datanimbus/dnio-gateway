@@ -14,6 +14,8 @@ let e = {};
 
 async function makeProxyRequest(txnId, options) {
 	options.url = options.host + options.path;
+	delete options.path;
+	delete options.host;
 	logger.debug(`[${txnId}] Send request :: URL :: ${options.url}`);
 	if (options.body && !_.isEmpty(options.body)) {
 		options.json = true;
