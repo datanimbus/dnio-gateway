@@ -66,7 +66,7 @@ function getHeaders(req) {
 	delete headers['content-length'];
 	delete headers['accept-encoding'];
 	delete headers['if-none-match'];
-	headers.user = req.user ? req.user._id : null;
+	headers.user = req.user ? req.user._id : undefined;
 	headers.isSuperAdmin = req.user ? req.user.isSuperAdmin : false;
 	return headers;
 }
