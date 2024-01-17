@@ -28,8 +28,8 @@ e.notPermittedUrlCheck = (req, res, next) => {
 	next();
 };
 
-e.checkTokenMiddleware = (req, res, next) => {
-	const envVars = getVariables();
+e.checkTokenMiddleware = async (req, res, next) => {
+	const envVars = await getVariables();
 	if (gwUtil.isPermittedURL(req)) return next();
 
 	logger.debug(`[${req.header('txnId')}] Validating token format`);
@@ -104,6 +104,28 @@ e.storeUserPermissions = async function (req, res, next) {
 		logger.error(`[${req.get('TxnId')}] Error while storing permissions`);
 		logger.error(err);
 		res.status(500).json({ message: err.message });
+	}
+};
+
+e.checkUserHB = async (req, res) => {
+	try {
+		let envVars = await getVariables();
+		logger.debug('HB received');
+		let tokenHash = req.tokenHash;
+		logger.debug(`Token hash :: ${tokenHash}`);
+		let flag = await cacheUtils.isTokenBlacklisted(tokenHash);
+		if (flag) {
+			throw new Error('Blacklisted Token');
+		}
+		flag = await cacheUtils.isHeartbeatValid(tokenHash, req.body.uuid);
+		if (!flag) {
+			throw new Error('Invalid Token');
+		}
+		await cacheUtils.setHeartbeatID(tokenHash, req.body.uuid, envVars.RBAC_HB_INTERVAL + 5);
+		res.json({ message: 'HB received' });
+	} catch (err) {
+		logger.error(`Heartbeat error :: ${err}`);
+		res.status(400).json({ message: 'Invalid session' });
 	}
 };
 

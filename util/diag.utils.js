@@ -1,9 +1,7 @@
-const express = require('express');
 const got = require('got');
 const { v1: uuid } = require('uuid');
 
 const { getVariables } = require('../config/config.vars.js');
-const routeMap = require('../util/routingMap.js');
 
 let logger = global.logger;
 
@@ -21,8 +19,6 @@ function healthReadyHandler(req, res) {
 
 function healthLiveHandler(req, res) {
 	if (global.mongoAppCenterConnected && global.mongoAuthorConnected) {
-		routeMap.createServiceList();
-		routeMap.createFaasList();
 		return res.status(200).end();
 	}
 	return res.status(400).end();
@@ -118,15 +114,9 @@ function dsFileImportStatusHandler(req, res) {
 }
 
 module.exports = {
-	router: express.Router()
-		.get('/internal/health/ready', healthReadyHandler)
-		.get('/internal/health/live', healthLiveHandler)
-		.get('/diag', diagnosticHandler)
-		.put('/fileStatus/:action', dsFileImportStatusHandler),
-	e: {
-		healthLiveHandler: healthLiveHandler,
-		healthReadyHandler: healthReadyHandler,
-		diagnosticHandler: diagnosticHandler,
-		dependencyCheck: dependencyCheck
-	}
+	healthLiveHandler,
+	healthReadyHandler,
+	diagnosticHandler,
+	dependencyCheck,
+	dsFileImportStatusHandler
 };

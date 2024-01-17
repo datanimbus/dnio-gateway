@@ -31,10 +31,9 @@
 	});
 
 	const { init } = require('./init');
-	const utilMiddleware = require('./util/middleware.utils.js');
+	const middlewareUtils = require('./util/middleware.utils.js');
 	const routerUtils = require('./util/router.utils.js');
-	const diagRouter = require('./routes/diag.route');
-	const userHBRouter = require('./routes/userHB.route');
+	const diagUtils = require('./util/diag.utils.js');
 
 
 	init();
@@ -49,11 +48,19 @@
 	app.use(express.json({ limit: MAX_JSON_SIZE }));
 	app.use(fileUpload({ useTempFiles: true, tempFileDir: path.join(os.tmpdir(), 'gw-files') }));
 
-	app.use(utilMiddleware.requestLogger);
-	app.use(utilMiddleware.corsMiddleware);
-	app.use(utilMiddleware.notPermittedUrlCheck);
-	app.use(utilMiddleware.checkTokenMiddleware);
-	app.use(utilMiddleware.storeUserPermissions);
+	const diagRouter = express.Router({ mergeParams: true });
+	diagRouter.get('/internal/health/ready', diagUtils.healthReadyHandler);
+	diagRouter.get('/internal/health/live', diagUtils.healthLiveHandler);
+	diagRouter.get('/diag', diagUtils.diagnosticHandler);
+	diagRouter.put('/fileStatus/:action', diagUtils.dsFileImportStatusHandler);
+
+	app.use(middlewareUtils.requestLogger);
+	app.use(middlewareUtils.corsMiddleware);
+	app.use(middlewareUtils.notPermittedUrlCheck);
+	app.use(middlewareUtils.checkTokenMiddleware);
+	app.use(middlewareUtils.storeUserPermissions);
+	app.put('/api/a/rbac/usr/hb', middlewareUtils.checkUserHB);
+	app.use(['/gw', '/api/a/gw'], diagRouter);
 
 	app.use((req, res, next) => {
 		let urlSplit = req.path.split('/');
@@ -68,9 +75,6 @@
 			}
 		}
 	});
-
-	app.use(['/gw', '/api/a/gw'], diagRouter.router);
-	app.put('/api/a/rbac/usr/hb', userHBRouter);
 
 	app.use(routerUtils.ProxyRoute({
 		target: ENV_VAR.get('gw'),
