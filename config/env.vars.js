@@ -11,6 +11,7 @@ e.isK8sEnv = () => {
 e.IMAGE_TAG = process.env.IMAGE_TAG;
 e.LOG_LEVEL = process.env.LOG_LEVEL;
 e.DATA_STACK_NAMESPACE = process.env.DATA_STACK_NAMESPACE || 'appveen';
+e.MODE = process.env.MODE || 'PROD';
 e.defaultAllowedFileTypes = 'ppt,xls,csv,doc,jpg,jpeg,png,gif,zip,tar,rar,gz,bz2,7z,mp4,mp3,pdf,ico,docx,pptx,xlsx,ods,xml';
 e.roleCacheExpiry = 60 * 60 * 8;
 e.validationCacheExpiry = 60 * 60 * 8;

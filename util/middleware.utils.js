@@ -70,9 +70,10 @@ e.checkTokenMiddleware = async (req, res, next) => {
 	next();
 };
 
-e.corsMiddleware = (req, res, next) => {
+e.corsMiddleware = async (req, res, next) => {
+	const envVars = await getVariables();
 	if (req.header('X-Forwarded-For')) logger.info(`[${req.header('txnId')}] X-Forwarded-For :: ${req.header('X-Forwarded-For')}`);
-	if (process.env.MODE.toLowerCase() == 'dev') res.setHeader('Access-Control-Allow-Origin', '*');
+	if (envVars.MODE.toLowerCase() == 'dev') res.setHeader('Access-Control-Allow-Origin', '*');
 	res.setHeader('Access-Control-Allow-Headers', 'content-type,authorization,access-control-allow-methods,access-control-allow-origin,*');
 	res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
 

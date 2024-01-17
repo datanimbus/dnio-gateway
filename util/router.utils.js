@@ -22,7 +22,10 @@ async function makeProxyRequest(txnId, options) {
 		delete options.files;
 	}
 	if (options.body && !_.isEmpty(options.body)) {
-		options.json = true;
+		options.json = options.body;
+		options.responseType = 'json';
+		delete options.body;
+		delete options.files;
 	}
 	if (options.files && !_.isEmpty(options.files)) {
 		delete options.headers['content-type'];
@@ -125,7 +128,9 @@ e.ProxyRoute = (config) => {
 		proxyOptions.host = proxyHost;
 		proxyOptions.path = proxyPath;
 		proxyOptions.method = req.method;
-		proxyOptions.searchParams = req.query;
+		if (req.query && _.isEmpty(req.query)) {
+			proxyOptions.searchParams = req.query;
+		}
 		proxyOptions.body = req.body;
 		proxyOptions.files = req.files;
 
