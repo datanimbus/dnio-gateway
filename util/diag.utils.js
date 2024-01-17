@@ -1,9 +1,10 @@
+const log4js = require('log4js');
 const got = require('got');
 const { v1: uuid } = require('uuid');
 
 const { getVariables } = require('../config/config.vars.js');
 
-let logger = global.logger;
+let logger = log4js.getLogger(global.loggerName);
 
 function healthReadyHandler(req, res) {
 	return dependencyCheck()
