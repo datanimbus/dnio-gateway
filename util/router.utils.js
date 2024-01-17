@@ -13,8 +13,8 @@ let logger = log4js.getLogger(global.loggerName);
 let e = {};
 
 async function makeProxyRequest(txnId, options) {
-	let url = options.host + options.path;
-	logger.debug(`[${txnId}] Send request :: URL :: ${url}`);
+	options.url = options.host + options.path;
+	logger.debug(`[${txnId}] Send request :: URL :: ${options.url}`);
 	if (options.body && !_.isEmpty(options.body)) {
 		options.json = true;
 	}
