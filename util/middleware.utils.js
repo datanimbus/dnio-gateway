@@ -94,7 +94,7 @@ e.storeUserPermissions = async function (req, res, next) {
 			]);
 			if (permissions && permissions.length > 0) {
 				let promises = permissions.map(async (element) => {
-					return await cacheUtils.setUserPermissions(userId + '_' + element._id, element.perms);
+					await cacheUtils.client.setAsync(`perm:${userId + '_' + element._id}`, JSON.stringify(element.perms), 'EX', 60 * 10);
 				});
 				await Promise.all(promises);
 			}

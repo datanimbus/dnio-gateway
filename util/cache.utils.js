@@ -11,7 +11,7 @@ async function getDSRouteMap() {
 		const keys = (await cache.client.keys('DSROUTE:*') || []);
 		const promises = await Promise.all(keys.map(async (key) => {
 			let route = await cache.client.getAsync(key);
-			_.assign(routeMap, route);
+			_.assign(routeMap, JSON.parse(route));
 			return route;
 		}));
 		await Promise.all(promises);
@@ -29,7 +29,7 @@ async function getDPRouteMap() {
 		const keys = (await cache.client.keys('DPROUTE:*') || []);
 		const promises = await Promise.all(keys.map(async (key) => {
 			let route = await cache.client.getAsync(key);
-			_.assign(routeMap, route);
+			_.assign(routeMap, JSON.parse(route));
 			return route;
 		}));
 		await Promise.all(promises);

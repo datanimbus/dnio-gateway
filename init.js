@@ -27,6 +27,7 @@ async function updateRouteMap() {
 	try {
 		global.masterServiceRouter = await getDSRouteMap();
 		logger.debug('Route Map Updated');
+		logger.trace(JSON.stringify(global.masterServiceRouter));
 	} catch (err) {
 		logger.error('Error in updateRouteMap()');
 		logger.error(err);

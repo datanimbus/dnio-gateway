@@ -8,17 +8,19 @@ let logger = global.logger;
 function healthReadyHandler(req, res) {
 	return dependencyCheck()
 		.then(() => {
-			if (global.mongoAppCenterConnected && global.mongoAuthorConnected) return res.status(200).end();
+			if (global.authorDB) {
+				return res.status(200).end();
+			}
 			return res.status(500).end();
 		})
-		.catch(_e => {
-			logger.error(_e);
+		.catch(err => {
+			logger.error(err);
 			return res.status(500).end();
 		});
 }
 
 function healthLiveHandler(req, res) {
-	if (global.mongoAppCenterConnected && global.mongoAuthorConnected) {
+	if (global.authorDB) {
 		return res.status(200).end();
 	}
 	return res.status(400).end();
