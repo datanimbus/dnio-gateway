@@ -5,7 +5,7 @@
     "main": "app.js",
     "scripts": {
         "start": "node app.js",
-        "lint": "./node_modules/.bin/eslint app.js config/ util/ --fix",
+        "lint": "./node_modules/.bin/eslint app.js init.js config/ util/ --fix",
         "test": "nyc --reporter=html --reporter=json-summary mocha"
     },
     "repository": {
