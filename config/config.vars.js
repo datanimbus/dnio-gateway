@@ -20,14 +20,14 @@ async function getVariables() {
 
 	e.get = (service) => {
 		if (e.isK8sEnv()) {
-			if (service == 'bm') return `http://bm.${e.dataStackNS}`;
-			if (service == 'cm') return `http://cm.${e.dataStackNS}`;
-			if (service == 'common') return `http://common.${e.dataStackNS}`;
-			if (service == 'gw') return `http://gw.${e.dataStackNS}`;
-			if (service == 'mon') return `http://mon.${e.dataStackNS}`;
-			if (service == 'ne') return `http://ne.${e.dataStackNS}`;
-			if (service == 'sm') return `http://sm.${e.dataStackNS}`;
-			if (service == 'user') return `http://user.${e.dataStackNS}`;
+			if (service == 'bm') return `http://bm.${e.DATA_STACK_NAMESPACE}`;
+			if (service == 'cm') return `http://cm.${e.DATA_STACK_NAMESPACE}`;
+			if (service == 'common') return `http://common.${e.DATA_STACK_NAMESPACE}`;
+			if (service == 'gw') return `http://gw.${e.DATA_STACK_NAMESPACE}`;
+			if (service == 'mon') return `http://mon.${e.DATA_STACK_NAMESPACE}`;
+			if (service == 'ne') return `http://ne.${e.DATA_STACK_NAMESPACE}`;
+			if (service == 'sm') return `http://sm.${e.DATA_STACK_NAMESPACE}`;
+			if (service == 'user') return `http://user.${e.DATA_STACK_NAMESPACE}`;
 
 		} else {
 			if (service == 'bm') return 'http://localhost:10011';
