@@ -20,7 +20,7 @@ module.exports = async (_req, _res) => {
 		await cacheUtils.setHeartbeatID(tokenHash, _req.body.uuid, config.RBAC_HB_INTERVAL + 5);
 		_res.json({ message: "HB received" });
 	} catch (err) {
-		logger.error(`Heartbeat error :: ${_err}`);
+		logger.error(`Heartbeat error :: ${err}`);
 		_res.status(400).json({ message: "Invalid session" });
 	}
 }
