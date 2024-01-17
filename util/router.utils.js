@@ -17,6 +17,10 @@ async function makeProxyRequest(txnId, options) {
 	delete options.path;
 	delete options.host;
 	logger.debug(`[${txnId}] Send request :: URL :: ${options.url}`);
+	if (options.method == 'GET') {
+		delete options.body;
+		delete options.files;
+	}
 	if (options.body && !_.isEmpty(options.body)) {
 		options.json = true;
 	}
