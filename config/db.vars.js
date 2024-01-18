@@ -1,14 +1,12 @@
-const { MongoClient } = require('mongodb');
+const mongoose = require('mongoose');
 const ENV = require('./env.vars');
 
 async function getVariables() {
-	let client;
 	try {
-		client = await MongoClient.connect(ENV.MONGO_AUTHOR_URL);
-		global.authorDB = client.db(ENV.MONGO_AUTHOR_DBNAME);
+		await mongoose.connect(ENV.MONGO_AUTHOR_URL, { dbName: ENV.MONGO_AUTHOR_DBNAME });
+
 		const e = {};
-		const varList = await client.db(ENV.MONGO_AUTHOR_DBNAME)
-			.collection('config.envVariables')
+		const varList = await mongoose.connection.collection('config.envVariables')
 			.find({ classification: 'Runtime' })
 			.project({
 				_id: 1,
@@ -27,8 +25,6 @@ async function getVariables() {
 		return e;
 	} catch (err) {
 		console.log(err);
-	} finally {
-		client.close();
 	}
 }
 

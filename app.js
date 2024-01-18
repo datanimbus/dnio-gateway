@@ -116,7 +116,7 @@
 				|| req.path === '/api/a/rbac/auth/refresh'
 				|| req.path === '/api/a/rbac/auth/check'
 				|| req.path === '/api/a/rbac/auth/validate') && res.statusCode === 200) {
-				let cookieJson = { httpOnly: true, expires: new Date(body.expiresIn) };
+				let cookieJson = { httpOnly: true, expire: new Date(body.expiresIn) };
 				if (FQDN != 'localhost') {
 					cookieJson = {
 						sameSite: true,

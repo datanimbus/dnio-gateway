@@ -20,6 +20,7 @@ async function makeProxyRequest(txnId, options) {
 	if (options.method == 'GET') {
 		delete options.body;
 		delete options.files;
+		options.responseType = 'json';
 	}
 	if (options.body && !_.isEmpty(options.body)) {
 		options.json = options.body;
@@ -151,7 +152,7 @@ e.ProxyRoute = (config) => {
 				}
 			}
 			// Check is cookie is set
-			logger.info(`[${txnId}] Routing MW :: Set-Cookie :: ${safeResponse.headers['set-cookie'] || 'NIL'}`);
+			logger.debug(`[${txnId}] Routing MW :: Set-Cookie :: ${safeResponse.headers['set-cookie'] || 'NIL'}`);
 			if (safeResponse.headers['set-cookie']) {
 				res.setHeader('set-cookie', safeResponse.headers['set-cookie']);
 			}
