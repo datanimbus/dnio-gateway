@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const log4js = require('log4js');
 const got = require('got');
 const { v1: uuid } = require('uuid');
@@ -9,7 +10,7 @@ let logger = log4js.getLogger(global.loggerName);
 function healthReadyHandler(req, res) {
 	return dependencyCheck()
 		.then(() => {
-			if (global.authorDB) {
+			if (mongoose.connection.readyState == mongoose.STATES.connected) {
 				return res.status(200).end();
 			}
 			return res.status(500).end();
@@ -21,7 +22,7 @@ function healthReadyHandler(req, res) {
 }
 
 function healthLiveHandler(req, res) {
-	if (global.authorDB) {
+	if (mongoose.connection.readyState == mongoose.STATES.connected) {
 		return res.status(200).end();
 	}
 	return res.status(400).end();
