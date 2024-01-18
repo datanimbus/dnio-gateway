@@ -16,7 +16,8 @@ async function init() {
 		global.INTERNAL_URLS = await getInternalUrls();
 		global.PERMITTED_URLS = await getPermittedUrls();
 		global.DOWNLOAD_URLS = await getDownloadUrls();
-		new CronJob('1 * * * * *', updateRouteMap);
+		let job = new CronJob('* * * * *', updateRouteMap);
+		job.start();
 	} catch (err) {
 		logger.error('Error in init()');
 		logger.error(err);
