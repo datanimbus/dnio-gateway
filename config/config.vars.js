@@ -2,6 +2,9 @@ const ENV = require('./env.vars');
 const DB = require('./db.vars');
 
 async function getVariables() {
+	if (global.ENV_VARS) {
+		return global.ENV_VARS;
+	}
 	const e = {};
 	const dbVars = await DB.getVariables();
 	Object.keys(ENV).forEach(key => {
@@ -48,7 +51,8 @@ async function getVariables() {
 	e.baseUrlNE = e.get('ne') + '/ne';
 	e.baseUrlSM = e.get('sm') + '/sm';
 	e.baseUrlUSR = e.get('user') + '/rbac';
-
+	
+	global.ENV_VARS = e;
 	return e;
 }
 
