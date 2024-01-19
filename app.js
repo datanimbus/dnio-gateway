@@ -134,7 +134,13 @@
 				res.cookie('Authorization', null, { maxAge: 0 });
 				res.cookie('azure-token', null, { maxAge: 0 });
 			}
-			return res.json(body);
+			if (typeof body == 'string') {
+				res.write(body);
+				res.end();
+				return;
+			} else {
+				return res.json(body);
+			}
 		}
 	}));
 
