@@ -34,6 +34,7 @@
 	const middlewareUtils = require('./util/middleware.utils.js');
 	const routerUtils = require('./util/router.utils.js');
 	const diagUtils = require('./util/diag.utils.js');
+	// const fileUtils = require('./util/file-manager.utils.js');
 
 
 	init();
@@ -53,6 +54,8 @@
 	diagRouter.get('/internal/health/live', diagUtils.healthLiveHandler);
 	diagRouter.get('/diag', diagUtils.diagnosticHandler);
 	diagRouter.put('/fileStatus/:action', diagUtils.dsFileImportStatusHandler);
+	// diagRouter.put('/file/upload', fileUtils.uploadFileHandler);
+	// diagRouter.put('/file/download', fileUtils.downloadFileHandler);
 
 	app.use(middlewareUtils.requestLogger);
 	app.use(middlewareUtils.corsMiddleware);
@@ -131,7 +134,13 @@
 				res.cookie('Authorization', null, { maxAge: 0 });
 				res.cookie('azure-token', null, { maxAge: 0 });
 			}
-			return res.json(body);
+			if (body && typeof body == 'object') {
+				return res.json(body);
+			} else {
+				res.write(body);
+				res.end();
+				return;
+			}
 		}
 	}));
 

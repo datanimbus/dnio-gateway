@@ -16,15 +16,14 @@ async function makeProxyRequest(txnId, options) {
 	options.url = options.host + options.path;
 	delete options.path;
 	delete options.host;
+	options.followRedirect = false;
 	logger.debug(`[${txnId}] Send request :: URL :: ${options.url}`);
 	if (options.method == 'GET') {
 		delete options.body;
 		delete options.files;
-		options.responseType = 'json';
 	}
 	if (options.body && !_.isEmpty(options.body)) {
 		options.json = options.body;
-		options.responseType = 'json';
 		delete options.body;
 		delete options.files;
 	}
@@ -38,8 +37,11 @@ async function makeProxyRequest(txnId, options) {
 	options.throwHttpErrors = false;
 	try {
 		let resp = await got(options);
+		if (resp.headers['content-type'] && resp.headers['content-type'].indexOf('application/json') > -1) {
+			resp.body = JSON.parse(resp.body);
+		}
 		if (resp.statusCode < 200 || resp.statusCode > 209) {
-			return { body: resp.body, statusCode: resp.statusCode };
+			return { body: resp.body, statusCode: resp.statusCode, headers: resp.headers };
 		} else {
 			return resp;
 		}
@@ -148,7 +150,7 @@ e.ProxyRoute = (config) => {
 			if (safeResponse.statusCode == 302 && safeResponse.headers) {
 				if (safeResponse.headers.location) {
 					res.setHeader('Location', safeResponse.headers.location);
-					return res.end();
+					return res.status(302).end();
 				}
 			}
 			// Check is cookie is set
