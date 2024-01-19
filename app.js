@@ -134,13 +134,7 @@
 				res.cookie('Authorization', null, { maxAge: 0 });
 				res.cookie('azure-token', null, { maxAge: 0 });
 			}
-			if (body && typeof body == 'object') {
-				return res.json(body);
-			} else {
-				res.write(body);
-				res.end();
-				return;
-			}
+			return res.json(body);
 		}
 	}));
 
