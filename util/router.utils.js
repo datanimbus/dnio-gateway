@@ -120,7 +120,7 @@ e.ProxyRoute = (config) => {
 			routerPromise = Promise.resolve(router ? getHost(req.path, router, config.target) : config.target);
 		}
 
-		let proxyPath = getPath(req.path, config.pathRewrite);
+		let proxyPath = getPath(req.originalUrl, config.pathRewrite);
 		let proxyHost = await routerPromise;
 		if (proxyHost == 'next') {
 			return next();
