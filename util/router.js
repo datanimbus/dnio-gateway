@@ -42,7 +42,7 @@ async function sendRequest(txnId, config, res) {
 						rej(new Error(errMessage));
 					} else {
 						if (resp.statusCode < 200 || resp.statusCode > 209) {
-							rej({ body: resp.body, statusCode: resp.statusCode });
+							rej({ body: resp.body, statusCode: resp.statusCode, headers: resp.headers });
 						} else {
 							resol(resp);
 						}
@@ -149,8 +149,8 @@ e.getRouterMiddleware = (config) => {
 						logger.trace(`[${txnId}] Routing MW :: Body ::  ${JSON.stringify(result.body)}`);
 						if (result.statusCode == 302 && result.headers) {
 							if (result.headers.location) {
-								res.setHeader("Location", result.headers.location
-								);
+								res.status(302);
+								res.setHeader("Location", result.headers.location);
 							}
 							logger.info(`[${txnId}] Routing MW :: Set-Cookie :: ${result.headers["set-cookie"] || "NIL"}`);
 							if (result.headers["set-cookie"]) res.setHeader("set-cookie", result.headers["set-cookie"]);

@@ -27,6 +27,7 @@ function getGOTOptions(options) {
 	if (options.qs) {
 		gotOptions.searchParams = options.qs;
 	}
+	gotOptions.followRedirect = false;
 	return gotOptions;
 }
 
