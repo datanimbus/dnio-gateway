@@ -41,7 +41,7 @@ async function sendRequest(txnId, config, res) {
 						logger.error(`[${txnId}] Send request :: ${config.host} DOWN`);
 						rej(new Error(errMessage));
 					} else {
-						if (resp.statusCode < 200 || resp.statusCode > 209) {
+						if (resp.statusCode < 200 || resp.statusCode > 399) {
 							rej({ body: resp.body, statusCode: resp.statusCode, headers: resp.headers });
 						} else {
 							resol(resp);
