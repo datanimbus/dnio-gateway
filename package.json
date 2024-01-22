@@ -17,8 +17,11 @@
     "homepage": "https://bitbucket.org/appveen/ds-gateway#readme",
     "dependencies": {
         "@appveen/data.stack-utils": "https://github.com/appveen/data.stack-utils.git",
-        "@appveen/ds-auth-cache": "^1.0.8",
+        "@appveen/ds-auth-cache": "^1.0.10",
         "@appveen/utils": "^2.2.1",
+        "@aws-sdk/client-s3": "^3.490.0",
+        "@azure/storage-blob": "^12.17.0",
+        "@google-cloud/storage": "^7.7.0",
         "cookie-parser": "^1.4.6",
         "cron": "^3.1.6",
         "express": "^4.18.2",
