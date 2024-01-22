@@ -151,6 +151,7 @@ e.getRouterMiddleware = (config) => {
 							if (result.headers.location) {
 								res.status(302);
 								res.setHeader("Location", result.headers.location);
+								return res.end();
 							}
 							logger.info(`[${txnId}] Routing MW :: Set-Cookie :: ${result.headers["set-cookie"] || "NIL"}`);
 							if (result.headers["set-cookie"]) res.setHeader("set-cookie", result.headers["set-cookie"]);
